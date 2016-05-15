@@ -104,8 +104,8 @@ public class RssFetcher {
             if (FetcherEvent.EVENT_TYPE_FEED_POLLED.equals(eventType)) {
                 System.out.println("\tEVENT: Feed Polled. URL = " + event.getUrlString());
             } else if (FetcherEvent.EVENT_TYPE_FEED_RETRIEVED.equals(eventType)) {
-                final BulkRequestBuilder bulkRequest = client.prepareBulk();
                 System.out.println("\tEVENT: Feed Retrieved. URL = " + event.getUrlString() + " - " + event.getFeed().getEntries().size());
+                final BulkRequestBuilder bulkRequest = client.prepareBulk();
                 event.getFeed().setUri(event.getUrlString());
                 for (final Object object : event.getFeed().getEntries()) {
                     final SyndEntry entry = (SyndEntry) object;
@@ -118,9 +118,11 @@ public class RssFetcher {
                                 .setSource(feedJson));
                     }
                 }
-                final BulkResponse bulkResponse = bulkRequest.get();
-                if (bulkResponse.hasFailures())
-                    System.err.println(bulkResponse.buildFailureMessage());
+                if (bulkRequest.numberOfActions() > 0) {
+                    final BulkResponse bulkResponse = bulkRequest.get();
+                    if (bulkResponse.hasFailures())
+                        System.err.println(bulkResponse.buildFailureMessage());
+                }
             } else if (FetcherEvent.EVENT_TYPE_FEED_UNCHANGED.equals(eventType)) {
                 System.out.println("\tEVENT: Feed Unchanged. URL = " + event.getUrlString());
             }
