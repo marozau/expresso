@@ -6,8 +6,10 @@ import com.sun.syndication.fetcher.FetcherListener;
 import com.sun.syndication.fetcher.impl.DiskFeedInfoCache;
 import com.sun.syndication.fetcher.impl.FeedFetcherCache;
 import com.sun.syndication.fetcher.impl.HttpURLFeedFetcher;
+import org.apache.commons.codec.binary.Hex;
 
 import java.net.URL;
+import java.security.MessageDigest;
 import java.util.Date;
 
 /**
@@ -29,6 +31,9 @@ public class RssFetcherTest {
                 }
             });
             fetcher.retrieveFeed(feedUrl);
+
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            System.out.println(String.valueOf(Hex.encodeHex(md.digest("sdfaa".getBytes()))));
 
         } catch (final Exception ex) {
             System.out.println("ERROR: " + ex.getMessage());

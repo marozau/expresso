@@ -9,6 +9,7 @@ import com.sun.syndication.fetcher.impl.DiskFeedInfoCache;
 import com.sun.syndication.fetcher.impl.FeedFetcherCache;
 import com.sun.syndication.fetcher.impl.HashMapFeedInfoCache;
 import com.sun.syndication.fetcher.impl.HttpURLFeedFetcher;
+import org.apache.commons.codec.binary.Hex;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.client.Client;
@@ -112,8 +113,8 @@ public class RssFetcher {
                         final String feedJson = SERIALIZER.toJson(new SyndEntryAdapter(event.getFeed(), entry), SyndEntryAdapter.class);
                         bulkRequest.add(client.prepareIndex(
                                 index + "-" + INDEX_DATE_FORMAT.format(new Date()),
-                                type)
-//                                new String(md.digest(entry.getUri().getBytes())))
+                                type,
+                                String.valueOf(Hex.encodeHex(md.digest(entry.getUri().getBytes()))))
                                 .setSource(feedJson));
                     }
                 }
