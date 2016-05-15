@@ -94,7 +94,11 @@ public class RssFetcher {
                 for (final Object object : event.getFeed().getEntries()) {
                     final SyndEntry entry = (SyndEntry) object;
                     final String feedJson = SERIALIZER.toJson(new SyndEntryAdapter(event.getFeed(), entry), SyndEntryAdapter.class);
-                    bulkRequest.add(client.prepareIndex(index + "-" + INDEX_DATE_FORMAT.format(new Date()), type).setSource(feedJson));
+                    bulkRequest.add(client.prepareIndex(
+                            index + "-" + INDEX_DATE_FORMAT.format(new Date()),
+                            type,
+                            String.valueOf(entry.hashCode()))
+                            .setSource(feedJson));
                 }
                 final BulkResponse bulkResponse = bulkRequest.get();
                 if (bulkResponse.hasFailures())
