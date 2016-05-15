@@ -17,6 +17,7 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -40,8 +41,9 @@ public class RssFetcher {
 //            "http://feeds.bbci.co.uk/news/rss.xml"
             final URL feedUrl = new URL(System.getenv(RssFetcherConfig.FETCH_URL));
 
-            final String cachePath = System.getenv(RssFetcherConfig.CACHE_DIR) + "/" + System.getenv(RssFetcherConfig.CACHE_ID);
-            final FeedFetcherCache feedInfoCache = new DiskFeedInfoCache(cachePath);
+            final File cachePath = new File(System.getenv(RssFetcherConfig.CACHE_DIR) + "/" + System.getenv(RssFetcherConfig.CACHE_ID);
+            cachePath.mkdir();
+            final FeedFetcherCache feedInfoCache = new DiskFeedInfoCache(cachePath.getPath());
             final FeedFetcher fetcher = new HttpURLFeedFetcher(feedInfoCache);
             final FetcherEventListenerImpl listener = new FetcherEventListenerImpl(
                     System.getenv(RssFetcherConfig.ELASTICSEARCH_HOST),
