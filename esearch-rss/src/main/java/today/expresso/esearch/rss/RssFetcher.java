@@ -7,11 +7,9 @@ import com.sun.syndication.fetcher.FetcherEvent;
 import com.sun.syndication.fetcher.FetcherListener;
 import com.sun.syndication.fetcher.impl.DiskFeedInfoCache;
 import com.sun.syndication.fetcher.impl.FeedFetcherCache;
-import com.sun.syndication.fetcher.impl.HashMapFeedInfoCache;
 import com.sun.syndication.fetcher.impl.HttpURLFeedFetcher;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -41,7 +39,10 @@ public class RssFetcher {
 //            "http://feeds.bbci.co.uk/news/rss.xml"
             final URL feedUrl = new URL(System.getenv(RssFetcherConfig.FETCH_URL));
 
-            final File cachePath = new File(System.getenv(RssFetcherConfig.CACHE_DIR) + "/" + System.getenv(RssFetcherConfig.CACHE_ID);
+            final File cachePath = new File(
+                    System.getenv(RssFetcherConfig.CACHE_DIR) +
+                            "/" +
+                            System.getenv(RssFetcherConfig.CACHE_ID));
             cachePath.mkdir();
             final FeedFetcherCache feedInfoCache = new DiskFeedInfoCache(cachePath.getPath());
             final FeedFetcher fetcher = new HttpURLFeedFetcher(feedInfoCache);
