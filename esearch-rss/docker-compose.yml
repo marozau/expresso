@@ -1,0 +1,12 @@
+index-pumper:
+  image: expressotoday/esearch-rss:latest
+  labels:
+    io.rancher.container.pull_image: always
+  environment:
+    FETCH_URL: ${FETCH_URL}
+    FETCH_INTERVAL: ${FETCH_INTERVAL}
+    ELASTICSEARCH_INDEX: ${ELASTICSEARCH_INDEX}
+    ELASTICSEARCH_TYPE: ${ELASTICSEARCH_TYPE}
+    ELASTICSEARCH_HOST: elasticsearch.elk
+  volumes:
+    - /var/log/esearch-rss
