@@ -5,11 +5,13 @@ import com.sun.syndication.feed.synd.*;
 import com.sun.syndication.fetcher.FeedFetcher;
 import com.sun.syndication.fetcher.FetcherEvent;
 import com.sun.syndication.fetcher.FetcherListener;
+import com.sun.syndication.fetcher.impl.DiskFeedInfoCache;
 import com.sun.syndication.fetcher.impl.FeedFetcherCache;
 import com.sun.syndication.fetcher.impl.HashMapFeedInfoCache;
 import com.sun.syndication.fetcher.impl.HttpURLFeedFetcher;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -18,9 +20,13 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by im on 5/15/16.
@@ -33,7 +39,9 @@ public class RssFetcher {
         try {
 //            "http://feeds.bbci.co.uk/news/rss.xml"
             final URL feedUrl = new URL(System.getenv(RssFetcherConfig.FETCH_URL));
-            final FeedFetcherCache feedInfoCache = HashMapFeedInfoCache.getInstance();
+
+            final String cachePath = System.getenv(RssFetcherConfig.CACHE_DIR) + "/" + System.getenv(RssFetcherConfig.CACHE_ID);
+            final FeedFetcherCache feedInfoCache = new DiskFeedInfoCache(cachePath);
             final FeedFetcher fetcher = new HttpURLFeedFetcher(feedInfoCache);
             final FetcherEventListenerImpl listener = new FetcherEventListenerImpl(
                     System.getenv(RssFetcherConfig.ELASTICSEARCH_HOST),
@@ -51,7 +59,6 @@ public class RssFetcher {
                     Thread.sleep(sleepDuration);
                 } catch (Exception ignored) {}
             }
-
         } catch (final Exception ex) {
             System.out.println("ERROR: " + ex.getMessage());
             ex.printStackTrace();
@@ -63,14 +70,20 @@ public class RssFetcher {
         private static final Gson SERIALIZER = new GsonBuilder().serializeNulls().create();
         public static final DateFormat INDEX_DATE_FORMAT = new SimpleDateFormat("dd-MM-YYYY");
 
+        private final Set<String> cache = new HashSet<>(); //todo: replace by Litewait persisten map MapDb or RocksDb
+
+        private final MessageDigest md;
+
         private final Client client;
 
         private final String index;
         private final String type;
 
-        public FetcherEventListenerImpl(String host, String index, String type) throws UnknownHostException {
+        public FetcherEventListenerImpl(String host, String index, String type) throws UnknownHostException, NoSuchAlgorithmException {
             this.index = index;
             this.type = type;
+
+            this.md = MessageDigest.getInstance("MD5");
 
             final Settings settings = Settings.settingsBuilder()
                     .put("cluster.name", "elasticsearch")
@@ -93,12 +106,14 @@ public class RssFetcher {
                 event.getFeed().setUri(event.getUrlString());
                 for (final Object object : event.getFeed().getEntries()) {
                     final SyndEntry entry = (SyndEntry) object;
-                    final String feedJson = SERIALIZER.toJson(new SyndEntryAdapter(event.getFeed(), entry), SyndEntryAdapter.class);
-                    bulkRequest.add(client.prepareIndex(
-                            index + "-" + INDEX_DATE_FORMAT.format(new Date()),
-                            type,
-                            String.valueOf(entry.hashCode()))
-                            .setSource(feedJson));
+                    if (cache.add(entry.getUri())) {
+                        final String feedJson = SERIALIZER.toJson(new SyndEntryAdapter(event.getFeed(), entry), SyndEntryAdapter.class);
+                        bulkRequest.add(client.prepareIndex(
+                                index + "-" + INDEX_DATE_FORMAT.format(new Date()),
+                                type,
+                                new String(md.digest(entry.getUri().getBytes())))
+                                .setSource(feedJson));
+                    }
                 }
                 final BulkResponse bulkResponse = bulkRequest.get();
                 if (bulkResponse.hasFailures())

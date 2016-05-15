@@ -1,10 +1,10 @@
-bbc:
+nytimes:
   image: expressotoday/esearch-rss:latest
   labels:
     io.rancher.container.pull_image: always
   environment:
-    FETCH_URL: http://feeds.bbci.co.uk/news/rss.xml
-    ELASTICSEARCH_TYPE: bbc
+    FETCH_URL: http://rss.nytimes.com/services/xml/rss/nyt/InternationalHome.xml
+    ELASTICSEARCH_TYPE: nytimes
     ELASTICSEARCH_INDEX: rss
     ELASTICSEARCH_HOST: elasticsearch.elk
     FETCH_INTERVAL: 60000

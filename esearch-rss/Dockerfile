@@ -1,6 +1,7 @@
 FROM java:8-jre
 
 ENV APP_DIR "/opt/esearch-rss"
+ENV CACHE_DIR = "/var/lib/esearch-rss/"
 
 COPY ${PWD}/target/esearch-rss ${APP_DIR}
 
