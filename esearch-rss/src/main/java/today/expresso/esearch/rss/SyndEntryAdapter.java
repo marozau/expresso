@@ -5,6 +5,7 @@ import com.sun.syndication.feed.synd.SyndFeed;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by im on 5/15/16.
@@ -25,6 +26,7 @@ public class SyndEntryAdapter {
 
     private String publishedDate;
     private String updatedDate = null;
+    private String fetchDate;
 
     private String sourceLink;
     private String sourceUri;
@@ -45,9 +47,11 @@ public class SyndEntryAdapter {
         this.author = entry.getAuthor();
         this.link = entry.getLink();
 
-        this.publishedDate = ISO_8601_DATE_FORMAT.format(entry.getPublishedDate());
+        if (entry.getPublishedDate() != null)
+            this.publishedDate = ISO_8601_DATE_FORMAT.format(entry.getPublishedDate());
         if (entry.getUpdatedDate() != null)
             this.updatedDate = ISO_8601_DATE_FORMAT.format(entry.getUpdatedDate());
+        this.fetchDate = ISO_8601_DATE_FORMAT.format(new Date());
 
         this.sourceLink = feed.getLink();
         this.sourceUri = feed.getUri();

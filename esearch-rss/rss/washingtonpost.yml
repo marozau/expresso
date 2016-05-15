@@ -1,0 +1,10 @@
+washingtonpost:
+  image: expressotoday/esearch-rss:latest
+  labels:
+    io.rancher.container.pull_image: always
+  environment:
+    FETCH_URL: http://feeds.washingtonpost.com/rss/homepage
+    FETCH_INTERVAL: 60000
+    ELASTICSEARCH_INDEX: rss
+    ELASTICSEARCH_TYPE: washingtonpost
+    ELASTICSEARCH_HOST: elasticsearch.elk

@@ -1,0 +1,10 @@
+bbc:
+  image: expressotoday/esearch-rss:latest
+  labels:
+    io.rancher.container.pull_image: always
+  environment:
+    FETCH_URL: http://feeds.bbci.co.uk/news/rss.xml
+    FETCH_INTERVAL: 60000
+    ELASTICSEARCH_INDEX: rss
+    ELASTICSEARCH_TYPE: bbc
+    ELASTICSEARCH_HOST: elasticsearch.elk
