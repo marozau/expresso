@@ -1,0 +1,11 @@
+bbc:
+  image: expressotoday/esearch-rss:latest
+  labels:
+    io.rancher.container.pull_image: always
+  environment:
+    FETCH_URL: http://www.businessinsider.com/rss
+    ELASTICSEARCH_TYPE: businessinsider
+    ELASTICSEARCH_INDEX: rss
+    ELASTICSEARCH_HOST: elasticsearch.elk
+    FETCH_INTERVAL: 60000
+    CACHE: redis.rss

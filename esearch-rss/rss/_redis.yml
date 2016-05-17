@@ -1,0 +1,11 @@
+redis:
+  restart: always
+  image: redis:latest
+  labels:
+    io.rancher.container.hostname_override: container_name
+    io.rancher.scheduler.affinity:host_label: redis=true
+  volumes:
+    - /home/docker/redis:/data
+  ports:
+    - 6379:6379/tcp
+  command: redis-server --appendonly yes

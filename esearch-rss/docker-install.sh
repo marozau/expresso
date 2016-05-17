@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-docker build -t expressotoday/esearch-rss . && docker push expressotoday/esearch-rss
+mvn clean install && docker build -t expressotoday/esearch-rss . && docker push expressotoday/esearch-rss
