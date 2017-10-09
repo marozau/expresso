@@ -1,0 +1,14 @@
+FROM continuumio/anaconda:latest
+
+RUN conda install jupyter notebook -y --quiet \
+    && mkdir /opt/notebooks
+
+
+RUN conda install sqlalchemy psycopg2 -y --quiet
+
+#RUN apt-get install texlive texlive-latex-extra -y --quite
+
+VOLUME "/opt/notebooks"
+EXPOSE 8888
+
+CMD ["jupyter", "notebook", "--notebook-dir=/opt/notebooks", "--ip='*'", "--port=8888", "--no-browser", "--allow-root"]

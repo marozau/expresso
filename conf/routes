@@ -1,0 +1,40 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# https://www.playframework.com/documentation/latest/ScalaRouting
+# ~~~~
+
+GET         /mandrill/send/:email/:template        controllers.MandrillController.send(email, template)
+
+GET         /admin/post                            controllers.PostController.getPostForm(id: Option[Long], newsletter: Option[Long])
+POST        /admin/post/submit                     controllers.PostController.submitPostForm()
+GET         /admin/post/list                       controllers.PostController.getPostList(drop: Int ?= 0, take: Int ?= 50)
+GET         /admin/post/list/submit                controllers.PostController.submitPostList()
+GET         /admin/post/show                       controllers.PostController.showPost(id: Long)
+
+GET         /admin/newsletter/list                 controllers.NewsletterController.getNewsletterList()
+GET         /admin/newsletter/posts                controllers.NewsletterController.getNewsletterPosts(id: Option[Long])
+GET         /admin/newsletter/posts/remove         controllers.NewsletterController.removePost(id: Long, postId: Long)
+GET         /admin/newsletter/posts/up             controllers.NewsletterController.moveUpPost(id: Long, postId: Long)
+GET         /admin/newsletter/posts/down           controllers.NewsletterController.moveDownPost(id: Long, postId: Long)
+GET         /admin/newsletter/posts/add            controllers.NewsletterController.addPost(id: Long, postId: Long)
+GET         /admin/newsletter/header               controllers.NewsletterController.getHeaderForm(id: Long)
+POST        /admin/newsletter/header/submit        controllers.NewsletterController.submitHeaderForm()
+GET         /admin/newsletter/footer               controllers.NewsletterController.getFooterForm(id: Long)
+POST        /admin/newsletter/footer/submit        controllers.NewsletterController.submitFooterForm()
+GET         /admin/newsletter/show                 controllers.NewsletterController.getNewsletterFinal(campaignId: Long, newsletterId: Long)
+
+GET         /admin/campaign                        controllers.CampaignController.getCampaignForm(id: Option[Long], newsletterId: Option[Long])
+POST        /admin/campaign/submit                 controllers.CampaignController.submitCampaignForm()
+GET         /admin/campaign/schedule               controllers.CampaignController.scheduleCampaign(id: Long)
+
+
+
+GET         /v1/user/list                          controllers.UserController.list
+
+GET         /v1/user/create/:name/:role            controllers.UserController.create(name: String, role: String)
+
+GET         /track/click                           controllers.TrackingController.click()
+
+
+GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)
+GET         /javascriptRoutes                      controllers.Application.javascriptRoutes

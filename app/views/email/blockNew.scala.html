@@ -1,0 +1,8 @@
+@(title: String, text: Html, img: Option[String])
+
+@titleBlock(title)
+@dividerBlock()
+@if(img.nonEmpty) {
+    @imageBlock(img.get)
+}
+@textBlockNew(text)

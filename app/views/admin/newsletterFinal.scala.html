@@ -1,0 +1,62 @@
+@import services.PublishingHouse
+@(newsletter: Newsletter, posts: List[PublishingHouse.ReadyPost], campaignId: Long)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+<!doctype html>
+<html xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraph.org/schema/">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("lib/bootstrap/css/bootstrap.min.css")">
+
+@site.head(newsletter.title.get)
+
+@site.image {
+    @site.ex._image("https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png", Some("http://www.expresso.today"))
+}
+
+
+@site.container {
+    @site.text {
+        <div style="text-align: center;"><em><span style="font-size: 17px"><span style="font-family: georgia, times, times new roman, serif">
+            Выпуск готовился под новый сингл </span></span></em>
+            <a href="https://www.youtube.com/watch?v=987xHnVfRI4" target="_blank" style="mso-line-height-rule: exactly;
+                -ms-text-size-adjust: 100%;
+                -webkit-text-size-adjust: 100%;
+                color: #ff5335;
+                font-weight: normal;
+                text-decoration: none;"><em><span style="font-size: 17px"><span style="font-family: georgia, times, times new roman, serif">
+                Pink — What About Us</span></span></em></a>
+            <br>
+                &nbsp;</div>
+    }
+}
+
+@for(post <- posts) {
+    @site.container {
+        @site.text{
+            <font face="arial, helvetica neue, helvetica, sans-serif" size="5">
+                <strong>@post.title</strong>
+            </font>
+        }
+        @site.divider()
+        @site.text {
+            <div style="text-align: left;">
+                <span style="font-family: georgia, times, times new roman, serif">
+                @post.body(post.config)
+                </span>
+            </div>
+        }
+    }
+}
+
+@implicitFieldConstructor = @{
+    b3.vertical.fieldConstructor
+}
+    @site.container{
+        @b3.form(action = routes.CampaignController.scheduleCampaign(0)) {
+            <input type="hidden" name="id" value="@campaignId" />
+            @b3.submit('class -> "btn btn-default") { Looks Good! }
+}
+}
+
+<script src="@routes.Assets.versioned("lib/jquery/jquery.js")" crossorigin="anonymous"></script>
+<script src="@routes.Assets.versioned("lib/bootstrap/js/bootstrap.min.js")" crossorigin="anonymous"></script>
+
+

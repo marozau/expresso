@@ -1,0 +1,63 @@
+@(posts: List[Post], postListForm: Form[PostController.PostSelectorForm])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+@*<link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("stylesheets/quill/quill.snow.css")">*@
+<link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("stylesheets/quill/quill.bubble.css")">
+@*<link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("stylesheets/quill/quill.core.css")">*@
+@*<link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("stylesheets/quill/quill.bubble.css")">*@
+<link rel="stylesheet" media="screen" href="@routes.Assets.versioned("lib/bootstrap/css/bootstrap.min.css")">
+
+<h1>Posts</h1>
+
+@implicitFieldConstructor = @{
+    b3.horizontal.fieldConstructor("col-md-2", "col-md-10")
+}
+
+@b3.form(action = routes.PostController.submitPostList()) {
+    @helper.CSRF.formField
+    @b3.checkbox(postListForm("all"), '_label -> "select all", 'value -> false)
+    @b3.static("Posts:") {
+        <br>
+    }
+    @helper.repeatWithIndex(postListForm("posts"), min = posts.size) { (referenceField, index) =>
+        @b3.hidden(referenceField("id"), 'value -> posts(index).id)
+        @b3.checkbox(referenceField("selected"), '_label -> posts(index).title, 'checked -> false)
+        @b3.static() {
+            @{posts(index).createdTimestamp}
+            @{posts(index).modifiedTimestamp}
+            <p>
+            @{
+                posts(index).annotation
+            }
+            </p>
+            <p id="editor-container">
+            @{
+                posts(index).body
+            }
+            </p>
+        }
+    }
+
+    @b3.submit('class -> "btn btn-default") { Create Newsletter }
+}
+
+<script src="@routes.Assets.versioned("lib/jquery/jquery.js")" crossorigin="anonymous"></script>
+<script src="@routes.Assets.versioned("lib/bootstrap/js/bootstrap.min.js")" crossorigin="anonymous"></script>
+
+<script src="@routes.Assets.versioned("javascripts/quill/quill.min.js")" type="text/javascript"></script>
+<script>
+        window.onload = function () {
+            var about = document.querySelectorAll('p[id=editor-container]');
+            var toolbarOptions = [['bold', 'italic'], ['link', 'image'], [{'align': []}]];
+            for( index=0; index < about.length; index++ ) {
+                var quill = new Quill(about[index], {
+                    modules: {
+                        toolbar: toolbarOptions
+                    },
+                    readOnly: true,
+                    theme: 'bubble'
+                });
+                quill.setContents(JSON.parse(about[index].textContent));
+                quill.update()
+            }
+        }
+</script>

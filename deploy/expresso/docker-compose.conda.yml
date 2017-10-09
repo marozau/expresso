@@ -1,0 +1,13 @@
+version: '2'
+services:
+  notebook:
+    image: anaconda:latest
+    container_name: anaconda
+    volumes:
+      - pydata:/opt/notebooks
+    ports:
+      - 8888:8888/tcp
+
+volumes:
+  pydata:
+    driver: local

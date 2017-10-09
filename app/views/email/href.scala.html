@@ -1,0 +1,10 @@
+@import _root_.services.Tracking
+@(href: String, text: String)(implicit track: Tracking)
+
+@*TODO: add utm mark to the href*@
+<a href="@track.trackClick(href)" target="_blank" style="mso-line-height-rule: exactly;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    color: #ff5335;
+    font-weight: normal;
+    text-decoration: none;">@text</a>
