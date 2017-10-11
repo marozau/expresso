@@ -36,14 +36,16 @@ class Compiler @Inject()(configuration: Configuration, actorSystem: ActorSystem)
 
   import Compiler._
 
-  private implicit val ec = actorSystem.dispatchers.lookup("compiler.blocking-dispatcher")
+  private val ec = actorSystem.dispatchers.lookup("compiler.blocking-dispatcher")
 
-  val dir = "/Users/im/usr/scala/twirl/"
-  val sourceDir = new File(s"$dir" + "source")
-  val dirName = "twirl-parser"
-  val generatedDir = new File(dir + dirName + "/generated-templates")
-  val generatedClasses = new File(dir + dirName + "/generated-classes")
+  private val config = configuration.get[Configuration]("compiler")
+  private val dir = config.get[String]("workdir")
+  private val sourceDir = Paths.get(dir, "source").toFile
+  private val generatedDir =  Paths.get(dir, "generated-templates").toFile
+  private val generatedClasses =  Paths.get(dir, "generated-classes").toFile
 
+  Helper.deleteRecursively(sourceDir)
+  sourceDir.mkdirs()
   Helper.deleteRecursively(generatedClasses)
   generatedClasses.mkdirs()
   Helper.deleteRecursively(generatedDir)
