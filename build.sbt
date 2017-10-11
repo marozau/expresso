@@ -1,7 +1,7 @@
 name := """expresso"""
 organization := "today.expresso"
 
-version := "1.0-SNAPSHOT"
+version := "1.0"
 
 // Resolver is needed only for SNAPSHOT versions
 resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
