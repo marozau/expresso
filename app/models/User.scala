@@ -20,14 +20,15 @@ object UserStatus extends Enumeration {
 }
 
 case class User(
-                 id: Long,
+                 id: Option[Long],
                  email: String,
                  locale: String,
+                 timezone: Int,
                  role: UserRole.Value,
                  status: UserStatus.Value,
                  reason: Option[String] = None,
-                 createdTimestamp: ZonedDateTime,
-                 modifiedTimestamp: ZonedDateTime
+                 createdTimestamp: Option[ZonedDateTime] = None,
+                 modifiedTimestamp: Option[ZonedDateTime] = None
                )
 
 object User {

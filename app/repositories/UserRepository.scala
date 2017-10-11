@@ -22,12 +22,20 @@ class UserRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
   import dbConfig._
   import api._
 
-  def create(email: String, role: UserRole.Value): Future[User] = db.run {
-    (users.map(u => (u.email, u.locale, u.role, u.status))
-      returning users.map(_.id)
-      into ((user, id) => User(id, user._1, user._2, user._3, user._4, None, ZonedDateTime.now(), ZonedDateTime.now()))
-      ) += (email, "ru", role, UserStatus.NEW)
+  def getById(userId: Long): Future[User] = db.run {
+    users.filter(_.id === userId).result.head
   }
+
+  def create(user: User): Future[User] = db.run {
+    (users returning users) += user
+  }
+
+//  def create(email: String, role: UserRole.Value): Future[User] = db.run {
+//    (users.map(u => (u.email, u.locale, u.role, u.status))
+//      returning users.map(_.id)
+//      into ((user, id) => User(id, user._1, user._2, user._3, user._4, None, ZonedDateTime.now(), ZonedDateTime.now()))
+//      ) += (email, "ru", role, UserStatus.NEW)
+//  }
 
   def list(): Future[Seq[User]] = db.run {
     users.result

@@ -5,11 +5,11 @@ import javax.inject.{Inject, Singleton}
 
 import models.Campaign
 import play.api.Logger
-import play.api.i18n.I18nSupport
-import play.api.mvc.{AbstractController, ControllerComponents}
 import play.api.data.Forms._
 import play.api.data._
-import repositories.{CampaignRepository, NewsletterRepository, RecipientRepository}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{AbstractController, ControllerComponents}
+import repositories.{CampaignRepository, RecipientRepository}
 import services.JobScheduler
 
 import scala.concurrent.{ExecutionContext, Future}

@@ -3,6 +3,7 @@ package repositories
 import java.time.ZonedDateTime
 
 import models._
+import utils.SqlUtils
 
 /**
   * @author im.
@@ -26,17 +27,19 @@ trait UserComponent {
 
     def locale = column[String]("locale")
 
+    def timezone = column[Int]("timezone")
+
     def role = column[UserRole.Value]("role")
 
     def status = column[UserStatus.Value]("status")
 
     def reason = column[Option[String]]("reason")
 
-    def createdTimestamp = column[ZonedDateTime]("created_timestamp", O.Default(ZonedDateTime.now()))
+    def createdTimestamp = column[ZonedDateTime]("created_timestamp", SqlUtils.timestampTzNotNullType)
 
-    def modifiedTimestamp = column[ZonedDateTime]("modified_timestamp", O.Default(ZonedDateTime.now()))
+    def modifiedTimestamp = column[ZonedDateTime]("modified_timestamp", SqlUtils.timestampTzNotNullType)
 
-    def * = (id, email, locale, role, status, reason, createdTimestamp, modifiedTimestamp) <> ((User.apply _).tupled, User.unapply)
+    def * = (id.?, email, locale, timezone, role, status, reason, createdTimestamp.?, modifiedTimestamp.?) <> ((User.apply _).tupled, User.unapply)
 
   }
 

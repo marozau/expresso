@@ -1,34 +1,41 @@
 # --- !Ups
 
-CREATE TABLE newsletters (
+DROP TYPE IF EXISTS campaign_status;
+CREATE TYPE campaign_status AS ENUM ('NEW', 'PENDING', 'SENT');
+
+CREATE TABLE campaigns (
   id                 BIGSERIAL PRIMARY KEY,
-  user_id            BIGINT      NOT NULL REFERENCES users (id),
-  url                TEXT,
-  title              TEXT,
-  header             TEXT,
-  footer             TEXT,
-  post_ids           BIGINT []   NOT NULL,
+  user_id            BIGINT          NOT NULL REFERENCES users(id),
+  newsletter_id      BIGINT          NOT NULL REFERENCES newsletters (id),
+  name               TEXT            NOT NULL,
+  subject            TEXT            NOT NULL,
+  preview            TEXT,
+  from_name          TEXT            NOT NULL,
+  from_email         TEXT            NOT NULL,
+  status             campaign_status NOT NULL,
+  email_sent         INT             NOT NULL DEFAULT 0,
+  send_time          TIMESTAMPTZ     NOT NULL,
+  recipient_id       BIGINT          NOT NULL REFERENCES recipients (id),
   options            JSONB,
-  publish_timestamp  TIMESTAMPTZ,
-  created_timestamp  TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now()),
-  modified_timestamp TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now())
+  created_timestamp  TIMESTAMPTZ     NOT NULL DEFAULT timezone('UTC', now()),
+  modified_timestamp TIMESTAMPTZ     NOT NULL DEFAULT timezone('UTC', now())
 );
 
-DROP TRIGGER IF EXISTS trigger_newsletters_modified
-ON newsletters;
-CREATE TRIGGER trigger_newsletters_modified
-BEFORE UPDATE ON newsletters
+DROP TRIGGER IF EXISTS trigger_campaigns_modified
+ON campaigns;
+CREATE TRIGGER trigger_campaigns_modified
+BEFORE UPDATE ON campaigns
 FOR EACH ROW
 EXECUTE PROCEDURE update_last_modified_timestamp();
 
-DROP TRIGGER IF EXISTS trigger_newsletters_created
-ON newsletters;
-CREATE TRIGGER trigger_newsletters_created
-BEFORE INSERT ON newsletters
+DROP TRIGGER IF EXISTS trigger_campaigns_created
+ON campaigns;
+CREATE TRIGGER trigger_campaigns_created
+BEFORE INSERT ON campaigns
 FOR EACH ROW
 EXECUTE PROCEDURE update_create_timestamp();
 
 
 # --- !Downs
 
-DROP TABLE IF EXISTS newsletters CASCADE;
+DROP TABLE IF EXISTS campaigns CASCADE;

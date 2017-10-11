@@ -19,4 +19,8 @@ class Application @Inject()(cc: ControllerComponents) extends AbstractController
     ).as("text/javascript")
   }
 
+
+  def healthz() = Action {
+    Ok("ok")
+  }
 }

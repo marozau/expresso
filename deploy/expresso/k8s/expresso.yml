@@ -1,0 +1,29 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: expresso-deployment
+  labels:
+    app: expresso
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: expresso
+  template:
+    metadata:
+      labels:
+        app: expresso
+    spec:
+      containers:
+      - name: expresso
+        image: eu.gcr.io/expresso-today/expresso:latest
+        ports:
+        - containerPort: 9000
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 9000
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 2
+          failureThreshold: 5

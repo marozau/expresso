@@ -4,6 +4,10 @@
 # ~~~~
 
 GET         /mandrill/send/:email/:template        controllers.MandrillController.send(email, template)
+GET         /healthz                               controllers.Application.healthz()
+
+GET         /admin/user                            controllers.UserController.getUserForm(id: Option[Long])
+POST        /admin/user/submit                     controllers.UserController.submitUserForm()
 
 GET         /admin/post                            controllers.PostController.getPostForm(id: Option[Long], newsletter: Option[Long])
 POST        /admin/post/submit                     controllers.PostController.submitPostForm()
@@ -30,8 +34,6 @@ GET         /admin/campaign/schedule               controllers.CampaignControlle
 
 
 GET         /v1/user/list                          controllers.UserController.list
-
-GET         /v1/user/create/:name/:role            controllers.UserController.create(name: String, role: String)
 
 GET         /track/click                           controllers.TrackingController.click()
 
