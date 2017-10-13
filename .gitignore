@@ -1,6 +1,7 @@
 logs
 target
 /.idea
+/.secret
 /.idea_modules
 /.classpath
 /.project

@@ -12,6 +12,10 @@ ENV PORT 9000
 COPY ./target/universal/expresso-${VERSION}.zip /opt/expresso.zip
 RUN unzip /opt/expresso.zip -d /opt && rm /opt/expresso.zip
 
+# size reduction
+RUN apt-get -y remove --purge wget && apt-get -y autoremove && \
+  apt-get clean && rm -rf /var/lib/apt/lists/*
+
 WORKDIR ${APP_DIR}
 
 EXPOSE ${PORT}

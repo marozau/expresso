@@ -5,7 +5,6 @@ import java.time.ZonedDateTime
 import javax.inject.{Inject, Singleton}
 
 import models.{NewsletterAndPosts, Post}
-import play.api.cache.{AsyncCacheApi, NamedCache}
 import play.api.{Configuration, Logger}
 import services.Compiler.HtmlTemplate
 
@@ -54,25 +53,55 @@ object PublishingHouse {
 
 }
 
+class CompilerCache(compiler: Compiler)(implicit ec: ExecutionContext) {
+
+  import PublishingHouse._
+  import com.github.benmanes.caffeine.cache.Caffeine
+
+  import scalacache._
+  import caffeine._
+  import scala.concurrent.duration._
+
+
+  case class Key(hash: Int, target: Target.Value)
+
+  private val underlyingCaffeineCache = Caffeine.newBuilder().maximumSize(10000L).build[String, Object]
+  private implicit val scalaCache: ScalaCache[NoSerialization] = ScalaCache(CaffeineCache(underlyingCaffeineCache))
+  private val cache = typed[HtmlTemplate, NoSerialization]
+
+  def compile(tags: String, target: Target.Value): Future[HtmlTemplate] = {
+    val body = Compiler.header + tags
+    cache.get(body.hashCode, target)
+      .flatMap { option =>
+        option.fold {
+          compiler.compile(body, Some("views.html." + target.toString.toLowerCase))
+            .flatMap(template => cache.put(body.hashCode, target)(template, ttl = Some(ttl(target))).map(_ => template))
+        }(template => Future(template))
+      }
+      .recoverWith {
+        case _ => compiler.compile(body, Some("views.html." + target.toString.toLowerCase))
+      }
+  }
+
+  private def ttl(target: Target.Value) = target match {
+    case Target.DEV => 10.minutes
+    case _ => 2.days
+  }
+}
+
 @Singleton
 class PublishingHouse @Inject()(
                                  configuration: Configuration,
                                  quill: Quill,
-                                 compiler: Compiler,
-                                 @NamedCache("publish-cache") cache: AsyncCacheApi)(implicit ec: ExecutionContext) {
+                                 compiler: Compiler)(implicit ec: ExecutionContext) {
 
   import PublishingHouse._
   import implicits.PostImplicits._
 
-  import scala.concurrent.duration._
-
-  private def cacheKey(body: String, target: Target.Value) = s"$target-${body.hashCode}"
+  private val cache = new CompilerCache(compiler)
 
   private def compile(tags: String, target: Target.Value): Future[HtmlTemplate] = {
-    val body = Compiler.header + tags
-    cache.getOrElseUpdate[HtmlTemplate](cacheKey(body, target), 2.days) { //TODO: calc duration based on publication type and post create timestamp
-      compiler.compile(body, Some("views.html." + target.toString.toLowerCase))
-    }
+    cache.compile(tags, target)
   }
 
   def doPost(post: Post, target: Target.Value): Future[ReadyPost] = {
@@ -90,7 +119,7 @@ class PublishingHouse @Inject()(
     for {
       header <- if (nl.header.isDefined) compile(quill.toTagStr(nl.header.get), target).map(Some(_)) else Future(None)
       footer <- if (nl.footer.isDefined) compile(quill.toTagStr(nl.footer.get), target).map(Some(_)) else Future(None)
-      posts <-  doPosts(nl.posts, target)
+      posts <- doPosts(nl.posts, target)
     } yield ReadyNewsletter(nl.id, nl.url, nl.title, header, footer, posts, Configuration.from(nl.options), target, nl.publishTimestamp)
   }
 }

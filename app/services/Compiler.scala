@@ -6,6 +6,7 @@ import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
 import org.reflections.Reflections
+import play.api.inject.Injector
 import play.api.{Configuration, Logger, Play}
 import play.twirl.api.{BaseScalaTemplate, Html}
 import play.twirl.compiler.GeneratedSource
@@ -32,7 +33,7 @@ object Compiler {
 }
 
 @Singleton
-class Compiler @Inject()(configuration: Configuration, actorSystem: ActorSystem) {
+class Compiler @Inject()(configuration: Configuration, actorSystem: ActorSystem, injector: Injector) {
 
   import Compiler._
 

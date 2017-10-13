@@ -1,0 +1,12 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: expresso
+  namespace: expresso
+spec:
+  tls:
+  - secretName: tls
+  backend:
+    serviceName: expresso-ui
+    servicePort: 9000
+

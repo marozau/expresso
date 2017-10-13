@@ -1,5 +1,6 @@
 import javax.inject.Inject
 
+import com.mohiva.play.htmlcompressor.HTMLCompressorFilter
 import filters.AccessLoggingFilter
 import play.api.http.DefaultHttpFilters
 import play.filters.csrf.CSRFFilter
@@ -17,10 +18,12 @@ class Filters @Inject() (
   csrfFilter: CSRFFilter,
   allowedHostsFilter: AllowedHostsFilter,
   securityHeadersFilter: SecurityHeadersFilter,
-  accessLoggingFilter: AccessLoggingFilter
+  accessLoggingFilter: AccessLoggingFilter,
+  htmlCompressorFilter: HTMLCompressorFilter
 ) extends DefaultHttpFilters(
   csrfFilter,
-  allowedHostsFilter, 
+  allowedHostsFilter,
   securityHeadersFilter,
-  accessLoggingFilter
+  accessLoggingFilter,
+  htmlCompressorFilter
 )

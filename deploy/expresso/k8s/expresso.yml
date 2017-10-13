@@ -1,7 +1,8 @@
-apiVersion: apps/v1beta2
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: expresso-deployment
+  namespace: expresso
   labels:
     app: expresso
 spec:
@@ -27,3 +28,10 @@ spec:
           timeoutSeconds: 5
           successThreshold: 2
           failureThreshold: 5
+        env:
+          - name: EXPRESSO_OPTS
+            valueFrom:
+              secretKeyRef:
+                name: expresso
+                key: options
+        args: ["-Dplay.http.secret.key=QCY?tAnfk?aZ?iwrNwnxIlR6CTf:G3gf:90Latabg@5241AB`R5W:1uDFN];Ik@n", "-Dslick.dbs.default.db.properties.user=postgres", "-Dslick.dbs.default.db.properties.password=dpCZeUU83VnsdsfN", "-Dslick.dbs.default.db.properties.url=jdbc:postgresql://google/postgres?socketFactory=com.google.cloud.sql.postgres.SocketFactory&socketFactoryArg=expresso-today:europe-west1:expresso"]
