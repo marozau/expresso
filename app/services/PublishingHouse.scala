@@ -59,28 +59,16 @@ class CompilerCache(compiler: Compiler)(implicit ec: ExecutionContext) {
   import com.github.benmanes.caffeine.cache.Caffeine
 
   import scalacache._
+  import memoization._
   import caffeine._
   import scala.concurrent.duration._
 
-
-  case class Key(hash: Int, target: Target.Value)
-
-  private val underlyingCaffeineCache = Caffeine.newBuilder().maximumSize(10000L).build[String, Object]
+  private val underlyingCaffeineCache = Caffeine.newBuilder().maximumSize(100000L).build[String, Object]
   private implicit val scalaCache: ScalaCache[NoSerialization] = ScalaCache(CaffeineCache(underlyingCaffeineCache))
-  private val cache = typed[HtmlTemplate, NoSerialization]
 
-  def compile(tags: String, target: Target.Value): Future[HtmlTemplate] = {
+  def compile(tags: String, target: Target.Value): Future[HtmlTemplate] = memoize(ttl(target)) {
     val body = Compiler.header + tags
-    cache.get(body.hashCode, target)
-      .flatMap { option =>
-        option.fold {
-          compiler.compile(body, Some("views.html." + target.toString.toLowerCase))
-            .flatMap(template => cache.put(body.hashCode, target)(template, ttl = Some(ttl(target))).map(_ => template))
-        }(template => Future(template))
-      }
-      .recoverWith {
-        case _ => compiler.compile(body, Some("views.html." + target.toString.toLowerCase))
-      }
+    compiler.compile(body, Some("views.html." + target.toString.toLowerCase))
   }
 
   private def ttl(target: Target.Value) = target match {

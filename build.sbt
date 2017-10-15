@@ -71,8 +71,8 @@ libraryDependencies ++= Seq(
 
 //https://github.com/KarelCemus/play-redis
 libraryDependencies += "com.github.karelcemus" %% "play-redis" % "1.6.0"
+//https://github.com/cb372/scalacache
 libraryDependencies += "com.github.cb372" %% "scalacache-caffeine" % "0.10.0"
-
 //https://github.com/mohiva/play-html-compressor/blob/master/README.md
 libraryDependencies += "com.mohiva" %% "play-html-compressor" % "0.7.1"
 
