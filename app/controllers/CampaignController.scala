@@ -150,6 +150,7 @@ class CampaignController @Inject()(cc: ControllerComponents,
         jobScheduler.schedule(campaign)
           .map(_ => campaign)
       }
+      .flatMap(campaign => campaigns.update(campaign.copy(status = Campaign.Status.PENDING)))
       .map(_ => Ok("Done"))
   }
 

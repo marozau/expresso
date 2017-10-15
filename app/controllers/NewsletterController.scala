@@ -66,7 +66,7 @@ class NewsletterController @Inject()(
 
   def getNewsletterPosts(id: Option[Long]) = Action.async { implicit request =>
     def getExisting(id: Long): Future[NewsletterAndPosts] = {
-      newsletters.getWithPostsById(USER_ID, id)
+      newsletters.getWithPostsById(Some(USER_ID), id)
     }
 
     def create(): Future[NewsletterAndPosts] = {
@@ -106,19 +106,17 @@ class NewsletterController @Inject()(
 
   //TODO: replace by ususal get newsletter
   def getNewsletterFinal(campaignId: Long, newsletterId: Long) = Action.async { implicit request =>
-    newsletters.getWithPostsById(USER_ID, newsletterId)
+    newsletters.getWithPostsById(Some(USER_ID), newsletterId)
       .flatMap { nl =>
-        Future.sequence(nl.posts.map(post => ph.doPost(post, PublishingHouse.Target.SITE)))
-          .map((nl, _))
+        ph.doNewsletter(nl, PublishingHouse.Target.SITE)
       }
-      .map { case (nl, postList) =>
-        import implicits.NewsletterImplicits._
-        Ok(views.html.admin.newsletterFinal(newsletterCast(nl), postList, campaignId))
+      .map { newsletter =>
+        Ok(views.html.admin.newsletterFinal(newsletter, campaignId))
       }
   }
 
   def getHeaderForm(id: Long) = Action.async { implicit request =>
-    newsletters.getById(USER_ID, id)
+    newsletters.getById(Some(USER_ID), id)
       .map(nl => Ok(views.html.admin.header(headerForm.fill(HeaderForm(nl.id.get, nl.header)))))
   }
 
@@ -129,7 +127,7 @@ class NewsletterController @Inject()(
         Future(BadRequest(views.html.admin.header(formWithErrors)))
       },
       form => {
-        newsletters.getById(USER_ID, form.id)
+        newsletters.getById(Some(USER_ID), form.id)
           .flatMap { nl =>
             newsletters.update(nl.copy(header = Some(form.text)))
           }
@@ -139,7 +137,7 @@ class NewsletterController @Inject()(
   }
 
   def getFooterForm(id: Long) = Action.async { implicit request =>
-    newsletters.getById(USER_ID, id)
+    newsletters.getById(Some(USER_ID), id)
       .map(nl => Ok(views.html.admin.footer(footerForm.fill(FooterForm(nl.id.get, nl.footer)))))
   }
 
@@ -150,7 +148,7 @@ class NewsletterController @Inject()(
         Future(BadRequest(views.html.admin.footer(formWithErrors)))
       },
       form => {
-        newsletters.getById(USER_ID, form.id)
+        newsletters.getById(Some(USER_ID), form.id)
           .flatMap { nl =>
             newsletters.update(nl.copy(footer = Some(form.text)))
           }

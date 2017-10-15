@@ -54,12 +54,27 @@ class CampaignRepository @Inject()(databaseConfigProvider: DatabaseConfigProvide
 
   def update(campaign: Campaign): Future[Int] = db.run {
     updateDBIO(campaign)
-      .flatMap(_ => newsletterRepo.updateTitleDBIO(campaign.userId, campaign.newsletterId, campaign.subject))
+      .flatMap { _ =>
+        newsletterRepo.updateTitleDBIO(campaign.userId, campaign.newsletterId, campaign.subject)
+      }
+      .flatMap { _ =>
+        if (campaign.status == Campaign.Status.PENDING)
+          newsletterRepo.updatePublishTimestampDBIO(campaign.userId, campaign.newsletterId, campaign.sendTime)
+        else DBIO.successful(1)
+      }
       .transactionally.withPinnedSession
   }
 
   def getByNewsletterId(userId: Long, newsletterId: Long): Future[Option[Campaign]] = db.run {
     campaigns.filter(c => c.userId === userId && c.newsletterId === newsletterId).result.headOption
+  }
+
+  def getLastSent(): Future[Campaign] = db.run {
+    campaigns
+      .filter(c => c.status === Campaign.Status.SENT)
+      .sortBy(_.sendTime)
+      .take(1)
+      .result.head
   }
 
 }

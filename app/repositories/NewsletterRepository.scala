@@ -1,5 +1,6 @@
 package repositories
 
+import java.time.ZonedDateTime
 import javax.inject.{Inject, Singleton}
 
 import exceptions.NewsletterNotFoundException
@@ -45,21 +46,21 @@ class NewsletterRepository @Inject()(
 
   def update(newsletter: Newsletter): Future[Int] = db.run(updateDBIO(newsletter))
 
-  def getByIdDBIO(userId: Long, id: Long): DBIOAction[Newsletter, NoStream, Effect.Read] = {
-    newsletters.filter(nl => nl.id === id && nl.userId === userId).result
+  def getByIdDBIO(userId: Option[Long], id: Long): DBIOAction[Newsletter, NoStream, Effect.Read] = {
+    newsletters.filter(nl => nl.id === id && userId.map(u => nl.userId === u).getOrElse(slick.lifted.LiteralColumn(true))).result
       .map { s =>
         if (s.isEmpty) throw NewsletterNotFoundException(id, "newsletter not found")
         s.head
       }
   }
 
-  def getById(userId: Long, id: Long): Future[Newsletter] = db.run(getByIdDBIO(userId, id))
+  def getById(userId: Option[Long], id: Long): Future[Newsletter] = db.run(getByIdDBIO(userId, id))
 
   def getByUserId(userId: Long): Future[Seq[Newsletter]] = db.run {
     newsletters.filter(_.userId === userId).result
   }
 
-  def getWithPostsById(userId: Long, id: Long): Future[NewsletterAndPosts] = db.run {
+  def getWithPostsById(userId: Option[Long], id: Long): Future[NewsletterAndPosts] = db.run {
     for {
       newsletter <- getByIdDBIO(userId, id)
       posts <- postRepo.getListByIdDBIO(newsletter.postIds)
@@ -74,12 +75,17 @@ class NewsletterRepository @Inject()(
     q.update(Some(title))
   }
 
+  def updatePublishTimestampDBIO(userId: Long, id: Long, timestamp: ZonedDateTime) = {
+    val q = for (nl <- newsletters if nl.id === id && nl.userId === userId) yield nl.publishTimestamp
+    q.update(Some(timestamp))
+  }
+
   def updateTitle(userId: Long, id: Long, title: String): Future[Int] = db.run {
     updateTitleDBIO(userId, id, title)
   }
 
   def addPost(userId: Long, id: Long, postIds: List[Long]): Future[Int] = db.run {
-    getByIdDBIO(userId, id)
+    getByIdDBIO(Some(userId), id)
       .flatMap { newsletter =>
         updateDBIO(newsletter.copy(postIds = (newsletter.postIds ++ postIds).distinct))
       }
@@ -87,7 +93,7 @@ class NewsletterRepository @Inject()(
   }
 
   def removePost(userId: Long, id: Long, postId: Long): Future[Int] = db.run {
-    getByIdDBIO(userId, id)
+    getByIdDBIO(Some(userId), id)
       .flatMap { newsletter =>
         updateDBIO {
           val filtered = newsletter.postIds.filter(idx => idx != postId)
@@ -101,7 +107,7 @@ class NewsletterRepository @Inject()(
   }
 
   def moveUpPost(userId: Long, id: Long, postId: Long): Future[Int] = db.run {
-    getByIdDBIO(userId, id)
+    getByIdDBIO(Some(userId), id)
       .flatMap { newsletter =>
         updateDBIO {
           newsletter.copy(postIds = SeqUtils.moveUp(newsletter.postIds, postId))
@@ -111,7 +117,7 @@ class NewsletterRepository @Inject()(
   }
 
   def moveDownPost(userId: Long, id: Long, postId: Long): Future[Int] = db.run {
-    getByIdDBIO(userId, id)
+    getByIdDBIO(Some(userId), id)
       .flatMap { newsletter =>
         updateDBIO {
           newsletter.copy(postIds = SeqUtils.moveDown(newsletter.postIds, postId))
