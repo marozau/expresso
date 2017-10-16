@@ -97,6 +97,14 @@ a.mcnButton {
     vertical-align: bottom;
 }
 
+.mcnPrevUrl {
+    float:left;
+}
+
+.mcnNextUrl {
+    float:right;
+}
+
 .mcnTextContent {
     word-break: break-word;
 }

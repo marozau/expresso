@@ -1,22 +1,26 @@
 @import services.PublishingHouse
-@(post: PublishingHouse.ReadyPost)
+@import java.time.format.DateTimeFormatter
+@(post: PublishingHouse.ReadyPost, newsletter: Option[Newsletter] = None, prev: Option[PublishingHouse.ReadyPost] = None, next: Option[PublishingHouse.ReadyPost] = None)
 
-<!doctype html>
-<html xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraph.org/schema/">
+@main {
+    @head(post.title)
 
-@head(post.title)
+    @image {
+        @ex._image("https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png", Some("http://www.expresso.today"))
+    }
 
-@image {
-    @ex._image("https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png", Some("http://www.expresso.today"))
-}
+    @annotation(post.annotation)
 
-@annotation(post.annotation)
+    @container {
+        @title(post.title)
+        @divider()
+        @body {
+            @post.body(post.config)
+        }
+    }
 
-@container {
-    @title(post.title)
-    @divider()
-    @body{
-        @post.body(post.config)
+    @if(newsletter.isDefined) {
+        @map(newsletter.get, prev, next)
     }
 }
 

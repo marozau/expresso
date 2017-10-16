@@ -102,6 +102,10 @@ class PublishingHouse @Inject()(
     Future.sequence(posts.map(post => doPost(post, target)))
   }
 
+  def doOptionPosts(posts: List[Option[Post]], target: Target.Value): Future[List[Option[ReadyPost]]] = {
+    Future.sequence(posts.map(post => post.fold(Future(Option.empty[ReadyPost]))(p => doPost(p, target).map(Some(_)))))
+  }
+
   def doNewsletter(nl: NewsletterAndPosts, target: Target.Value): Future[ReadyNewsletter] = {
     Logger.info(s"compiling newsletter, id=${nl.id}, userId=${nl.userId}, title=${nl.title}")
     for {

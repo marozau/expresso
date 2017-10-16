@@ -31,13 +31,15 @@ GET         /admin/campaign                        controllers.CampaignControlle
 POST        /admin/campaign/submit                 controllers.CampaignController.submitCampaignForm()
 GET         /admin/campaign/schedule               controllers.CampaignController.scheduleCampaign(id: Long)
 
-
+GET         /admin/cache/clear-all                 controllers.CacheController.removeAll()
 
 GET         /v1/user/list                          controllers.UserController.list
 
 GET         /track/click                           controllers.TrackingController.click()
 
 GET         /current                               controllers.ArchiveController.current()
+GET         /archives/:newsletterId                controllers.ArchiveController.newsletter(newsletterId: Long)
+GET         /archives/:newsletterId/:postId        controllers.ArchiveController.post(newsletterId: Long, postId: Long)
 
 
 GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)

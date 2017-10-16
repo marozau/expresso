@@ -26,10 +26,6 @@ class HomeController @Inject()(components: ControllerComponents, mailChimp: Mail
     * will be called when the application receives a `GET` request with
     * a path of `/`.
     */
-  def index = Action { implicit request =>
-    Ok(views.html.index())
-  }
-
   def test = Action.async {
     mailChimp.getCampaigns("fb75c0e47f")
       .map(response => Ok(response.toString))

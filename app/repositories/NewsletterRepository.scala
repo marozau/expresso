@@ -67,7 +67,8 @@ class NewsletterRepository @Inject()(
     } yield
       NewsletterAndPosts(newsletter.id, newsletter.userId, newsletter.url,
         newsletter.title, newsletter.header, newsletter.footer, posts,
-        newsletter.options, newsletter.createdTimestamp, newsletter.modifiedTimestamp)
+        newsletter.options,
+        newsletter.publishTimestamp, newsletter.createdTimestamp, newsletter.modifiedTimestamp)
   }
 
   def updateTitleDBIO(userId: Long, id: Long, title: String) = {
