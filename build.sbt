@@ -6,7 +6,7 @@ version := "1.0"
 // Resolver is needed only for SNAPSHOT versions
 resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
+lazy val root = (project in file(".")).enablePlugins(PlayScala).settings(Manifest.manifestSettings: _*)
 
 scalaVersion := "2.12.3"
 
