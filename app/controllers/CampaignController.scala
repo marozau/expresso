@@ -59,23 +59,10 @@ object CampaignController {
                           recipients: Long,
                           sendTime: ScheduleTime)
 
+  //TODO: get fromName and fromEmail from user profile
   def campaignDraft(newsletterId: Long, recipientId: Long) = CampaignForm(None, newsletterId, "", "", None, "Expresso.today", "hi@expresso.today", recipientId, defaultScheduleTime)
 
-}
-
-@Singleton
-class CampaignController @Inject()(cc: ControllerComponents,
-                                   campaigns: CampaignRepository,
-                                   recipients: RecipientRepository,
-                                   jobScheduler: JobScheduler)(implicit ec: ExecutionContext)
-  extends AbstractController(cc) with I18nSupport {
-
-  import CampaignController._
-  import implicits.CampaignImplicits._
   import utils.TimeUtils._
-
-  val USER_ID = 10000000L
-
   val scheduleForm = Form(
     mapping(
       "zoneOffset" -> number(min = -12, max = 12),
@@ -97,6 +84,19 @@ class CampaignController @Inject()(cc: ControllerComponents,
       "schedule" -> scheduleForm.mapping
     )(CampaignForm.apply)(CampaignForm.unapply)
   )
+}
+
+@Singleton
+class CampaignController @Inject()(cc: ControllerComponents,
+                                   campaigns: CampaignRepository,
+                                   recipients: RecipientRepository,
+                                   jobScheduler: JobScheduler)(implicit ec: ExecutionContext)
+  extends AbstractController(cc) with I18nSupport {
+
+  import CampaignController._
+  import implicits.CampaignImplicits._
+
+  val USER_ID = 10000000L
 
   def getCampaignForm(id: Option[Long], newsletterId: Option[Long]) = Action.async { implicit request =>
     val recipient = recipients.getByUserId(USER_ID)

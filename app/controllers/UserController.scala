@@ -5,6 +5,8 @@ import javax.inject._
 import repositories.UserRepository
 import models._
 import play.api.Logger
+import play.api.data.Form
+import play.api.data.Forms._
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -18,17 +20,6 @@ object UserController {
 
   case class UserForm(id: Option[Long], email: String, locale: String, timezone: Int)
 
-}
-
-@Singleton
-class UserController @Inject()(cc: ControllerComponents, users: UserRepository)(implicit ec: ExecutionContext)
-  extends AbstractController(cc) with I18nSupport {
-
-  import UserController._
-
-  import play.api.data.Forms._
-  import play.api.data._
-
   val userForm = Form(
     mapping(
       "id" -> optional(longNumber),
@@ -37,6 +28,14 @@ class UserController @Inject()(cc: ControllerComponents, users: UserRepository)(
       "timezone" -> default(number(min = -12, max = 12), 3),
     )(UserForm.apply)(UserForm.unapply)
   )
+
+}
+
+@Singleton
+class UserController @Inject()(cc: ControllerComponents, users: UserRepository)(implicit ec: ExecutionContext)
+  extends AbstractController(cc) with I18nSupport {
+
+  import UserController._
 
   def getUserForm(id: Option[Long]) = Action.async { implicit request =>
     def getExisting(id: Long): Future[Form[UserForm]] = {

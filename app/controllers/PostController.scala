@@ -30,23 +30,7 @@ object PostController {
 
   case class PostSelectorForm(all: Boolean, elems: List[SelectedPostForm])
 
-}
-
-@Singleton
-class PostController @Inject()(
-                                cache: AsyncCacheApi,
-                                cc: ControllerComponents,
-                                htmlUtils: HtmlUtils,
-                                ph: PublishingHouse,
-                                posts: PostRepository)(implicit ec: ExecutionContext)
-  extends AbstractController(cc) with I18nSupport {
-
-  import PostController._
-  import implicits.PostImplicits._
   import utils.HtmlUtils._
-
-  val USER_ID = 10000000L
-
   val postForm = Form(
     mapping(
       "id" -> optional(longNumber),
@@ -68,6 +52,21 @@ class PostController @Inject()(
         )(SelectedPostForm.apply)(SelectedPostForm.unapply))
     )(PostSelectorForm.apply)(PostSelectorForm.unapply)
   )
+}
+
+@Singleton
+class PostController @Inject()(
+                                cache: AsyncCacheApi,
+                                cc: ControllerComponents,
+                                htmlUtils: HtmlUtils,
+                                ph: PublishingHouse,
+                                posts: PostRepository)(implicit ec: ExecutionContext)
+  extends AbstractController(cc) with I18nSupport {
+
+  import PostController._
+  import implicits.PostImplicits._
+
+  val USER_ID = 10000000L
 
   def getPostForm(id: Option[Long], newsletterId: Option[Long]) = Action.async { implicit request =>
     def getExisting(id: Long) = {

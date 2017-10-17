@@ -25,6 +25,19 @@ object NewsletterController {
 
   case class FooterForm(id: Long, text: String)
 
+  val headerForm = Form(
+    mapping(
+      "id" -> longNumber,
+      "text" -> nonEmptyText
+    )(HeaderForm.apply)(HeaderForm.unapply)
+  )
+
+  val footerForm = Form(
+    mapping(
+      "id" -> longNumber,
+      "text" -> nonEmptyText
+    )(FooterForm.apply)(FooterForm.unapply)
+  )
 }
 
 @Singleton
@@ -40,20 +53,6 @@ class NewsletterController @Inject()(
 
   import NewsletterController._
   import implicits.NewsletterImplicits._
-
-  val headerForm = Form(
-    mapping(
-      "id" -> longNumber,
-      "text" -> nonEmptyText
-    )(HeaderForm.apply)(HeaderForm.unapply)
-  )
-
-  val footerForm = Form(
-    mapping(
-      "id" -> longNumber,
-      "text" -> nonEmptyText
-    )(FooterForm.apply)(FooterForm.unapply)
-  )
 
   val USER_ID = 10000000L
 
