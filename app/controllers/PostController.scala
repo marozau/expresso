@@ -11,7 +11,7 @@ import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, AnyContent, ControllerComponents, Request}
-import repositories.PostRepository
+import models.repositories.PostRepository
 import services.PublishingHouse
 import services.PublishingHouse.Target
 import utils.HtmlUtils

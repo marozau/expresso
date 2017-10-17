@@ -4,7 +4,10 @@ organization := "today.expresso"
 version := "1.0"
 
 // Resolver is needed only for SNAPSHOT versions
-resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/models.repositories/snapshots/"
+// Resolvers is needed for silhouette
+resolvers := ("Atlassian Releases" at "https://maven.atlassian.com/public/") +: resolvers.value
+
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala).settings(Manifest.manifestSettings: _*)
 
@@ -75,4 +78,10 @@ libraryDependencies += "com.github.karelcemus" %% "play-redis" % "1.6.0"
 libraryDependencies += "com.github.cb372" %% "scalacache-caffeine" % "0.10.0"
 //https://github.com/mohiva/play-html-compressor/blob/master/README.md
 libraryDependencies += "com.mohiva" %% "play-html-compressor" % "0.7.1"
+
+
+libraryDependencies ++= Seq(
+  "com.mohiva" %% "play-silhouette" % "5.0.2",
+  "com.mohiva" %% "play-silhouette-testkit" % "5.0.2" % "test"
+)
 

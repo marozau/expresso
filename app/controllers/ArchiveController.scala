@@ -5,7 +5,7 @@ import javax.inject.{Inject, Singleton}
 import models.Post
 import play.api.cache.Cached
 import play.api.mvc.{AbstractController, ControllerComponents}
-import repositories.{CampaignRepository, NewsletterRepository, PostRepository}
+import models.repositories.{CampaignRepository, NewsletterRepository, PostRepository}
 import services.PublishingHouse
 
 import scala.concurrent.ExecutionContext

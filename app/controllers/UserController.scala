@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject._
 
-import repositories.UserRepository
+import models.repositories.UserRepository
 import models._
 import play.api.Logger
 import play.api.data.Form

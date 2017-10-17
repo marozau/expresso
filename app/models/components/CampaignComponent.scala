@@ -1,8 +1,9 @@
-package repositories
+package models.components
 
 import java.time.ZonedDateTime
 
 import models.Campaign
+import models.repositories.Repository
 import play.api.libs.json.JsValue
 import utils.SqlUtils
 

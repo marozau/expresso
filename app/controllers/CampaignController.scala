@@ -9,7 +9,7 @@ import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, ControllerComponents}
-import repositories.{CampaignRepository, RecipientRepository}
+import models.repositories.{CampaignRepository, RecipientRepository}
 import services.JobScheduler
 
 import scala.concurrent.{ExecutionContext, Future}

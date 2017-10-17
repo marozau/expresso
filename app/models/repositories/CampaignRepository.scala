@@ -1,9 +1,10 @@
-package repositories
+package models.repositories
 
 import javax.inject.{Inject, Singleton}
 
 import exceptions.CampaignNotFoundException
 import models.Campaign
+import models.components.{CampaignComponent, NewsletterComponent, UserComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile

@@ -1,10 +1,11 @@
-package repositories
+package models.repositories
 
 import java.time.{ZoneOffset, ZonedDateTime}
 import javax.inject.{Inject, Singleton}
 
 import exceptions.PostNotFoundException
 import models.Post
+import models.components.{NewsletterComponent, UserComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile

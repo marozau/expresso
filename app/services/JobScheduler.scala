@@ -6,7 +6,7 @@ import javax.inject.{Inject, Singleton}
 import jobs.CampaignJob
 import models.Campaign
 import org.slf4j.LoggerFactory
-import repositories.{CampaignRepository, RecipientRepository}
+import models.repositories.{CampaignRepository, RecipientRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
 

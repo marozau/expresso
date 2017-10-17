@@ -1,4 +1,4 @@
-package repositories
+package models.repositories
 
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile

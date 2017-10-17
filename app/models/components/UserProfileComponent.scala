@@ -1,7 +1,8 @@
-package repositories
+package models.components
 
 import java.time.{LocalDate, ZonedDateTime}
 
+import models.repositories.Repository
 import models.{UserProfile, UserSex}
 
 /**

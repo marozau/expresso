@@ -1,8 +1,9 @@
-package repositories
+package models.components
 
 import java.time.ZonedDateTime
 
 import models._
+import models.repositories.Repository
 import utils.SqlUtils
 
 /**

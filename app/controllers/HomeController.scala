@@ -6,7 +6,7 @@ import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import play.db.Database
-import repositories.{MailChimpRepository, UserRepository}
+import models.repositories.{MailChimpRepository, UserRepository}
 import services.{Elasticsearch, MailChimp}
 
 import scala.concurrent.{Await, ExecutionContext, Future}

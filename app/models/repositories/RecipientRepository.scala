@@ -1,9 +1,10 @@
-package repositories
+package models.repositories
 
 import javax.inject.{Inject, Singleton}
 
 import exceptions.RecipientNotFoundException
 import models.Recipient
+import models.components.RecipientComponent
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile

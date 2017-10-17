@@ -1,9 +1,10 @@
-package repositories
+package models.repositories
 
 import java.time.ZonedDateTime
 import javax.inject.{Inject, Singleton}
 
 import models._
+import models.components.{UserComponent, UserProfileComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
