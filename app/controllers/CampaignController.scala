@@ -9,8 +9,8 @@ import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, ControllerComponents}
-import models.repositories.{CampaignRepository, RecipientRepository}
-import services.JobScheduler
+import models.daos.{CampaignDao, RecipientDao}
+import clients.JobScheduler
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -88,8 +88,8 @@ object CampaignController {
 
 @Singleton
 class CampaignController @Inject()(cc: ControllerComponents,
-                                   campaigns: CampaignRepository,
-                                   recipients: RecipientRepository,
+                                   campaigns: CampaignDao,
+                                   recipients: RecipientDao,
                                    jobScheduler: JobScheduler)(implicit ec: ExecutionContext)
   extends AbstractController(cc) with I18nSupport {
 

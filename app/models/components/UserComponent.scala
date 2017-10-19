@@ -3,7 +3,7 @@ package models.components
 import java.time.ZonedDateTime
 
 import models._
-import models.repositories.Repository
+import models.api.Repository
 import utils.SqlUtils
 
 /**
@@ -21,16 +21,22 @@ trait UserComponent {
   implicit val userStatusListTypeMapper = createEnumListJdbcType("user_status", UserStatus)
   implicit val userStatusColumnExtensionMethodsBuilder = createEnumColumnExtensionMethodsBuilder(UserStatus)
 
-  protected class Users(tag: Tag) extends Table[User](tag, "users") {
+  case class DBUser(
+                   id: Option[Long],
+                   email: String,
+                   roles: List[UserRole.Value],
+                   status: UserStatus.Value,
+                   reason: Option[String] = None,
+                   createdTimestamp: Option[ZonedDateTime] = None,
+                   modifiedTimestamp: Option[ZonedDateTime] = None
+                 )
+
+  protected class Users(tag: Tag) extends Table[DBUser](tag, "users") {
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
 
     def email = column[String]("email", O.Unique)
 
-    def locale = column[String]("locale")
-
-    def timezone = column[Int]("timezone")
-
-    def role = column[UserRole.Value]("role")
+    def roles = column[List[UserRole.Value]]("roles")
 
     def status = column[UserStatus.Value]("status")
 
@@ -40,7 +46,7 @@ trait UserComponent {
 
     def modifiedTimestamp = column[ZonedDateTime]("modified_timestamp", SqlUtils.timestampTzNotNullType)
 
-    def * = (id.?, email, locale, timezone, role, status, reason, createdTimestamp.?, modifiedTimestamp.?) <> ((User.apply _).tupled, User.unapply)
+    def * = (id.?, email, roles, status, reason, createdTimestamp.?, modifiedTimestamp.?) <> ((DBUser.apply _).tupled, DBUser.unapply)
 
   }
 

@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, ControllerComponents}
-import services.Mandrill
+import clients.Mandrill
 
 import scala.concurrent.ExecutionContext
 

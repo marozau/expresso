@@ -9,7 +9,7 @@ import org.quartz.core.jmx.JobDataMapSupport
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.{Quartz, Telegram}
+import clients.{Quartz, Telegram}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext}

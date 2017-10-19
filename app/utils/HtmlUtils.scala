@@ -5,8 +5,8 @@ import javax.inject.{Inject, Singleton}
 
 import play.api.{Configuration, Logger}
 import play.api.data.FormError
-import services.Compiler
-import services.Helper.CompilationError
+import clients.Compiler
+import clients.Helper.CompilationError
 
 /**
   * @author im.

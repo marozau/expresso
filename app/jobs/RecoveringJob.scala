@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadLocalRandom
 import com.google.common.base.Joiner
 import org.quartz._
 import play.api.Logger
-import services.Quartz
+import clients.Quartz
 
 /**
   * @author im.

@@ -3,6 +3,9 @@ package controllers
 import java.util.jar.Manifest
 import javax.inject.{Inject, Singleton}
 
+import com.mohiva.play.silhouette.api.{Environment, Silhouette}
+import com.mohiva.play.silhouette.impl.authenticators.JWTAuthenticator
+import modules.DefaultEnv
 import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, ControllerComponents}
@@ -11,7 +14,10 @@ import play.api.mvc.{AbstractController, ControllerComponents}
   * @author im.
   */
 @Singleton
-class ManifestController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
+class ManifestController @Inject()(
+                                    cc: ControllerComponents,
+                                    env: Environment[DefaultEnv],
+                                    silhouette: Silhouette[DefaultEnv]) extends AbstractController(cc) {
 
   import scala.collection.JavaConverters._
 

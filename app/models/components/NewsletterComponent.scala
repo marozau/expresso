@@ -3,7 +3,7 @@ package models.components
 import java.time.ZonedDateTime
 
 import models.Newsletter
-import models.repositories.Repository
+import models.api.Repository
 import play.api.libs.json.JsValue
 import utils.SqlUtils
 

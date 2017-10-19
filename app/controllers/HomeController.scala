@@ -6,8 +6,8 @@ import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import play.db.Database
-import models.repositories.{MailChimpRepository, UserRepository}
-import services.{Elasticsearch, MailChimp}
+import models.daos.{MailChimpDao, UserDao}
+import clients.{Elasticsearch, MailChimp}
 
 import scala.concurrent.{Await, ExecutionContext, Future}
 
@@ -16,7 +16,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
   * application's home page.
   */
 @Singleton
-class HomeController @Inject()(components: ControllerComponents, mailChimp: MailChimp, elasticsearch: Elasticsearch, repo: UserRepository, mailChimpRepo: MailChimpRepository)(implicit ec: ExecutionContext)
+class HomeController @Inject()(components: ControllerComponents, mailChimp: MailChimp, elasticsearch: Elasticsearch, repo: UserDao, mailChimpRepo: MailChimpDao)(implicit ec: ExecutionContext)
   extends AbstractController(components) with I18nSupport {
 
   /**
@@ -51,30 +51,30 @@ class HomeController @Inject()(components: ControllerComponents, mailChimp: Mail
       }
   }
 
-  def test5 = Action.async {
-    import scala.concurrent.duration._
-    mailChimp.getCampaigns("fb75c0e47f")
-      .map { campaigns =>
-        campaigns
-          .grouped(10)
-          .foreach { campaignGrouped =>
-            Await.result(Future.sequence(
-              campaignGrouped.map { campaign =>
-                mailChimp.getCampaignContent(campaign.id)
-                  .map { content =>
-                    elasticsearch.index(ExpressoIndex(campaign.id, campaign.archiveUrl, campaign.sendTime, content.plainText))
-                  }
-              }
-            ).recover {
-              case t: Throwable => Logger.error("failed to index document", t)
-            }, 1.minute)
-            Logger.info("completed: 10")
-          }
-      }.map(r => Ok("Все заиндексировано!"))
-      .recover {
-        case t: Throwable => Ok("Ошибка:" + t.getMessage)
-      }
-  }
+//  def test5 = Action.async {
+//    import scala.concurrent.duration._
+//    mailChimp.getCampaigns("fb75c0e47f")
+//      .map { campaigns =>
+//        campaigns
+//          .grouped(10)
+//          .foreach { campaignGrouped =>
+//            Await.result(Future.sequence(
+//              campaignGrouped.map { campaign =>
+//                mailChimp.getCampaignContent(campaign.id)
+//                  .map { content =>
+//                    elasticsearch.index(ExpressoIndex(campaign.id, campaign.archiveUrl, campaign.sendTime, content.plainText))
+//                  }
+//              }
+//            ).recover {
+//              case t: Throwable => Logger.error("failed to index document", t)
+//            }, 1.minute)
+//            Logger.info("completed: 10")
+//          }
+//      }.map(r => Ok("Все заиндексировано!"))
+//      .recover {
+//        case t: Throwable => Ok("Ошибка:" + t.getMessage)
+//      }
+//  }
 
   def test6 = Action.async {
     mailChimp.getCampaignSubscriberActivity("fdd4833d93", includeEmpty = false)

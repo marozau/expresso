@@ -9,9 +9,9 @@ import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, ControllerComponents}
-import models.repositories.{NewsletterRepository, PostRepository}
-import services.PublishingHouse
-import services.PublishingHouse.Target
+import models.daos.{NewsletterDao, PostDao}
+import clients.PublishingHouse
+import clients.PublishingHouse.Target
 import utils.HtmlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,8 +44,8 @@ object NewsletterController {
 class NewsletterController @Inject()(
                                       cache: AsyncCacheApi,
                                       cc: ControllerComponents,
-                                      newsletters: NewsletterRepository,
-                                      posts: PostRepository,
+                                      newsletters: NewsletterDao,
+                                      posts: PostDao,
                                       htmlUtils: HtmlUtils,
                                       ph: PublishingHouse
                                     )(implicit ec: ExecutionContext)

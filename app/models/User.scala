@@ -2,6 +2,7 @@ package models
 
 import java.time.ZonedDateTime
 
+import com.mohiva.play.silhouette.api.{Identity, LoginInfo}
 import play.api.libs.json._
 
 /**
@@ -21,15 +22,14 @@ object UserStatus extends Enumeration {
 
 case class User(
                  id: Option[Long],
+                 loginInfo: LoginInfo,
                  email: String,
-                 locale: String,
-                 timezone: Int,
-                 role: UserRole.Value,
+                 roles: List[UserRole.Value],
                  status: UserStatus.Value,
                  reason: Option[String] = None,
                  createdTimestamp: Option[ZonedDateTime] = None,
                  modifiedTimestamp: Option[ZonedDateTime] = None
-               )
+               ) extends Identity
 
 object User {
 

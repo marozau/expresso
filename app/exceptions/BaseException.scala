@@ -15,6 +15,8 @@ object BaseException {
     val FRAME_NOT_FOUND = Value
     val CAMPAIGN_NOT_FOUND = Value
     val RECIPIENT_NOT_FOUND = Value
+    val USER_NOT_FOUND = Value
+    val EMAIL_NOT_FOUND = Value
   }
 }
 

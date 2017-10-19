@@ -6,6 +6,8 @@ CREATE TYPE user_sex AS ENUM ('MALE', 'FEMALE', 'UNKNOWN');
 CREATE TABLE user_profiles (
   user_id            BIGINT PRIMARY KEY REFERENCES users (id),
 
+  timezone           INT,
+  locale             TEXT,
   first_name         TEXT,
   last_name          TEXT,
   sex                user_sex,
@@ -13,7 +15,6 @@ CREATE TABLE user_profiles (
   country            CHAR(2),
   city               TEXT,
   postcode           TEXT,
-  timezone           TEXT,
 
   modified_timestamp TIMESTAMPTZ DEFAULT timezone('UTC', now())
 );

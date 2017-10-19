@@ -8,7 +8,7 @@ import models.Campaign
 import org.quartz.core.jmx.JobDataMapSupport
 import org.quartz._
 import org.slf4j.LoggerFactory
-import services.{Mailer, Quartz}
+import clients.{Mailer, Quartz}
 
 /**
   * @author im.

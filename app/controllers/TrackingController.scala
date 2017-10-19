@@ -3,7 +3,7 @@ package controllers
 import javax.inject.{Inject, Singleton}
 
 import play.api.mvc.{AbstractController, ControllerComponents}
-import services.Tracking
+import clients.Tracking
 
 import scala.concurrent.ExecutionContext
 

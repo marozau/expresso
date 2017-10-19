@@ -11,9 +11,9 @@ import play.api.data.Forms._
 import play.api.data._
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, AnyContent, ControllerComponents, Request}
-import models.repositories.PostRepository
-import services.PublishingHouse
-import services.PublishingHouse.Target
+import models.daos.PostDao
+import clients.PublishingHouse
+import clients.PublishingHouse.Target
 import utils.HtmlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -60,7 +60,7 @@ class PostController @Inject()(
                                 cc: ControllerComponents,
                                 htmlUtils: HtmlUtils,
                                 ph: PublishingHouse,
-                                posts: PostRepository)(implicit ec: ExecutionContext)
+                                posts: PostDao)(implicit ec: ExecutionContext)
   extends AbstractController(cc) with I18nSupport {
 
   import PostController._

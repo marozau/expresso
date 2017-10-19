@@ -70,7 +70,7 @@ libraryDependencies ++= Seq(
 //play.sbt.routes.RoutesKeys.routesImport += "util.Binders._"
 //play.sbt.routes.RoutesKeys.routesImport += "binders.ReadyPostBinder._"
 //play.sbt.routes.RoutesKeys.routesImport += "models._"
-//play.sbt.routes.RoutesKeys.routesImport += "services.PublishingHouse._"
+//play.sbt.routes.RoutesKeys.routesImport += "clients.PublishingHouse._"
 
 //https://github.com/KarelCemus/play-redis
 libraryDependencies += "com.github.karelcemus" %% "play-redis" % "1.6.0"
@@ -79,9 +79,15 @@ libraryDependencies += "com.github.cb372" %% "scalacache-caffeine" % "0.10.0"
 //https://github.com/mohiva/play-html-compressor/blob/master/README.md
 libraryDependencies += "com.mohiva" %% "play-html-compressor" % "0.7.1"
 
+libraryDependencies += "net.codingwell" %% "scala-guice" % "4.1.0"
+libraryDependencies += "com.iheart" %% "ficus" % "1.4.3"
 
 libraryDependencies ++= Seq(
   "com.mohiva" %% "play-silhouette" % "5.0.2",
+  "com.mohiva" %% "play-silhouette-cas" % "5.0.2",
+  "com.mohiva" %% "play-silhouette-password-bcrypt" % "5.0.2",
+  "com.mohiva" %% "play-silhouette-persistence" % "5.0.2",
+  "com.mohiva" %% "play-silhouette-crypto-jca" % "5.0.2",
   "com.mohiva" %% "play-silhouette-testkit" % "5.0.2" % "test"
 )
 

@@ -5,8 +5,8 @@ import javax.inject.{Inject, Singleton}
 import models.Post
 import play.api.cache.Cached
 import play.api.mvc.{AbstractController, ControllerComponents}
-import models.repositories.{CampaignRepository, NewsletterRepository, PostRepository}
-import services.PublishingHouse
+import models.daos.{CampaignDao, NewsletterDao, PostDao}
+import clients.PublishingHouse
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -17,9 +17,9 @@ import scala.concurrent.duration._
 @Singleton
 class ArchiveController @Inject()(
                                    cc: ControllerComponents,
-                                   newsletters: NewsletterRepository,
-                                   posts: PostRepository,
-                                   campaigns: CampaignRepository,
+                                   newsletters: NewsletterDao,
+                                   posts: PostDao,
+                                   campaigns: CampaignDao,
                                    ph: PublishingHouse,
                                    cached: Cached
                                  )(implicit ec: ExecutionContext)

@@ -32,6 +32,10 @@
   <logger name="com.avaje.ebeaninternal.server.core.XmlConfigLoader" level="OFF" />
   <logger name="com.avaje.ebeaninternal.server.lib.BackgroundThread" level="OFF" />
   <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF" />
+  <logger name="play.api.mvc.DefaultUrlEncodedCookieDataCodec" level="ERROR"/>
+
+  <logger name="com.mohiva" level="DEBUG" />
+  <!--<logger name="com.mohiva.play.silhouette.api.Silhouette" level="INFO" />-->
 
   <root level="INFO">
     <!--<appender-ref ref="ASYNCFILE" />-->

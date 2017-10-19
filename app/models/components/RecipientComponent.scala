@@ -3,7 +3,7 @@ package models.components
 import java.time.ZonedDateTime
 
 import models.Recipient
-import models.repositories.Repository
+import models.api.Repository
 import utils.SqlUtils
 
 /**
