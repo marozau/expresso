@@ -3,7 +3,7 @@
 DROP TYPE IF EXISTS user_status CASCADE;
 CREATE TYPE user_status AS ENUM ('NEW', 'VERIFIED', 'BLOCKED');
 DROP TYPE IF EXISTS user_role CASCADE;
-CREATE TYPE user_role AS ENUM ('GUEST', 'USER', 'WRITER', 'EDITOR');
+CREATE TYPE user_role AS ENUM ('GUEST', 'USER', 'WRITER', 'EDITOR', 'ADMIN');
 
 CREATE TABLE users (
   id                 BIGSERIAL PRIMARY KEY,
@@ -35,7 +35,7 @@ CREATE INDEX users_modified_timestamp_idx
 CREATE INDEX users_email_idx
   ON users (email);
 
-ALTER SEQUENCE users_id_seq RESTART WITH 10000000;
+ALTER SEQUENCE users_id_seq RESTART WITH 10000001;
 
 # --- !Downs
 

@@ -1,6 +1,5 @@
 package controllers
 
-import java.util.UUID
 import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api._
@@ -79,10 +78,11 @@ class SignUpController @Inject() (
               roles = List(UserRole.USER),
               status = UserStatus.NEW
             )
+            import scala.concurrent.duration._
             for {
               user <- userService.save(user)
               _ <- authInfoRepository.add(loginInfo, authInfo)
-              authToken <- authTokenService.create(user.id.get)
+              authToken <- authTokenService.create(user.id.get, 7.days)
             } yield {
               val url = routes.ActivateAccountController.activate(authToken.id).absoluteURL()
               mailerClient.send(Email(

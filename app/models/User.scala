@@ -9,13 +9,13 @@ import play.api.libs.json._
   * @author im.
   */
 object UserRole extends Enumeration {
-  val USER, GUEST = Value
+  val USER, GUEST, WRITER, EDITOR, ADMIN = Value
 
   implicit val userRoleReads = Reads.enumNameReads(UserRole)
 }
 
 object UserStatus extends Enumeration {
-  val NEW, REGISTERED, WAITING_FOR_VERIFICATION, VERIFIED, BLOCKED, CLOSED = Value
+  val NEW, VERIFIED, BLOCKED, CLOSED = Value
 
   implicit val userStatusFormat = Reads.enumNameReads(UserStatus)
 }

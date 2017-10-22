@@ -1,5 +1,8 @@
 package models.components
 
+import java.time.ZonedDateTime
+import java.util.UUID
+
 import models.api.Repository
 
 /**
@@ -40,6 +43,7 @@ trait SilhouetteComponent {
     def * = (userId, loginInfoId) <> (DBUserLoginInfo.tupled, DBUserLoginInfo.unapply)
 
     def userIdSupplier = foreignKey("user_login_info_user_id_fkey", userId, users)(_.id)
+
     def loginInfoIdSupplier = foreignKey("user_login_info_login_info_id_fkey", loginInfoId, loginInfos)(_.id)
   }
 
@@ -64,11 +68,32 @@ trait SilhouetteComponent {
     def loginInfoIdSupplier = foreignKey("password_info_login_info_id_fkey", loginInfoId, loginInfos)(_.id)
   }
 
+  case class DBAuthToken(
+                          id: UUID,
+                          userId: Long,
+                          expiry: ZonedDateTime
+                        )
+
+  class AuthTokens(tag: Tag) extends Table[DBAuthToken](tag, "auth_token") {
+    def id = column[UUID]("id")
+
+    def userId = column[Long]("user_id")
+
+    def expiry = column[ZonedDateTime]("expiry")
+
+    def * = (id, userId, expiry) <> (DBAuthToken.tupled, DBAuthToken.unapply)
+
+    def loginInfoIdSupplier = foreignKey("auth_token_user_id_fkey", userId, users)(_.id)
+  }
+
+
   val loginInfos = TableQuery[LoginInfos]
   val userLoginInfos = TableQuery[UserLoginInfos]
   val passwordInfos = TableQuery[PasswordInfos]
+  val authTokens = TableQuery[AuthTokens]
 
   import com.mohiva.play.silhouette.api.LoginInfo
+
   def loginInfoQuery(loginInfo: LoginInfo) =
     loginInfos.filter(dbLoginInfo => dbLoginInfo.providerId === loginInfo.providerID && dbLoginInfo.providerKey === loginInfo.providerKey)
 }

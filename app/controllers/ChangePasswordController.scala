@@ -57,24 +57,22 @@ class ChangePasswordController @Inject() (
    *
    * @return The result to display.
    */
-  def submit = silhouette.SecuredAction.async {
-    Future(Ok("change"))
-//    implicit request: SecuredRequest[DefaultEnv, AnyContent] =>
-//      ChangePasswordForm.form.bindFromRequest.fold(
-//        form => Future.successful(BadRequest(views.html.changePassword(form, request.identity))),
-//        password => {
-//          val (currentPassword, newPassword) = password
-//          val credentials = Credentials(request.identity.email.getOrElse(""), currentPassword)
-//          credentialsProvider.authenticate(credentials).flatMap { loginInfo =>
-//            val passwordInfo = passwordHasherRegistry.current.hash(newPassword)
-//            authInfoRepository.update[PasswordInfo](loginInfo, passwordInfo).map { _ =>
-//              Redirect(routes.ChangePasswordController.view()).flashing("success" -> Messages("password.changed"))
-//            }
-//          }.recover {
-//            case _: ProviderException =>
-//              Redirect(routes.ChangePasswordController.view()).flashing("error" -> Messages("current.password.invalid"))
-//          }
-//        }
-//      )
+  def submit = silhouette.SecuredAction.async { implicit request: SecuredRequest[DefaultEnv, AnyContent] =>
+      ChangePasswordForm.form.bindFromRequest.fold(
+        form => Future.successful(BadRequest(views.html.admin.changePassword(form, request.identity))),
+        password => {
+          val (currentPassword, newPassword) = password
+          val credentials = Credentials(request.identity.email, currentPassword)
+          credentialsProvider.authenticate(credentials).flatMap { loginInfo =>
+            val passwordInfo = passwordHasherRegistry.current.hash(newPassword)
+            authInfoRepository.update[PasswordInfo](loginInfo, passwordInfo).map { _ =>
+              Redirect(routes.ChangePasswordController.view()).flashing("success" -> Messages("password.changed"))
+            }
+          }.recover {
+            case _: ProviderException =>
+              Redirect(routes.ChangePasswordController.view()).flashing("error" -> Messages("current.password.invalid"))
+          }
+        }
+      )
   }
 }
