@@ -5,10 +5,16 @@ CREATE TABLE login_info (
   provider_id  TEXT      NOT NULL,
   provider_key TEXT      NOT NULL
 );
+
 CREATE TABLE user_login_info (
   user_id       BIGINT NOT NULL REFERENCES users (id),
   login_info_id BIGINT NOT NULL REFERENCES login_info (id)
 );
+
+CREATE INDEX user_login_info_user_id_idx
+  ON user_login_info (user_id);
+CREATE INDEX user_login_info_login_info_id_idx
+  ON user_login_info (login_info_id);
 
 CREATE TABLE password_info (
   login_info_id BIGINT NOT NULL REFERENCES login_info (id),
@@ -17,11 +23,20 @@ CREATE TABLE password_info (
   salt          TEXT
 );
 
+CREATE INDEX password_info_login_info_id_idx
+  ON password_info (login_info_id);
+
 CREATE TABLE auth_token (
-  id      UUID        NOT NULL,
+  id      UUID        NOT NULL PRIMARY KEY,
   user_id BIGINT      NOT NULL REFERENCES users (id),
   expiry  TIMESTAMPTZ NOT NULL
 );
+
+CREATE INDEX auth_token_id_and_expiry_idx
+  ON auth_token (id, expiry);
+CREATE INDEX auth_token_expiry_idx
+  ON auth_token (expiry);
+
 
 INSERT INTO users (id, email, status, roles) VALUES (10000000, 'admin@expresso.today', 'VERIFIED', '{ADMIN}');
 INSERT INTO login_info (id, provider_id, provider_key) VALUES (0, 'credentials', 'admin@expresso.today');

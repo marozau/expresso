@@ -14,6 +14,12 @@ CREATE TABLE newsletters (
   modified_timestamp TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now())
 );
 
+CREATE INDEX newsletters_id_and_user_id_idx
+  ON newsletters (id, user_id);
+
+CREATE INDEX newsletters_modified_timestamp_idx
+  ON newsletters (modified_timestamp);
+
 DROP TRIGGER IF EXISTS trigger_newsletters_modified
 ON newsletters;
 CREATE TRIGGER trigger_newsletters_modified

@@ -91,3 +91,4 @@ libraryDependencies ++= Seq(
   "com.mohiva" %% "play-silhouette-testkit" % "5.0.2" % "test"
 )
 
+libraryDependencies += "com.sksamuel.avro4s" %% "avro4s-core" % "1.8.0"

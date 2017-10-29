@@ -10,6 +10,12 @@ CREATE TABLE recipients (
   modified_timestamp TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now())
 );
 
+CREATE INDEX recipients_id_and_user_id_idx
+  ON recipients (id, user_id);
+
+CREATE INDEX recipients_modified_timestamp_idx
+  ON recipients (modified_timestamp);
+
 DROP TRIGGER IF EXISTS trigger_recipients_modified
 ON recipients;
 CREATE TRIGGER trigger_recipients_modified

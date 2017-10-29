@@ -13,6 +13,12 @@ CREATE TABLE posts (
   modified_timestamp TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now())
 );
 
+CREATE INDEX posts_id_and_user_id_idx
+  ON posts (id, user_id);
+
+CREATE INDEX posts_modified_timestamp_idx
+  ON posts (modified_timestamp);
+
 DROP TRIGGER IF EXISTS trigger_posts_modified
 ON posts;
 CREATE TRIGGER trigger_posts_modified

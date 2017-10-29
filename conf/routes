@@ -50,7 +50,8 @@ GET         /admin/cache/clear-all                 controllers.CacheController.r
 
 GET         /v1/user/list                          controllers.UserController.list
 
-GET         /track/click                           controllers.TrackingController.click()
+GET         /click                           controllers.TrackingController.click(data: events.newsletter.Click)
+#GET         /click                           controllers.TrackingController.click(data: String)
 
 GET         /current                               controllers.ArchiveController.current()
 GET         /archives/:newsletterId                controllers.ArchiveController.newsletter(newsletterId: Long)

@@ -21,6 +21,12 @@ CREATE TABLE campaigns (
   modified_timestamp TIMESTAMPTZ     NOT NULL DEFAULT timezone('UTC', now())
 );
 
+CREATE INDEX campaigns_id_and_user_id_idx
+  ON campaigns (id, user_id);
+
+CREATE INDEX campaigns_modified_timestamp_idx
+  ON campaigns (modified_timestamp);
+
 DROP TRIGGER IF EXISTS trigger_campaigns_modified
 ON campaigns;
 CREATE TRIGGER trigger_campaigns_modified
