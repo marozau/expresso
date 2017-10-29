@@ -3,9 +3,9 @@ package controllers
 import javax.inject.{Inject, Singleton}
 
 import play.api.mvc.{AbstractController, ControllerComponents}
-import clients.Tracking
 import events.newsletter.Click
 import play.api.Logger
+import services.TrackingService
 
 import scala.concurrent.ExecutionContext
 
@@ -13,7 +13,7 @@ import scala.concurrent.ExecutionContext
   * @author im.
   */
 @Singleton
-class TrackingController @Inject() (cc: ControllerComponents, tracking: Tracking)(implicit ec: ExecutionContext)
+class TrackingController @Inject()(cc: ControllerComponents, tracking: TrackingService)(implicit ec: ExecutionContext)
   extends AbstractController(cc) {
 
   import Click._

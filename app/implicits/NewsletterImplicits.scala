@@ -6,7 +6,6 @@ package implicits
 object NewsletterImplicits {
 
   import PostImplicits._
-  import controllers.NewsletterController._
   import models._
 
   implicit def optionStringCast(str: Option[String]): String = str.getOrElse("")

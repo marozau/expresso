@@ -1,5 +1,5 @@
-@import _root_.clients.Tracking
-@(text: String, href: String, bold: Boolean, italic: Boolean)(implicit track: Tracking)
+@import services.TrackingService
+@(text: String, href: String, bold: Boolean, italic: Boolean)(implicit track: TrackingService)
 
 @*TODO: add utm mark to the href*@
 <a href="@track.trackClick(href)" target="_blank" style="mso-line-height-rule: exactly;

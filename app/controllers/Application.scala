@@ -14,7 +14,7 @@ class Application @Inject()(cc: ControllerComponents) extends AbstractController
   def javascriptRoutes = Action { implicit request =>
     Ok(
       JavaScriptReverseRouter("jsRoutes")(
-        routes.javascript.PostController.getPostForm
+        auth.routes.javascript.AuthController.index
       )
     ).as("text/javascript")
   }

@@ -4,7 +4,6 @@ import java.net.URL
 
 import com.fasterxml.jackson.core.`type`.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import controllers.PostController.PostForm
 import models.Post
 import play.api.libs.json.{JsSuccess, JsValue, Json, Reads}
 
@@ -37,6 +36,4 @@ object PostImplicits {
 //    emptyOptions
 //    options.getOrElse(emptyOptions).as[Map[String, Any]]
   }
-
-  implicit def postFormCast(p: Post): PostForm = PostForm(p.id, p.newsletterId, p.title, p.annotation, p.body, p.refs)
 }

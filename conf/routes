@@ -3,54 +3,48 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-GET         /                                      controllers.ApplicationController.index
-GET         /signOut                               controllers.ApplicationController.signOut
-GET         /signUp                                controllers.SignUpController.view
-POST        /signUp                                controllers.SignUpController.submit
-GET         /signIn                                controllers.SignInController.view
-POST        /signIn                                controllers.SignInController.submit
-GET         /password/forgot                       controllers.ForgotPasswordController.view
-POST        /password/forgot                       controllers.ForgotPasswordController.submit
-GET         /password/reset/:token                 controllers.ResetPasswordController.view(token: java.util.UUID)
-POST        /password/reset/:token                 controllers.ResetPasswordController.submit(token: java.util.UUID)
-GET         /password/change                       controllers.ChangePasswordController.view
-POST        /password/change                       controllers.ChangePasswordController.submit
-
-GET         /account/email/:email                  controllers.ActivateAccountController.send(email: String)
-GET         /account/activate/:token               controllers.ActivateAccountController.activate(token: java.util.UUID)
+GET         /                                      controllers.auth.AuthController.index
+GET         /signOut                               controllers.auth.AuthController.signOut
+GET         /signUp                                controllers.auth.SignUpController.view
+POST        /signUp                                controllers.auth.SignUpController.submit
+GET         /signIn                                controllers.auth.SignInController.view
+POST        /signIn                                controllers.auth.SignInController.submit
+GET         /password/forgot                       controllers.auth.ForgotPasswordController.view
+POST        /password/forgot                       controllers.auth.ForgotPasswordController.submit
+GET         /password/reset/:token                 controllers.auth.ResetPasswordController.view(token: java.util.UUID)
+POST        /password/reset/:token                 controllers.auth.ResetPasswordController.submit(token: java.util.UUID)
+GET         /password/change                       controllers.auth.ChangePasswordController.view
+POST        /password/change                       controllers.auth.ChangePasswordController.submit
+GET         /user/email/:email                     controllers.auth.ActivateAccountController.send(email: String)
+GET         /user/activate/:token                  controllers.auth.ActivateAccountController.activate(token: java.util.UUID)
+GET         /user/list                             controllers.auth.UserController.list
 
 
 GET         /manifest                              controllers.ManifestController.get()
 GET         /mandrill/send/:email/:template        controllers.MandrillController.send(email, template)
 GET         /healthz                               controllers.Application.healthz()
 
-GET         /admin/post                            controllers.PostController.getPostForm(id: Option[Long], newsletter: Option[Long])
-POST        /admin/post/submit                     controllers.PostController.submitPostForm()
-GET         /admin/post/list                       controllers.PostController.getPostList(drop: Int ?= 0, take: Int ?= 50)
-GET         /admin/post/list/submit                controllers.PostController.submitPostList()
-GET         /admin/post/show                       controllers.PostController.showPost(id: Long)
-
-GET         /admin/newsletter/list                 controllers.NewsletterController.getNewsletterList()
-GET         /admin/newsletter/posts                controllers.NewsletterController.getNewsletterPosts(id: Option[Long])
-GET         /admin/newsletter/posts/remove         controllers.NewsletterController.removePost(id: Long, postId: Long)
-GET         /admin/newsletter/posts/up             controllers.NewsletterController.moveUpPost(id: Long, postId: Long)
-GET         /admin/newsletter/posts/down           controllers.NewsletterController.moveDownPost(id: Long, postId: Long)
-GET         /admin/newsletter/posts/add            controllers.NewsletterController.addPost(id: Long, postId: Long)
-GET         /admin/newsletter/header               controllers.NewsletterController.getHeaderForm(id: Long)
-POST        /admin/newsletter/header/submit        controllers.NewsletterController.submitHeaderForm()
-GET         /admin/newsletter/footer               controllers.NewsletterController.getFooterForm(id: Long)
-POST        /admin/newsletter/footer/submit        controllers.NewsletterController.submitFooterForm()
-GET         /admin/newsletter/show                 controllers.NewsletterController.getNewsletterFinal(campaignId: Long, newsletterId: Long)
-
-GET         /admin/campaign                        controllers.CampaignController.getCampaignForm(id: Option[Long], newsletterId: Option[Long])
-POST        /admin/campaign/submit                 controllers.CampaignController.submitCampaignForm()
-GET         /admin/campaign/schedule               controllers.CampaignController.scheduleCampaign(id: Long)
+GET         /admin/post                            controllers.office.PostController.getPostForm(id: Option[Long], newsletter: Option[Long])
+POST        /admin/post                            controllers.office.PostController.submitPostForm()
+GET         /admin/post/show                       controllers.office.PostController.showPost(id: Long)
+GET         /admin/newsletter/list                 controllers.office.NewsletterController.getNewsletterList()
+GET         /admin/newsletter/posts                controllers.office.NewsletterController.getNewsletterPosts(id: Option[Long])
+GET         /admin/newsletter/posts/remove         controllers.office.NewsletterController.removePost(id: Long, postId: Long)
+GET         /admin/newsletter/posts/up             controllers.office.NewsletterController.moveUpPost(id: Long, postId: Long)
+GET         /admin/newsletter/posts/down           controllers.office.NewsletterController.moveDownPost(id: Long, postId: Long)
+GET         /admin/newsletter/posts/add            controllers.office.NewsletterController.addPost(id: Long, postId: Long)
+GET         /admin/newsletter/header               controllers.office.NewsletterController.getHeaderForm(id: Long)
+POST        /admin/newsletter/header               controllers.office.NewsletterController.submitHeaderForm()
+GET         /admin/newsletter/footer               controllers.office.NewsletterController.getFooterForm(id: Long)
+POST        /admin/newsletter/footer               controllers.office.NewsletterController.submitFooterForm()
+GET         /admin/newsletter/show                 controllers.office.NewsletterController.getNewsletterFinal(campaignId: Long, newsletterId: Long)
+GET         /admin/campaign                        controllers.office.CampaignController.getCampaignForm(id: Option[Long], newsletterId: Option[Long])
+POST        /admin/campaign                        controllers.office.CampaignController.submitCampaignForm()
+GET         /admin/campaign/schedule               controllers.office.CampaignController.scheduleCampaign(id: Long)
 
 GET         /admin/cache/clear-all                 controllers.CacheController.removeAll()
 
-GET         /v1/user/list                          controllers.UserController.list
-
-GET         /click                           controllers.TrackingController.click(data: events.newsletter.Click)
+GET         /click                                 controllers.TrackingController.click(data: events.newsletter.Click)
 #GET         /click                           controllers.TrackingController.click(data: String)
 
 GET         /current                               controllers.ArchiveController.current()
@@ -58,6 +52,7 @@ GET         /archives/:newsletterId                controllers.ArchiveController
 GET         /archives/:newsletterId/:postId        controllers.ArchiveController.post(newsletterId: Long, postId: Long)
 
 
-GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file                          controllers.Assets.versioned(file)
+#GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)
 GET         /javascriptRoutes                      controllers.Application.javascriptRoutes
 ->          /webjars                               webjars.Routes

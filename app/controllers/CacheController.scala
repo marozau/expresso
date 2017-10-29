@@ -2,8 +2,12 @@ package controllers
 
 import javax.inject.{Inject, Singleton}
 
+import com.mohiva.play.silhouette.api.Silhouette
+import models.UserRole
+import modules.DefaultEnv
 import play.api.cache.AsyncCacheApi
-import play.api.mvc.{AbstractController, ControllerComponents}
+import play.api.mvc.{AbstractController, AnyContent, ControllerComponents, Request}
+import utils.WithRole
 
 import scala.concurrent.ExecutionContext
 
@@ -11,10 +15,12 @@ import scala.concurrent.ExecutionContext
   * @author im.
   */
 @Singleton
-class CacheController @Inject()(cc: ControllerComponents, asyncCacheApi: AsyncCacheApi)(implicit ec: ExecutionContext)
+class CacheController @Inject()(cc: ControllerComponents,
+                                silhouette: Silhouette[DefaultEnv],
+                                asyncCacheApi: AsyncCacheApi)(implicit ec: ExecutionContext)
   extends AbstractController(cc) {
 
-  def removeAll() = Action.async { implicit request =>
+  def removeAll() = silhouette.SecuredAction(WithRole(UserRole.ADMIN)).async { implicit request: Request[AnyContent] =>
     asyncCacheApi.removeAll()
       .map(_ => Ok("Ok"))
   }

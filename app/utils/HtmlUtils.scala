@@ -1,35 +1,22 @@
 package utils
 
-import java.net.URL
 import javax.inject.{Inject, Singleton}
 
-import play.api.{Configuration, Logger}
-import play.api.data.FormError
 import clients.Compiler
 import clients.Helper.CompilationError
+import play.api.Configuration
 
 /**
   * @author im.
   */
 object HtmlUtils {
-
-  import play.api.data.format.Formats._
-  import play.api.data.format.Formatter
-  implicit object UrlFormatter extends Formatter[URL] {
-    override val format = Some(("format.url", Nil))
-    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], URL] =
-      parsing(new URL(_), "error.url", Nil)(key, data)
-    override def unbind(key: String, value: URL) = Map(key -> value.toString)
-  }
-
 }
 
 @Singleton
 class HtmlUtils @Inject()(compiler: Compiler) {
 
-  import play.api.data.validation.Constraint
-  import play.api.data.validation.{Valid, Invalid, ValidationError}
   import Compiler._
+  import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 
   val htmlCheckConstraint: Constraint[String] = Constraint("constraints.htmlcheck")({
     plainText =>

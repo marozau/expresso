@@ -22,11 +22,12 @@ import scala.io.Codec
 object Compiler {
   type HtmlTemplate = (Configuration) => Html
 
+  //TODO: add context for complex solutions like specific word counting, statistics etc
   val header: String =
     """
-        |@import _root_.services.Tracking
+        |@import _root_.services.TrackingService
         |@import _root_.play.api.Configuration
-        |@this(implicit track: Tracking)
+        |@this(implicit track: TrackingService)
         |@(implicit config: Configuration)
         """.stripMargin
   val headerLines = header.lines.size

@@ -1,0 +1,32 @@
+@import forms.office.CampaignForm.Data
+@(campaignForm: Form[Data], recipients: Seq[Recipient])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+@implicitFieldConstructor = @{
+    b3.horizontal.fieldConstructor("col-md-2", "col-md-10")
+}
+
+<link rel="stylesheet" media="screen" href="@routes.Assets.versioned("lib/bootstrap/css/bootstrap.min.css")">
+
+@import helper._
+
+@b3.form(action = controllers.office.routes.CampaignController.submitCampaignForm()) {
+    @CSRF.formField
+    @b3.textarea(campaignForm("id"), 'style -> "display: none")
+    @b3.textarea(campaignForm("newsletterId"), 'style -> "display: none")
+    @b3.textarea(campaignForm("name"), '_label -> "name", 'rows -> 1, 'cols -> 20)
+    @b3.textarea(campaignForm("subject"), '_label -> "subject", 'rows -> 1, 'cols -> 20)
+    @b3.textarea(campaignForm("preview"), '_label -> "preview", 'rows -> 1, 'cols -> 20)
+    @b3.textarea(campaignForm("fromName"), '_label -> "fromName", 'rows -> 1, 'cols -> 20)
+    @b3.email(campaignForm("fromEmail"), '_label -> "fromEmail", 'rows -> 1, 'cols -> 20)
+
+    @b3.select(campaignForm("recipient"), recipients.map(r => (r.id.get.toString, r.listName)), '_label -> "recipient")
+
+    @b3.date(campaignForm("schedule.date"), '_label -> "date")
+    @b3.time(campaignForm("schedule.time"), '_label -> "date")
+    @b3.number(campaignForm("schedule.zoneOffset"), '_label -> "zoneOffset")
+
+    @b3.submit('class -> "btn btn-default") { Schedule }
+}
+
+<script src="@routes.Assets.versioned("lib/jquery/jquery.js")" crossorigin="anonymous"></script>
+<script src="@routes.Assets.versioned("lib/bootstrap/js/bootstrap.min.js")" crossorigin="anonymous"></script>

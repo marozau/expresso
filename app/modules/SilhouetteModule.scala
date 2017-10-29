@@ -2,30 +2,31 @@ package modules
 
 import javax.inject.Named
 
+import services.UserService
 import com.google.inject.{AbstractModule, Provides}
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.actions.{SecuredErrorHandler, UnsecuredErrorHandler}
 import com.mohiva.play.silhouette.api.crypto.{Crypter, CrypterAuthenticatorEncoder, Signer}
 import com.mohiva.play.silhouette.api.repositories.{AuthInfoRepository, AuthenticatorRepository}
-import com.mohiva.play.silhouette.api.services._
 import com.mohiva.play.silhouette.api.util.{PasswordHasherRegistry, _}
 import com.mohiva.play.silhouette.crypto.{JcaCrypter, JcaCrypterSettings, JcaSigner, JcaSignerSettings}
 import com.mohiva.play.silhouette.impl.authenticators._
 import com.mohiva.play.silhouette.impl.providers._
 import com.mohiva.play.silhouette.impl.util._
+import com.mohiva.play.silhouette.api.services._
 import com.mohiva.play.silhouette.password.BCryptPasswordHasher
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import com.mohiva.play.silhouette.persistence.repositories.{CacheAuthenticatorRepository, DelegableAuthInfoRepository}
 import filters.{CustomSecuredErrorHandler, CustomUnsecuredErrorHandler}
 import models.User
 import models.daos.PasswordInfoDao
-import models.services.UserService
 import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import net.ceedubs.ficus.readers.EnumerationReader._
 import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
 import play.api.mvc.CookieHeaderEncoding
+import services.AuthenticatorService
 
 import scala.concurrent.ExecutionContext
 

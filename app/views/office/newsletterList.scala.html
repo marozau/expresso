@@ -1,0 +1,14 @@
+@(newsletters: Seq[Newsletter])
+
+<h1>Newsletters</h1>
+
+<a href="@controllers.office.routes.NewsletterController.getNewsletterPosts(None)">create</a> &nbsp;
+<ul>
+    @for(nl <- newsletters) {
+        <li>
+            <a href="@controllers.office.routes.NewsletterController.getNewsletterPosts(nl.id)">@{nl.id}</a> &nbsp;
+            @{nl.title.getOrElse("without title")} &nbsp;
+            @{nl.createdTimestamp} &nbsp;
+        </li>
+    }
+</ul>

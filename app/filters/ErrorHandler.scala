@@ -25,8 +25,8 @@ class ErrorHandler @Inject()(
 
   override def onProdServerError(request: RequestHeader, exception: UsefulException) = {
     val result = exception.cause match {
-      case e: PostNotFoundException => NotFound(views.html.admin.error(e))
-      case t: Throwable => InternalServerError(views.html.admin.error(t))
+      case e: PostNotFoundException => NotFound(views.html.common.error(e))
+      case t: Throwable => InternalServerError(views.html.common.error(t))
     }
     Future.successful(result)
   }
