@@ -1,0 +1,32 @@
+@import play.api.i18n.Messages
+@import play.api.mvc.RequestHeader
+@import org.webjars.play.WebJarsUtil
+@import controllers.AssetsFinder
+@import views.html.common._
+
+@(user: User, lists: Seq[RecipientList])(implicit request: RequestHeader, messages: Messages, webJarsUtil: WebJarsUtil, assets: AssetsFinder)
+
+@main(messages("home.title"), Some(user)) {
+    <div class="user col-md-6 col-md-offset-3">
+        <div class="row">
+            <hr class="col-md-12" />
+            <h4 class="col-md-8">@messages("welcome.signed.in")</h4>
+            <div class="col-md-4 text-right">
+            </div>
+            <hr class="col-md-12" />
+        </div>
+        <div class="row data">
+            <div class="col-md-12">
+                @for(list <- lists) {
+                    <div class="row">
+                        <p class="col-md-6">@list.id.get</p>
+                        <p class="col-md-6"><strong>@messages("recipient.name"):</strong></p>
+                        <p class="col-md-6">@list.name</p>
+                        <p class="col-md-6"><strong>@messages("recipient.owner"):</strong></p>
+                        <p class="col-md-6">@list.userId</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

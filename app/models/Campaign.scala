@@ -11,7 +11,7 @@ object Campaign {
 
   object Status extends Enumeration {
     type Status = Value
-    val NEW, PENDING, SENT = Value
+    val NEW, PENDING, SENDING, SENT = Value
   }
 
 }

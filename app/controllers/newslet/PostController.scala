@@ -1,4 +1,4 @@
-package controllers.office
+package controllers.newslet
 
 import javax.inject.{Inject, Singleton}
 
@@ -30,7 +30,7 @@ class PostController @Inject()(
                                 posts: PostDao)(implicit ec: ExecutionContext)
   extends AbstractController(cc) with I18nSupport {
 
-  import forms.office.PostForm._
+  import forms.newslet.PostForm._
 
   def getPostForm(id: Option[Long], newsletterId: Option[Long]) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     def getExisting(id: Long) = {
@@ -42,7 +42,7 @@ class PostController @Inject()(
     }
 
     id.fold(create(newsletterId))(getExisting)
-      .map(f => Ok(views.html.office.post(f)))
+      .map(f => Ok(views.html.newslet.post(f)))
   }
 
   def submitPostForm() = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
@@ -50,7 +50,7 @@ class PostController @Inject()(
     form.bindFromRequest.fold(
       formWithErrors => {
         Logger.error(formWithErrors.toString)
-        Future(BadRequest(views.html.office.post(formWithErrors)))
+        Future.successful(BadRequest(views.html.newslet.post(formWithErrors)))
       },
       form => {
         val post = Post(form.id, userId, form.newsletterId, form.title, form.annotation, form.body, form.refs.map(_.toString))

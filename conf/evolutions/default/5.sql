@@ -2,6 +2,18 @@
 
 CREATE TABLE newsletters (
   id                 BIGSERIAL PRIMARY KEY,
+  user_id            BIGINT REFERENCES users (id),
+  name               TEXT        NOT NULL,
+  options            JSONB,
+  created_timestamp  TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now()),
+  modified_timestamp TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now())
+);
+
+CREATE UNIQUE INDEX newsletters_name_idx
+  ON newsletters (name);
+
+CREATE TABLE newsletters (
+  id                 BIGSERIAL PRIMARY KEY,
   user_id            BIGINT      NOT NULL REFERENCES users (id),
   url                TEXT,
   title              TEXT,

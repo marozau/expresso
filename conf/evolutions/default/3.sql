@@ -16,6 +16,8 @@ CREATE TABLE user_profiles (
   city               TEXT,
   postcode           TEXT,
 
+  rating             DECIMAL,
+
   modified_timestamp TIMESTAMPTZ DEFAULT timezone('UTC', now())
 );
 

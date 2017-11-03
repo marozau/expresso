@@ -1,4 +1,4 @@
-package forms.office
+package forms.newslet
 
 import java.net.URL
 

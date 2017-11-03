@@ -9,7 +9,7 @@
     b3.vertical.fieldConstructor
 }
 @site.container {
-    @b3.form(action = controllers.office.routes.CampaignController.scheduleCampaign(0)) {
+    @b3.form(action = controllers.newslet.routes.CampaignController.scheduleCampaign(0)) {
         <input type="hidden" name="id" value="@campaignId" />
         @b3.submit('class -> "btn btn-default") { Looks Good! }
     }

@@ -24,23 +24,24 @@ GET         /manifest                              controllers.ManifestControlle
 GET         /mandrill/send/:email/:template        controllers.MandrillController.send(email, template)
 GET         /healthz                               controllers.Application.healthz()
 
-GET         /admin/post                            controllers.office.PostController.getPostForm(id: Option[Long], newsletter: Option[Long])
-POST        /admin/post                            controllers.office.PostController.submitPostForm()
-GET         /admin/post/show                       controllers.office.PostController.showPost(id: Long)
-GET         /admin/newsletter/list                 controllers.office.NewsletterController.getNewsletterList()
-GET         /admin/newsletter/posts                controllers.office.NewsletterController.getNewsletterPosts(id: Option[Long])
-GET         /admin/newsletter/posts/remove         controllers.office.NewsletterController.removePost(id: Long, postId: Long)
-GET         /admin/newsletter/posts/up             controllers.office.NewsletterController.moveUpPost(id: Long, postId: Long)
-GET         /admin/newsletter/posts/down           controllers.office.NewsletterController.moveDownPost(id: Long, postId: Long)
-GET         /admin/newsletter/posts/add            controllers.office.NewsletterController.addPost(id: Long, postId: Long)
-GET         /admin/newsletter/header               controllers.office.NewsletterController.getHeaderForm(id: Long)
-POST        /admin/newsletter/header               controllers.office.NewsletterController.submitHeaderForm()
-GET         /admin/newsletter/footer               controllers.office.NewsletterController.getFooterForm(id: Long)
-POST        /admin/newsletter/footer               controllers.office.NewsletterController.submitFooterForm()
-GET         /admin/newsletter/show                 controllers.office.NewsletterController.getNewsletterFinal(campaignId: Long, newsletterId: Long)
-GET         /admin/campaign                        controllers.office.CampaignController.getCampaignForm(id: Option[Long], newsletterId: Option[Long])
-POST        /admin/campaign                        controllers.office.CampaignController.submitCampaignForm()
-GET         /admin/campaign/schedule               controllers.office.CampaignController.scheduleCampaign(id: Long)
+GET         /admin/post                            controllers.newslet.PostController.getPostForm(id: Option[Long], newsletter: Option[Long])
+POST        /admin/post                            controllers.newslet.PostController.submitPostForm()
+GET         /admin/post/show                       controllers.newslet.PostController.showPost(id: Long)
+GET         /admin/newsletter/list                 controllers.newslet.NewsletterController.getNewsletterList()
+GET         /admin/newsletter/posts                controllers.newslet.NewsletterController.getNewsletterPosts(id: Option[Long])
+GET         /admin/newsletter/posts/remove         controllers.newslet.NewsletterController.removePost(id: Long, postId: Long)
+GET         /admin/newsletter/posts/up             controllers.newslet.NewsletterController.moveUpPost(id: Long, postId: Long)
+GET         /admin/newsletter/posts/down           controllers.newslet.NewsletterController.moveDownPost(id: Long, postId: Long)
+GET         /admin/newsletter/posts/add            controllers.newslet.NewsletterController.addPost(id: Long, postId: Long)
+GET         /admin/newsletter/header               controllers.newslet.NewsletterController.getHeaderForm(id: Long)
+POST        /admin/newsletter/header               controllers.newslet.NewsletterController.submitHeaderForm()
+GET         /admin/newsletter/footer               controllers.newslet.NewsletterController.getFooterForm(id: Long)
+POST        /admin/newsletter/footer               controllers.newslet.NewsletterController.submitFooterForm()
+GET         /admin/newsletter/show                 controllers.newslet.NewsletterController.getNewsletterFinal(campaignId: Long, newsletterId: Long)
+GET         /admin/campaign                        controllers.newslet.CampaignController.getCampaignForm(id: Option[Long], newsletterId: Option[Long])
+POST        /admin/campaign                        controllers.newslet.CampaignController.submitCampaignForm()
+GET         /admin/campaign/schedule               controllers.newslet.CampaignController.scheduleCampaign(id: Long)
+GET         /newslet/recipient/list                controllers.newslet.RecipientController.list
 
 GET         /admin/cache/clear-all                 controllers.CacheController.removeAll()
 
@@ -56,3 +57,6 @@ GET         /assets/*file                          controllers.Assets.versioned(
 #GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)
 GET         /javascriptRoutes                      controllers.Application.javascriptRoutes
 ->          /webjars                               webjars.Routes
+
+
+GET         /firepad                               controllers.newslet.NewsletterController.firepad()

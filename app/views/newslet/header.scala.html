@@ -1,4 +1,4 @@
-@import forms.office.NewsletterForm.HeaderData
+@import forms.newslet.NewsletterForm.HeaderData
 @(headerForm: Form[HeaderData])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("stylesheets/quill/quill.snow.css")">
@@ -10,7 +10,7 @@
 
 @import helper._
 
-@b3.form(action = controllers.office.routes.NewsletterController.submitHeaderForm()) {
+@b3.form(action = controllers.newslet.routes.NewsletterController.submitHeaderForm()) {
     @CSRF.formField
     @b3.text(headerForm("id"), 'style -> "display: none")
     @quillInput("text", "text", headerForm.data.getOrElse("text", "{}"))

@@ -34,8 +34,9 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
   def create(campaign: Campaign): Future[Campaign] = db.run {
     {
       for {
-        c <- (campaigns returning campaigns) += campaign
+        c <- (campaigns returning campaigns) += campaign.copy(status = Campaign.Status.NEW)
         _ <- newsletterDao.updateTitleDBIO(campaign.userId, campaign.newsletterId, campaign.subject)
+        _ <- newsletterDao.updatePublishTimestampDBIO(campaign.userId, campaign.newsletterId, campaign.sendTime)
       } yield c
     }.transactionally.withPinnedSession
   }
@@ -50,26 +51,24 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
 
   def getById(id: Long): Future[Campaign] = db.run(getByIdDBIO(id))
 
-  def updateDBIO(campaign: Campaign): DBIOAction[Int, NoStream, Effect.Write] = {
-    val q = for (p <- campaigns if p.id === campaign.id && p.userId === campaign.userId) yield p
-    q.update(campaign)
-      .map { updated =>
-        if (updated == 0) throw CampaignNotFoundException(campaign.id.get, s"campaign update failed")
-        updated
+  def updateDBIO(campaign: Campaign) = {
+    getByIdDBIO(campaign.id.get)
+      .flatMap { dbCampaign =>
+        val q = for (p <- campaigns if p.id === campaign.id && p.userId === campaign.userId) yield p
+        // update status only with separate procedure
+        q.update(campaign.copy(status = dbCampaign.status))
       }
-  }
-
-  def update(campaign: Campaign): Future[Int] = db.run {
-    updateDBIO(campaign)
       .flatMap { _ =>
         newsletterDao.updateTitleDBIO(campaign.userId, campaign.newsletterId, campaign.subject)
       }
       .flatMap { _ =>
-        if (campaign.status == Campaign.Status.PENDING)
-          newsletterDao.updatePublishTimestampDBIO(campaign.userId, campaign.newsletterId, campaign.sendTime)
-        else DBIO.successful(1)
+        newsletterDao.updatePublishTimestampDBIO(campaign.userId, campaign.newsletterId, campaign.sendTime)
       }
       .transactionally.withPinnedSession
+  }
+
+  def update(campaign: Campaign): Future[Int] = db.run {
+    updateDBIO(campaign)
   }
 
   def getByNewsletterId(userId: Long, newsletterId: Long): Future[Option[Campaign]] = db.run {
@@ -82,5 +81,11 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
       .sortBy(_.sendTime)
       .take(1)
       .result.head
+  }
+
+  def setPendingStatus(userId: Long, campaignId: Long, status: Campaign.Status.Value) = db.run {
+    campaigns.filter(c => c.userId === userId && c.id === campaignId && c.status =!= Campaign.Status.SENT).map(_.status)
+      .update(status)
+      .transactionally
   }
 }

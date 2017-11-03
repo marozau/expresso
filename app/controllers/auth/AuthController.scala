@@ -36,7 +36,7 @@ class AuthController @Inject()(
    * @return The result to display.
    */
   def index = silhouette.SecuredAction.async { implicit request: SecuredRequest[DefaultEnv, AnyContent] =>
-    Future.successful(Ok(views.html.auth.home(request.identity)))
+    Future.successful(Ok(views.html.newslet.home(request.identity)))
   }
 
   /**

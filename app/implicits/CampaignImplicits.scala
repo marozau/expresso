@@ -3,7 +3,7 @@ package implicits
 import java.time.ZonedDateTime
 import java.util.concurrent.TimeUnit
 
-import forms.office.{CampaignForm, ScheduleForm}
+import forms.newslet.{CampaignForm, ScheduleForm}
 import models.Campaign
 
 /**

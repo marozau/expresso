@@ -1,15 +1,15 @@
-package controllers.office
+package controllers.newslet
 
 import javax.inject.{Inject, Singleton}
 
-import clients.JobScheduler
 import com.mohiva.play.silhouette.api.Silhouette
+import models.daos.CampaignDao
 import models.{Campaign, UserRole}
-import models.daos.{CampaignDao, RecipientDao}
 import modules.DefaultEnv
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, ControllerComponents}
+import services.{JobSchedulerService, RecipientService}
 import utils.WithRole
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -23,16 +23,16 @@ class CampaignController @Inject()(
                                     silhouette: Silhouette[DefaultEnv],
                                     cc: ControllerComponents,
                                     campaigns: CampaignDao,
-                                    recipients: RecipientDao,
-                                    jobScheduler: JobScheduler)(implicit ec: ExecutionContext)
+                                    recipients: RecipientService,
+                                    jobScheduler: JobSchedulerService)(implicit ec: ExecutionContext)
   extends AbstractController(cc) with I18nSupport {
 
-  import forms.office.CampaignForm._
+  import forms.newslet.CampaignForm._
   import implicits.CampaignImplicits._
 
   def getCampaignForm(id: Option[Long], newsletterId: Option[Long]) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     val userId = request.identity.id.get
-    val recipient = recipients.getByUserId(userId)
+    val recipient = recipients.getLists(userId)
 
     def existing(id: Long) = {
       campaigns.getById(id)
@@ -57,7 +57,7 @@ class CampaignController @Inject()(
     id.fold(empty())(existing)
       .flatMap(f => recipient.map((f, _)))
       .map {
-        case (form, rec) => Ok(views.html.office.campaign(form, rec))
+        case (form, rec) => Ok(views.html.newslet.campaign(form, rec))
       }
   }
 
@@ -67,7 +67,7 @@ class CampaignController @Inject()(
       formWithErrors => {
         Logger.info(s"bad campaign, form=$formWithErrors")
         Future.successful(BadRequest(formWithErrors.toString))
-        //        Future(BadRequest(views.html.office.campaign(formWithErrors)))
+        //        Future(BadRequest(views.html.newslet.campaign(formWithErrors)))
       },
       form => {
         val campaign = Campaign(form.id, userId, form.newsletterId, form.name, form.subject, form.preview, form.fromName, form.fromEmail,

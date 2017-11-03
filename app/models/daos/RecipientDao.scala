@@ -2,10 +2,9 @@ package models.daos
 
 import javax.inject.{Inject, Singleton}
 
-import exceptions.RecipientNotFoundException
-import models.Recipient
 import models.api.Repository
-import models.components.RecipientComponent
+import models.components.{RecipientComponent, RecipientListComponent, UserComponent}
+import models.{Recipient, Recipients}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -17,34 +16,36 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 @Singleton
 class RecipientDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
-  extends Repository with RecipientComponent {
+  extends Repository with RecipientComponent with RecipientListComponent with UserComponent {
 
   protected val dbConfig: DatabaseConfig[JdbcProfile] = databaseConfigProvider.get[JdbcProfile]
 
   import api._
   import dbConfig._
 
-  def create(recipient: Recipient): Future[Recipient] = db.run {
-    (recipients returning recipients) += recipient
+  def getByListId(userId: Long, listId: Long) = {
+    val recipientListAction = rlists.filter(r => r.userId === userId && r.id === listId).result.headOption
+    val joinAction = (recipients.filter(_.listId === listId) joinLeft users on (_.userId === _.id)).result
+
+    val q = for {
+      recipientListOption <- recipientListAction
+      join <- recipientListOption.map(_ => joinAction).getOrElse(DBIO.successful(Seq.empty))
+    } yield {
+      recipientListOption
+        .map { list =>
+          val recipients = join.flatMap { case (recipient, userOption) =>
+            userOption.map(u => Recipient(u.id.get, u.email, u.status, recipient.status))
+          }
+          Recipients(list.id, list.userId, list.name, list.default, recipients)
+        }
+    }
+
+    db.run(q)
   }
 
-  def getByIdDBIO(id: Long) = {
-    recipients.filter(_.id === id).result
-      .map { s =>
-        if (s.isEmpty) throw RecipientNotFoundException(Some(id), None, "recipient not found")
-        s.head
-      }
+  def add(userId: Long, listId: Long, recipient: Recipient): Future[Int] = db.run {
+    recipients += DBRecipient(listId, userId, recipient.rstatus)
   }
 
-  def getById(id: Long): Future[Recipient] = db.run(getByIdDBIO(id))
 
-  def getByUserIdDBIO(userId: Long) = {
-    recipients.filter(_.userId === userId).result
-      .map { s =>
-        if (s.isEmpty) throw RecipientNotFoundException(None, Some(userId), s"user recipient not found, userId=$userId") //TODO: userId in exception
-        s
-      }
-  }
-
-  def getByUserId(userId: Long): Future[Seq[Recipient]] = db.run(getByUserIdDBIO(userId))
 }

@@ -22,7 +22,7 @@
                 </span>
             </em>
         </div>
-        <a href="@controllers.office.routes.NewsletterController.getHeaderForm(newsletter.id.get)">edit</a>&nbsp;
+        <a href="@controllers.newslet.routes.NewsletterController.getHeaderForm(newsletter.id.get)">edit</a>&nbsp;
     }
 }
 
@@ -33,10 +33,10 @@
                 <strong>@post.title</strong>
                 <br>
             </font>
-            <a href="@controllers.office.routes.PostController.getPostForm(post.id, newsletter.id)">edit</a>&nbsp;
-            <a href="@controllers.office.routes.NewsletterController.removePost(newsletter.id.get, post.id.get)">remove</a>&nbsp;
-            <a href="@controllers.office.routes.NewsletterController.moveUpPost(newsletter.id.get, post.id.get)">up</a>&nbsp;
-            <a href="@controllers.office.routes.NewsletterController.moveDownPost(newsletter.id.get, post.id.get)">down</a>&nbsp;
+            <a href="@controllers.newslet.routes.PostController.getPostForm(post.id, newsletter.id)">edit</a>&nbsp;
+            <a href="@controllers.newslet.routes.NewsletterController.removePost(newsletter.id.get, post.id.get)">remove</a>&nbsp;
+            <a href="@controllers.newslet.routes.NewsletterController.moveUpPost(newsletter.id.get, post.id.get)">up</a>&nbsp;
+            <a href="@controllers.newslet.routes.NewsletterController.moveDownPost(newsletter.id.get, post.id.get)">down</a>&nbsp;
         }
         @site.divider()
         @site.text {
@@ -51,7 +51,7 @@
 
 @site.container {
     @site.text {
-        <strong><a href="@controllers.office.routes.PostController.getPostForm(None, newsletter.id)">+post</a>&nbsp;</strong>
+        <strong><a href="@controllers.newslet.routes.PostController.getPostForm(None, newsletter.id)">+post</a>&nbsp;</strong>
     }
 }
 
@@ -70,7 +70,7 @@
                 </span>
         </span>
         </div>
-        <a href="@controllers.office.routes.NewsletterController.getFooterForm(newsletter.id.get)">edit</a>&nbsp;
+        <a href="@controllers.newslet.routes.NewsletterController.getFooterForm(newsletter.id.get)">edit</a>&nbsp;
     }
 }
 
@@ -79,7 +79,7 @@
     b3.vertical.fieldConstructor
 }
 @site.container{
-    @b3.form(action = controllers.office.routes.CampaignController.getCampaignForm(None, newsletter.id)) {
+    @b3.form(action = controllers.newslet.routes.CampaignController.getCampaignForm(None, newsletter.id)) {
         <input type="hidden" name="newsletterId" value="@newsletter.id" />
         @b3.submit('class -> "btn btn-default") { Schedule }
     }

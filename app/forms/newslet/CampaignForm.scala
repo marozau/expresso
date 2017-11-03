@@ -1,4 +1,4 @@
-package forms.office
+package forms.newslet
 
 import play.api.data.Form
 import play.api.data.Forms._

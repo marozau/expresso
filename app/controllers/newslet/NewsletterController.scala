@@ -1,4 +1,4 @@
-package controllers.office
+package controllers.newslet
 
 import javax.inject.{Inject, Singleton}
 
@@ -32,14 +32,14 @@ class NewsletterController @Inject()(
                                     )(implicit ec: ExecutionContext)
   extends AbstractController(cc) with I18nSupport {
 
-  import forms.office.NewsletterForm._
+  import forms.newslet.NewsletterForm._
   import implicits.NewsletterImplicits._
 
   def getNewsletterList() = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     val userId = request.identity.id.get
     newsletters.getByUserId(userId)
       .map { newsletters =>
-        Ok(views.html.office.newsletterList(newsletters))
+        Ok(views.html.newslet.newsletterList(newsletters))
       }
   }
 
@@ -60,32 +60,32 @@ class NewsletterController @Inject()(
     id.fold(create())(getExisting)
       .flatMap(newsletter => ph.doNewsletter(newsletter, Target.SITE))
       .map { newsletter =>
-        Ok(views.html.office.newsletterPosts(newsletter))
+        Ok(views.html.newslet.newsletterPosts(newsletter))
       }
   }
 
   def removePost(id: Long, postId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     val userId = request.identity.id.get
     newsletters.removePost(userId, id, postId)
-      .map(_ => Redirect(controllers.office.routes.NewsletterController.getNewsletterPosts(Some(id))))
+      .map(_ => Redirect(controllers.newslet.routes.NewsletterController.getNewsletterPosts(Some(id))))
   }
 
   def addPost(id: Long, postId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     val userId = request.identity.id.get
     newsletters.addPost(userId, id, List(postId))
-      .map(_ => Redirect(controllers.office.routes.NewsletterController.getNewsletterPosts(Some(id))))
+      .map(_ => Redirect(controllers.newslet.routes.NewsletterController.getNewsletterPosts(Some(id))))
   }
 
   def moveUpPost(id: Long, postId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     val userId = request.identity.id.get
     newsletters.moveUpPost(userId, id, postId)
-      .map(_ => Redirect(controllers.office.routes.NewsletterController.getNewsletterPosts(Some(id))))
+      .map(_ => Redirect(controllers.newslet.routes.NewsletterController.getNewsletterPosts(Some(id))))
   }
 
   def moveDownPost(id: Long, postId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     val userId = request.identity.id.get
     newsletters.moveDownPost(userId, id, postId)
-      .map(_ => Redirect(controllers.office.routes.NewsletterController.getNewsletterPosts(Some(id))))
+      .map(_ => Redirect(controllers.newslet.routes.NewsletterController.getNewsletterPosts(Some(id))))
   }
 
   //TODO: replace by ususal get newsletter
@@ -96,14 +96,14 @@ class NewsletterController @Inject()(
         ph.doNewsletter(nl, PublishingHouse.Target.SITE)
       }
       .map { newsletter =>
-        Ok(views.html.office.newsletterFinal(newsletter, campaignId))
+        Ok(views.html.newslet.newsletterFinal(newsletter, campaignId))
       }
   }
 
   def getHeaderForm(id: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     val userId = request.identity.id.get
     newsletters.getById(Some(userId), id)
-      .map(nl => Ok(views.html.office.header(headerForm.fill(HeaderData(nl.id.get, nl.header)))))
+      .map(nl => Ok(views.html.newslet.header(headerForm.fill(HeaderData(nl.id.get, nl.header)))))
   }
 
   def submitHeaderForm() = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
@@ -111,7 +111,7 @@ class NewsletterController @Inject()(
     headerForm.bindFromRequest.fold(
       formWithErrors => {
         Logger.info(s"bad newsletter header, form=$formWithErrors")
-        Future(BadRequest(views.html.office.header(formWithErrors)))
+        Future(BadRequest(views.html.newslet.header(formWithErrors)))
       },
       form => {
         newsletters.getById(Some(userId), form.id)
@@ -126,7 +126,7 @@ class NewsletterController @Inject()(
   def getFooterForm(id: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     val userId = request.identity.id.get
     newsletters.getById(Some(userId), id)
-      .map(nl => Ok(views.html.office.footer(footerForm.fill(FooterData(nl.id.get, nl.footer)))))
+      .map(nl => Ok(views.html.newslet.footer(footerForm.fill(FooterData(nl.id.get, nl.footer)))))
   }
 
   def submitFooterForm() = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
@@ -134,7 +134,7 @@ class NewsletterController @Inject()(
     footerForm.bindFromRequest.fold(
       formWithErrors => {
         Logger.info(s"bad newsletter footer, form=$formWithErrors")
-        Future(BadRequest(views.html.office.footer(formWithErrors)))
+        Future(BadRequest(views.html.newslet.footer(formWithErrors)))
       },
       form => {
         newsletters.getById(Some(userId), form.id)
@@ -144,5 +144,9 @@ class NewsletterController @Inject()(
           .map(_ => Redirect(routes.NewsletterController.getNewsletterPosts(Some(form.id))))
       }
     )
+  }
+
+  def firepad() = Action { implicit request =>
+    Ok(views.html.newslet.firepad())
   }
 }

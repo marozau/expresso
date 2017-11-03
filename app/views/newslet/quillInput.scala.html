@@ -1,8 +1,6 @@
 @(id: String, label: String, data: String)
 
-<div class="form-group  " id="@{
-    id
-}_field">
+<div class="form-group  " id="@{id}_field">
     <label class="control-label col-md-2" for="@id">@label</label>
     <div class="col-md-10">
         <input id="@id" type="hidden" name="@id" class="form-quill-input">

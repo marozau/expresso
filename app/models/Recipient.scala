@@ -1,14 +1,31 @@
 package models
 
-import java.time.ZonedDateTime
+import play.api.libs.json.Reads
 
 /**
   * @author im.
   */
-case class Recipient(id: Option[Long],
-                     userId: Long,
-                     listName: String,
-                     userIds: List[Long],
-                     default: Option[Boolean],
-                     createdTimestamp: Option[ZonedDateTime] = None,
-                     modifiedTimestamp: Option[ZonedDateTime] = None)
+
+object RecipientStatus extends Enumeration {
+  val SUBSCRIBED, UNSUBSCRIBED, REMOVED, CLEANED, SPAM = Value
+
+  implicit val recipientStatusFormat = Reads.enumNameReads(RecipientStatus)
+}
+
+case class Recipient(userId: Long,
+                     email: String,
+                     ustatus: UserStatus.Value,
+                     rstatus: RecipientStatus.Value)
+
+case class Recipients(listId: Option[Long],
+                      userId: Long,
+                      name: String,
+                      default: Option[Boolean],
+                      recipients: Seq[Recipient])
+
+case class RecipientList(id: Option[Long],
+                         userId: Long,
+                         name: String,
+                         default: Option[Boolean])
+
+

@@ -1,4 +1,4 @@
-@import forms.office.PostForm.Data
+@import forms.newslet.PostForm.Data
 @(postForm: Form[Data])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("stylesheets/quill/quill.snow.css")">
@@ -10,7 +10,7 @@
 
 @import helper._
 
-@b3.form(action = controllers.office.routes.PostController.submitPostForm()) {
+@b3.form(action = controllers.newslet.routes.PostController.submitPostForm()) {
     @CSRF.formField
     @b3.text(postForm("id"), 'style -> "display: none")
     @b3.text(postForm("newsletterId"), 'style -> "display: none")

@@ -1,4 +1,5 @@
-@import forms.office.NewsletterForm.FooterData
+@import forms.newslet.NewsletterForm.FooterData
+@import views.html.newslet._
 @(footerForm: Form[FooterData])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("stylesheets/quill/quill.snow.css")">
@@ -10,7 +11,7 @@
 
 @import helper._
 
-@b3.form(action = controllers.office.routes.NewsletterController.submitFooterForm()) {
+@b3.form(action = controllers.newslet.routes.NewsletterController.submitFooterForm()) {
     @CSRF.formField
     @b3.text(footerForm("id"), 'style -> "display: none")
     @quillInput("text", "text", footerForm.data.getOrElse("text", "{}"))
