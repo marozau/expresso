@@ -45,11 +45,11 @@ class UserDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: E
             user.email,
             user.roles,
             user.status,
+            user.locale,
             user.reason,
             user.createdTimestamp,
             user.modifiedTimestamp
           )
-
         }
     }
   }
@@ -74,6 +74,7 @@ class UserDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: E
           user.email,
           user.roles,
           user.status,
+          user.locale,
           user.reason,
           user.createdTimestamp,
           user.modifiedTimestamp
@@ -90,7 +91,7 @@ class UserDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: E
     */
   def save(user: User): Future[User] = {
     val dbLoginInfo = DBLoginInfo(None, user.loginInfo.providerID, user.loginInfo.providerKey)
-    val dbUser = DBUser(user.id, user.email, user.roles, user.status, user.reason, user.createdTimestamp)
+    val dbUser = DBUser(user.id, user.email, user.roles, user.status, user.locale, user.reason, user.createdTimestamp)
     val loginInfoAction = {
       val retrieveLoginInfo = loginInfos.filter(
         info => info.providerId === user.loginInfo.providerID &&

@@ -7,7 +7,6 @@ CREATE TABLE user_profiles (
   user_id            BIGINT PRIMARY KEY REFERENCES users (id),
 
   timezone           INT,
-  locale             TEXT,
   first_name         TEXT,
   last_name          TEXT,
   sex                user_sex,

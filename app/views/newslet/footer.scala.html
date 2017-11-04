@@ -11,7 +11,7 @@
 
 @import helper._
 
-@b3.form(action = controllers.newslet.routes.NewsletterController.submitFooterForm()) {
+@b3.form(action = controllers.newslet.routes.EditionController.submitFooterForm()) {
     @CSRF.formField
     @b3.text(footerForm("id"), 'style -> "display: none")
     @quillInput("text", "text", footerForm.data.getOrElse("text", "{}"))

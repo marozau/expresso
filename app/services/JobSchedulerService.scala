@@ -4,7 +4,6 @@ import java.lang.invoke.MethodHandles
 import javax.inject.{Inject, Singleton}
 
 import clients.Quartz
-import exceptions.RecipientListNotFoundException
 import jobs.CampaignJob
 import models.Campaign
 import models.daos.CampaignDao
@@ -19,19 +18,18 @@ object JobSchedulerService {
 }
 
 @Singleton
-class JobSchedulerService @Inject()(quartz: Quartz, campaigns: CampaignDao, recipients: RecipientService)(implicit ec: ExecutionContext) {
+class JobSchedulerService @Inject()(quartz: Quartz, campaigns: CampaignDao, recipientService: RecipientService)(implicit ec: ExecutionContext) {
 
   private val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
 
   //TODO: personalized newsletter time
   //TODO: check if any campaigns already scheduled
   def schedule(campaign: Campaign) = {
-//    campaigns.update(campaign.copy(status = Campaign.Status.PENDING)
+    //    campaigns.update(campaign.copy(status = Campaign.Status.PENDING)
 
-    recipients.getRecipients(campaign.userId, campaign.recipientId)
-      .map(_.getOrElse(throw RecipientListNotFoundException(Some(campaign.recipientId), Some(campaign.userId), "invalid recipient id")))
+    recipientService.getEditionRecipients(campaign.editionId)
       .flatMap { recipients =>
-        Future.sequence(recipients.recipients
+        Future.sequence(recipients
           .map { recipient =>
             val userId = recipient.userId
             val job = CampaignJob.buildJob(userId, campaign)

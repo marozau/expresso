@@ -2,8 +2,8 @@ package services
 
 import javax.inject.{Inject, Singleton}
 
-import models.RecipientList
-import models.daos.{RecipientDao, RecipientListDao}
+import models.Recipient
+import models.daos.RecipientDao
 
 import scala.concurrent.Future
 
@@ -11,13 +11,11 @@ import scala.concurrent.Future
   * @author im.
   */
 @Singleton
-class RecipientService @Inject()(recipientListDao: RecipientListDao, recipientsDao: RecipientDao) {
+class RecipientService @Inject()(recipientsDao: RecipientDao) {
 
-  def getLists(userId: Long): Future[Seq[RecipientList]] = {
-    recipientListDao.getByUserId(userId)
+  def getNewsletterRecipients(newsletterId: Long): Future[Seq[Recipient]] = {
+    recipientsDao.getByNewsletterId(newsletterId)
   }
 
-  def getRecipients(userId: Long, listId: Long) = {
-    recipientsDao.getByListId(userId, listId)
-  }
+  def getEditionRecipients(editionId: Long) = recipientsDao.getByEditionId(editionId)
 }

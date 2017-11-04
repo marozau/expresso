@@ -4,7 +4,7 @@ import java.net.URL
 import java.time.ZonedDateTime
 import javax.inject.{Inject, Singleton}
 
-import models.{NewsletterAndPosts, Post}
+import models.{Edition, Post}
 import play.api.{Configuration, Logger}
 import clients.Compiler.HtmlTemplate
 
@@ -42,7 +42,6 @@ object PublishingHouse {
 
   case class ReadyNewsletter(
                               id: Option[Long],
-                              url: Option[String],
                               title: Option[String],
                               header: Option[HtmlTemplate], //TODO: make it optional in the model
                               footer: Option[HtmlTemplate], //TODO: make it optional in the model
@@ -106,12 +105,12 @@ class PublishingHouse @Inject()(
     Future.sequence(posts.map(post => post.fold(Future(Option.empty[ReadyPost]))(p => doPost(p, target).map(Some(_)))))
   }
 
-  def doNewsletter(nl: NewsletterAndPosts, target: Target.Value): Future[ReadyNewsletter] = {
-    Logger.info(s"compiling newsletter, id=${nl.id}, userId=${nl.userId}, title=${nl.title}")
+  def doEdition(nl: Edition, target: Target.Value): Future[ReadyNewsletter] = {
+    Logger.info(s"compiling newsletter, id=${nl.id}, newsletter=${nl.newsletter}, title=${nl.title}")
     for {
       header <- if (nl.header.isDefined) compile(quill.toTagStr(nl.header.get), target).map(Some(_)) else Future(None)
       footer <- if (nl.footer.isDefined) compile(quill.toTagStr(nl.footer.get), target).map(Some(_)) else Future(None)
       posts <- doPosts(nl.posts, target)
-    } yield ReadyNewsletter(nl.id, nl.url, nl.title, header, footer, posts, Configuration.from(nl.options), target, nl.publishTimestamp)
+    } yield ReadyNewsletter(nl.id, nl.title, header, footer, posts, Configuration.from(nl.options), target, nl.publishTimestamp)
   }
 }

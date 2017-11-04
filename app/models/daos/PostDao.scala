@@ -3,10 +3,10 @@ package models.daos
 import java.time.{ZoneOffset, ZonedDateTime}
 import javax.inject.{Inject, Singleton}
 
-import exceptions.PostNotFoundException
+import exceptions.{EditionNotFoundException, InvalidCampaignStatusException, PostNotFoundException}
 import models.Post
 import models.api.Repository
-import models.components.{NewsletterComponent, PostComponent, UserComponent}
+import models.components.{EditionComponent, NewsletterComponent, PostComponent, UserComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -22,7 +22,7 @@ object PostDao {
 
 @Singleton
 class PostDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
-  extends Repository with PostComponent with UserComponent with NewsletterComponent {
+  extends Repository with PostComponent with UserComponent with EditionComponent with NewsletterComponent {
 
   import PostDao._
 
@@ -76,25 +76,16 @@ class PostDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: E
       .result.map(_.toList)
   }
 
-  def getUnpublished(userId: Long): Future[List[Post]] = db.run {
-    newsletters
-      .filter(_.publishTimestamp.nonEmpty)
-      .sortBy(_.publishTimestamp.desc).take(1).result.headOption
-      .flatMap { nl =>
-        val publishTimestamp = nl.fold(initTimestamp)(_.publishTimestamp.get.minusDays(1))
-        posts
-          .filter(p => p.userId === userId && p.createdTimestamp >= publishTimestamp && p.newsletterId.isEmpty)
-          .sortBy(_.createdTimestamp)
-          .result.map(_.toList)
+  def setEditionIdDBIO(postId: Long, editionId: Option[Long]) = {
+    posts.filter(_.id === postId).map(_.editionId)
+      .update(editionId)
+      .map { res =>
+        if (res == 0) throw PostNotFoundException(postId, "setEditionIdDBIO failed")
+        res
       }
   }
 
-  def setNewsletterIdDBIO(userId: Long, postId: Long, newsletterId: Option[Long]) = {
-    val q = for (p <- posts if p.id === postId && p.userId === userId) yield p.newsletterId
-    q.update(newsletterId)
-  }
-
-  def setNewsletterId(userId: Long, postId: Long, newsletterId: Option[Long]): Future[Int] = db.run {
-    setNewsletterIdDBIO(userId, postId, newsletterId)
+  def setNewsletterId(postId: Long, newsletterId: Option[Long]): Future[Int] = db.run {
+    setEditionIdDBIO(postId, newsletterId)
   }
 }

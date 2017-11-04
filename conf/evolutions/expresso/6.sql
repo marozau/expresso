@@ -3,7 +3,7 @@
 CREATE TABLE posts (
   id                 BIGSERIAL PRIMARY KEY,
   user_id            BIGINT      NOT NULL REFERENCES users (id),
-  newsletter_id      BIGINT REFERENCES newsletters (id),
+  edition_id         BIGINT REFERENCES editions (id),
   title              TEXT        NOT NULL,
   annotation         TEXT        NOT NULL,
   body               TEXT        NOT NULL,

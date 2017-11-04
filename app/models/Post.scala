@@ -10,7 +10,7 @@ import play.api.libs.json.JsValue
 // TODO: https://github.com/typesafehub/lightbend-emoji twirl method template
 case class Post(id: Option[Long],
                 userId: Long,
-                newsletterId: Option[Long],
+                editionId: Option[Long],
                 title: String,
                 annotation: String,
                 body: String,

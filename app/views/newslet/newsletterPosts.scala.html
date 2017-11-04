@@ -22,7 +22,7 @@
                 </span>
             </em>
         </div>
-        <a href="@controllers.newslet.routes.NewsletterController.getHeaderForm(newsletter.id.get)">edit</a>&nbsp;
+        <a href="@controllers.newslet.routes.EditionController.getHeaderForm(newsletter.id.get)">edit</a>&nbsp;
     }
 }
 
@@ -34,9 +34,9 @@
                 <br>
             </font>
             <a href="@controllers.newslet.routes.PostController.getPostForm(post.id, newsletter.id)">edit</a>&nbsp;
-            <a href="@controllers.newslet.routes.NewsletterController.removePost(newsletter.id.get, post.id.get)">remove</a>&nbsp;
-            <a href="@controllers.newslet.routes.NewsletterController.moveUpPost(newsletter.id.get, post.id.get)">up</a>&nbsp;
-            <a href="@controllers.newslet.routes.NewsletterController.moveDownPost(newsletter.id.get, post.id.get)">down</a>&nbsp;
+            <a href="@controllers.newslet.routes.EditionController.removePost(newsletter.id.get, post.id.get)">remove</a>&nbsp;
+            <a href="@controllers.newslet.routes.EditionController.moveUpPost(newsletter.id.get, post.id.get)">up</a>&nbsp;
+            <a href="@controllers.newslet.routes.EditionController.moveDownPost(newsletter.id.get, post.id.get)">down</a>&nbsp;
         }
         @site.divider()
         @site.text {
@@ -70,7 +70,7 @@
                 </span>
         </span>
         </div>
-        <a href="@controllers.newslet.routes.NewsletterController.getFooterForm(newsletter.id.get)">edit</a>&nbsp;
+        <a href="@controllers.newslet.routes.EditionController.getFooterForm(newsletter.id.get)">edit</a>&nbsp;
     }
 }
 

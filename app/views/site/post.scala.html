@@ -1,6 +1,6 @@
 @import clients.PublishingHouse
 @import java.time.format.DateTimeFormatter
-@(post: PublishingHouse.ReadyPost, newsletter: Option[Newsletter] = None, prev: Option[PublishingHouse.ReadyPost] = None, next: Option[PublishingHouse.ReadyPost] = None)
+@(post: PublishingHouse.ReadyPost, newsletter: Option[Edition] = None, prev: Option[PublishingHouse.ReadyPost] = None, next: Option[PublishingHouse.ReadyPost] = None)
 
 @main {
     @head(post.title)

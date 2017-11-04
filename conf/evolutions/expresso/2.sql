@@ -3,13 +3,14 @@
 DROP TYPE IF EXISTS user_status CASCADE;
 CREATE TYPE user_status AS ENUM ('NEW', 'VERIFIED', 'BLOCKED');
 DROP TYPE IF EXISTS user_role CASCADE;
-CREATE TYPE user_role AS ENUM ('USER', 'WRITER', 'EDITOR', 'ADMIN');
+CREATE TYPE user_role AS ENUM ('READER', 'WRITER', 'EDITOR', 'ADMIN');
 
 CREATE TABLE users (
   id                 BIGSERIAL PRIMARY KEY,
   email              TEXT        NOT NULL UNIQUE,
   status             user_status NOT NULL,
   roles              user_role[] NOT NULL,
+  locale             TEXT,
   reason             TEXT,
   created_timestamp  TIMESTAMPTZ DEFAULT timezone('UTC', now()),
   modified_timestamp TIMESTAMPTZ DEFAULT timezone('UTC', now())

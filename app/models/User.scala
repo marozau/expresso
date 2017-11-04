@@ -9,15 +9,13 @@ import play.api.libs.json._
   * @author im.
   */
 object UserRole extends Enumeration {
-  val USER, WRITER, EDITOR, ADMIN = Value
+  val READER, WRITER, EDITOR, ADMIN = Value
 
   implicit val userRoleReads = Reads.enumNameReads(UserRole)
 }
 
-// NEW, SUBSCRIBED, UNSUBSCRIBED, BLOCKED, CLEANED are USER statused
-// NEW, VERIFIED, BLOCKED are WRITER, EDITOR, ADMIN statuses
 object UserStatus extends Enumeration {
-  val NEW, SUBSCRIBED, UNSUBSCRIBED, VERIFIED, BLOCKED, CLEANED = Value
+  val NEW, VERIFIED, BLOCKED = Value
 
   implicit val userStatusFormat = Reads.enumNameReads(UserStatus)
 }
@@ -28,6 +26,7 @@ case class User(
                  email: String,
                  roles: List[UserRole.Value],
                  status: UserStatus.Value,
+                 locale: Option[String] = None,
                  reason: Option[String] = None,
                  createdTimestamp: Option[ZonedDateTime] = None,
                  modifiedTimestamp: Option[ZonedDateTime] = None
@@ -35,5 +34,5 @@ case class User(
 
 object User {
 
-  implicit val personFormat = Json.format[User]
+  implicit val userFormat = Json.format[User]
 }

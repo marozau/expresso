@@ -60,7 +60,7 @@ class PostController @Inject()(
               .fold {
                 Redirect(routes.PostController.showPost(postId.get))
               } { newsletterId =>
-                Redirect(routes.NewsletterController.addPost(newsletterId, postId.get))
+                Redirect(routes.EditionController.addPost(newsletterId, postId.get))
               }
           }
       }

@@ -4,7 +4,7 @@
 @import controllers.AssetsFinder
 @import views.html.common._
 
-@(user: User, lists: Seq[RecipientList])(implicit request: RequestHeader, messages: Messages, webJarsUtil: WebJarsUtil, assets: AssetsFinder)
+@(user: User, recipients: Seq[Recipient])(implicit request: RequestHeader, messages: Messages, webJarsUtil: WebJarsUtil, assets: AssetsFinder)
 
 @main(messages("home.title"), Some(user)) {
     <div class="user col-md-6 col-md-offset-3">
@@ -17,13 +17,13 @@
         </div>
         <div class="row data">
             <div class="col-md-12">
-                @for(list <- lists) {
+                @for(recipient <- recipients) {
                     <div class="row">
-                        <p class="col-md-6">@list.id.get</p>
-                        <p class="col-md-6"><strong>@messages("recipient.name"):</strong></p>
-                        <p class="col-md-6">@list.name</p>
-                        <p class="col-md-6"><strong>@messages("recipient.owner"):</strong></p>
-                        <p class="col-md-6">@list.userId</p>
+                        <p class="col-md-6">@recipient.userId</p>
+                        <p class="col-md-6"><strong>@messages("recipient.userId"):</strong></p>
+                        <p class="col-md-6">@recipient.userId</p>
+                        <p class="col-md-6"><strong>@messages("recipient.status"):</strong></p>
+                        <p class="col-md-6">@recipient.status</p>
                     </div>
                 }
             </div>

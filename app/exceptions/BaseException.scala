@@ -11,6 +11,7 @@ object BaseException {
     val TIMEOUT = Value
     val VALIDATION_ERROR = Value
     val POST_NOT_FOUND = Value
+    val EDITION_NOT_FOUND = Value
     val NEWSLETTER_NOT_FOUND = Value
     val FRAME_NOT_FOUND = Value
     val CAMPAIGN_NOT_FOUND = Value
@@ -18,6 +19,7 @@ object BaseException {
     val USER_NOT_FOUND = Value
     val EMAIL_NOT_FOUND = Value
     val INVALID_CAMPAIGN_STATUS = Value
+    val INVALID_USER_STATUS = Value
   }
 }
 

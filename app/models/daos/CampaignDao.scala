@@ -2,10 +2,10 @@ package models.daos
 
 import javax.inject.{Inject, Singleton}
 
-import exceptions.CampaignNotFoundException
+import exceptions.{CampaignNotFoundException, InvalidCampaignStatusException}
 import models.Campaign
 import models.api.Repository
-import models.components.{CampaignComponent, NewsletterComponent, UserComponent}
+import models.components.{CampaignComponent, EditionComponent, NewsletterComponent, UserComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -17,9 +17,9 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 @Singleton
 class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
-                            newsletterDao: NewsletterDao,
+                            newsletterDao: EditionDao,
                            )(implicit ec: ExecutionContext)
-  extends Repository with CampaignComponent with NewsletterComponent with UserComponent {
+  extends Repository with CampaignComponent with EditionComponent with UserComponent with NewsletterComponent {
 
   protected val dbConfig: DatabaseConfig[JdbcProfile] = databaseConfigProvider.get[JdbcProfile]
 
@@ -32,20 +32,21 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
   }
 
   def create(campaign: Campaign): Future[Campaign] = db.run {
-    {
-      for {
-        c <- (campaigns returning campaigns) += campaign.copy(status = Campaign.Status.NEW)
-        _ <- newsletterDao.updateTitleDBIO(campaign.userId, campaign.newsletterId, campaign.subject)
-        _ <- newsletterDao.updatePublishTimestampDBIO(campaign.userId, campaign.newsletterId, campaign.sendTime)
-      } yield c
-    }.transactionally.withPinnedSession
+    ((campaigns returning campaigns) += DBCampaign(None, campaign.editionId, campaign.preview, campaign.sendTime, Campaign.Status.NEW, campaign.options))
+      .map(db => campaign.copy(id = db.id, status = db.status))
   }
 
   def getByIdDBIO(id: Long): DBIOAction[Campaign, NoStream, Effect.Read] = {
     campaigns.filter(_.id === id).result.map {
       p =>
-        if (p.isEmpty) throw CampaignNotFoundException(id, s"campaign not found")
-        p.head
+        if (p.isEmpty) throw CampaignNotFoundException(id, s"getByIdDBIO failed")
+        val db = p.head
+        Campaign(db.id,
+          db.editionId,
+          db.preview,
+          db.sendTime,
+          db.status,
+          db.options)
     }
   }
 
@@ -54,15 +55,9 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
   def updateDBIO(campaign: Campaign) = {
     getByIdDBIO(campaign.id.get)
       .flatMap { dbCampaign =>
-        val q = for (p <- campaigns if p.id === campaign.id && p.userId === campaign.userId) yield p
+        val q = for (p <- campaigns if p.id === campaign.id) yield p
         // update status only with separate procedure
-        q.update(campaign.copy(status = dbCampaign.status))
-      }
-      .flatMap { _ =>
-        newsletterDao.updateTitleDBIO(campaign.userId, campaign.newsletterId, campaign.subject)
-      }
-      .flatMap { _ =>
-        newsletterDao.updatePublishTimestampDBIO(campaign.userId, campaign.newsletterId, campaign.sendTime)
+        q.update(DBCampaign(campaign.id, campaign.editionId, campaign.preview, campaign.sendTime, dbCampaign.status, campaign.options))
       }
       .transactionally.withPinnedSession
   }
@@ -71,8 +66,9 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
     updateDBIO(campaign)
   }
 
-  def getByNewsletterId(userId: Long, newsletterId: Long): Future[Option[Campaign]] = db.run {
-    campaigns.filter(c => c.userId === userId && c.newsletterId === newsletterId).result.headOption
+  def getByEditionId(editionId: Long): Future[Option[Campaign]] = db.run {
+    campaigns.filter(_.editionId === editionId).result.headOption
+      .map(_.map(db => Campaign(db.id, db.editionId, db.preview, db.sendTime, db.status, db.options)))
   }
 
   def getLastSent(): Future[Campaign] = db.run {
@@ -81,11 +77,30 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
       .sortBy(_.sendTime)
       .take(1)
       .result.head
+      .map(db => Campaign(db.id, db.editionId, db.preview, db.sendTime, db.status, db.options))
   }
 
-  def setPendingStatus(userId: Long, campaignId: Long, status: Campaign.Status.Value) = db.run {
-    campaigns.filter(c => c.userId === userId && c.id === campaignId && c.status =!= Campaign.Status.SENT).map(_.status)
+  def setPendingStatus(campaignId: Long, status: Campaign.Status.Value) = db.run {
+    campaigns
+      .filter(c => c.id === campaignId && c.status =!= Campaign.Status.SENT)
+      .map(_.status)
       .update(status)
+      .map { res =>
+        if (res == 0) throw InvalidCampaignStatusException(campaignId, status, "cannot update status")
+        res
+      }
+      .transactionally
+  }
+
+  def updateStatus(campaignId: Long, status: Campaign.Status.Value) = db.run {
+    campaigns
+      .filter(_.id === campaignId)
+      .map(_.status)
+      .update(status)
+      .map { res =>
+        if (res == 0) throw InvalidCampaignStatusException(campaignId, status, "cannot update status")
+        res
+      }
       .transactionally
   }
 }

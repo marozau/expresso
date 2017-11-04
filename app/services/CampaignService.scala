@@ -14,10 +14,10 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class CampaignService @Inject()(campaignDao: CampaignDao)(implicit ec: ExecutionContext) {
 
-  def updateStatus(userId: Long, campaignId: Long, status: Campaign.Status.Value) = {
-    campaignDao.updateStatus(userId, campaignId, status)
+  def updateStatus(campaignId: Long, status: Campaign.Status.Value) = {
+    campaignDao.updateStatus(campaignId, status)
       .map { res =>
-        if (res == 0) throw InvalidCampaignStatusException(userId, campaignId, status, "cannot update status")
+        if (res == 0) throw InvalidCampaignStatusException(campaignId, status, "cannot update status")
         res
       }
   }

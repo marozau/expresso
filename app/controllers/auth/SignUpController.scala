@@ -77,7 +77,7 @@ class SignUpController @Inject()(
               id = None,
               loginInfo = loginInfo,
               email = data.email,
-              roles = List(UserRole.USER),
+              roles = List(UserRole.WRITER),
               status = UserStatus.NEW
             )
             import scala.concurrent.duration._

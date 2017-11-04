@@ -1,5 +1,5 @@
 @import forms.newslet.CampaignForm.Data
-@(campaignForm: Form[Data], lists: Seq[RecipientList])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+@(campaignForm: Form[Data])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 @implicitFieldConstructor = @{
     b3.horizontal.fieldConstructor("col-md-2", "col-md-10")
@@ -18,8 +18,6 @@
     @b3.textarea(campaignForm("preview"), '_label -> "preview", 'rows -> 1, 'cols -> 20)
     @b3.textarea(campaignForm("fromName"), '_label -> "fromName", 'rows -> 1, 'cols -> 20)
     @b3.email(campaignForm("fromEmail"), '_label -> "fromEmail", 'rows -> 1, 'cols -> 20)
-
-    @b3.select(campaignForm("recipient"), lists.map(r => (r.id.get.toString, r.name)), '_label -> "recipient")
 
     @b3.date(campaignForm("schedule.date"), '_label -> "date")
     @b3.time(campaignForm("schedule.time"), '_label -> "date")

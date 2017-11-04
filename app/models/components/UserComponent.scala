@@ -26,6 +26,7 @@ trait UserComponent {
                    email: String,
                    roles: List[UserRole.Value],
                    status: UserStatus.Value,
+                   locale: Option[String] = None,
                    reason: Option[String] = None,
                    createdTimestamp: Option[ZonedDateTime] = None,
                    modifiedTimestamp: Option[ZonedDateTime] = None
@@ -40,13 +41,15 @@ trait UserComponent {
 
     def status = column[UserStatus.Value]("status")
 
+    def locale = column[Option[String]]("locale")
+
     def reason = column[Option[String]]("reason")
 
     def createdTimestamp = column[ZonedDateTime]("created_timestamp", SqlUtils.timestampTzNotNullType)
 
     def modifiedTimestamp = column[ZonedDateTime]("modified_timestamp", SqlUtils.timestampTzNotNullType)
 
-    def * = (id.?, email, roles, status, reason, createdTimestamp.?, modifiedTimestamp.?) <> ((DBUser.apply _).tupled, DBUser.unapply)
+    def * = (id.?, email, roles, status, locale, reason, createdTimestamp.?, modifiedTimestamp.?) <> ((DBUser.apply _).tupled, DBUser.unapply)
 
   }
 

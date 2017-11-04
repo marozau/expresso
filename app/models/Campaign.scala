@@ -18,17 +18,8 @@ object Campaign {
 
 // TODO: https://github.com/typesafehub/lightbend-emoji
 case class Campaign(id: Option[Long],
-                    userId: Long,
-                    newsletterId: Long,
-                    name: String,
-                    subject: String, //TODO: emoji
-                    preview: Option[String], //TODO: emoji
-                    fromName: String,
-                    fromEmail: String,
+                    editionId: Long,
+                    preview: Option[String],
                     sendTime: ZonedDateTime,
-                    recipientId: Long,
                     status: Campaign.Status.Value = Campaign.Status.NEW,
-                    emailsSent: Int = 0,
-                    options: Option[JsValue] = None,
-                    createdTimestamp: Option[ZonedDateTime] = None,
-                    modifiedTimestamp: Option[ZonedDateTime] = None)
+                    options: Option[JsValue] = None)

@@ -23,11 +23,11 @@ libraryDependencies += "com.typesafe.play" %% "twirl-api" % "1.3.3"
 libraryDependencies += "com.typesafe.play" %% "twirl-parser" % "1.3.3"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play-slick" % "3.0.0",
-  "com.typesafe.play" %% "play-slick-evolutions" % "3.0.0",
-  "org.postgresql" % "postgresql" % "42.1.2",
-  "com.github.tminglei" %% "slick-pg" % "0.15.3",
-  "com.github.tminglei" %% "slick-pg_play-json" % "0.15.3",
+  "com.typesafe.play" %% "play-slick" % "3.0.2",
+  "com.typesafe.play" %% "play-slick-evolutions" % "3.0.2",
+  "org.postgresql" % "postgresql" % "42.1.4",
+  "com.github.tminglei" %% "slick-pg" % "0.15.4",
+  "com.github.tminglei" %% "slick-pg_play-json" % "0.15.4",
   "com.google.cloud.sql" % "postgres-socket-factory" % "1.0.4"
 )
 libraryDependencies += "org.quartz-scheduler" % "quartz" % "2.3.0"

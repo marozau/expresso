@@ -20,8 +20,6 @@ trait UserProfileComponent {
   protected class UserProfiles(tag: Tag) extends Table[UserProfile](tag, "user_profiles") {
     def userId = column[Long]("user_id", O.PrimaryKey)
 
-    def locale = column[Option[String]]("locale")
-
     def timezone = column[Option[Int]]("timezone")
 
     def firstName = column[Option[String]]("first_name")
@@ -40,7 +38,7 @@ trait UserProfileComponent {
 
     def modifiedTimestamp = column[ZonedDateTime]("modified_timestamp", O.Default(ZonedDateTime.now()))
 
-    def * = (userId, locale, timezone, firstName, lastName, sex, dateOfBirth, country, city, postcode, modifiedTimestamp) <> ((UserProfile.apply _).tupled, UserProfile.unapply)
+    def * = (userId, timezone, firstName, lastName, sex, dateOfBirth, country, city, postcode, modifiedTimestamp) <> ((UserProfile.apply _).tupled, UserProfile.unapply)
 
     def supplier = foreignKey("user_id_fk", userId, users)(_.id)
   }

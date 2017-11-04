@@ -2,9 +2,11 @@ package models.daos
 
 import javax.inject.{Inject, Singleton}
 
+import exceptions.{EditionNotFoundException, InvalidUserStatusException}
+import models.{Recipient, User, UserStatus}
 import models.api.Repository
-import models.components.{RecipientComponent, RecipientListComponent, UserComponent}
-import models.{Recipient, Recipients}
+import models.components.{EditionComponent, NewsletterComponent, RecipientComponent, UserComponent}
+import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -16,36 +18,40 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 @Singleton
 class RecipientDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
-  extends Repository with RecipientComponent with RecipientListComponent with UserComponent {
+  extends Repository with RecipientComponent with UserComponent with EditionComponent with NewsletterComponent {
 
   protected val dbConfig: DatabaseConfig[JdbcProfile] = databaseConfigProvider.get[JdbcProfile]
 
   import api._
   import dbConfig._
 
-  def getByListId(userId: Long, listId: Long) = {
-    val recipientListAction = rlists.filter(r => r.userId === userId && r.id === listId).result.headOption
-    val joinAction = (recipients.filter(_.listId === listId) joinLeft users on (_.userId === _.id)).result
+  implicit def recipientCast(r: DBRecipient) = Recipient(r.newsletterId, r.userId, r.status)
 
-    val q = for {
-      recipientListOption <- recipientListAction
-      join <- recipientListOption.map(_ => joinAction).getOrElse(DBIO.successful(Seq.empty))
-    } yield {
-      recipientListOption
-        .map { list =>
-          val recipients = join.flatMap { case (recipient, userOption) =>
-            userOption.map(u => Recipient(u.id.get, u.email, u.status, recipient.status))
-          }
-          Recipients(list.id, list.userId, list.name, list.default, recipients)
-        }
+  // only editor must has access to this method
+  def getByNewsletterId(newsletterId: Long) = db.run {
+    recipients.filter(_.newsletterId === newsletterId).result
+      .map(_.map(recipientCast))
+  }
+
+  def getByEditionId(editionId: Long) = {
+    val recipientsQuery = for {
+      edition <- editions.filter(_.id === editionId)
+      newsletter <- newsletters.filter(_.id === edition.newsletterId)
+      recipients <- recipients.filter(_.newsletterId === newsletter.id)
+    } yield recipients
+
+    db.run(recipientsQuery.result).map(_.map(recipientCast))
+  }
+
+  def add(newsletterId: Long, user: User): Future[Recipient] = db.run {
+    val status = user.status match {
+      case UserStatus.NEW => Recipient.Status.PENDING
+      case UserStatus.VERIFIED => Recipient.Status.SUBSCRIBED
+      case UserStatus.BLOCKED =>
+        Logger.info(s"blocked user is trying to subscribe on newsletter, userId=${user.id}, newsletterId=$newsletterId")
+        throw InvalidUserStatusException(user.id.get, user.status, "blocked user is trying to subscribe on newsletter")
     }
-
-    db.run(q)
+    ((recipients returning recipients) += DBRecipient(newsletterId, user.id.get, status))
+      .map(recipientCast)
   }
-
-  def add(userId: Long, listId: Long, recipient: Recipient): Future[Int] = db.run {
-    recipients += DBRecipient(listId, userId, recipient.rstatus)
-  }
-
-
 }

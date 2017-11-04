@@ -27,8 +27,8 @@ class RecipientController @Inject()(
                                     assets: AssetsFinder)
   extends AbstractController(cc) with I18nSupport {
 
-  def list = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
-    recipientsService.getLists(request.identity.id.get)
+  def list(newsletterId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
+    recipientsService.getNewsletterRecipients(newsletterId)
       .map { recipients =>
         Ok(views.html.newslet.recipient(request.identity, recipients))
       }

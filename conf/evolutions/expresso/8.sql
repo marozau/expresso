@@ -5,27 +5,17 @@ CREATE TYPE campaign_status AS ENUM ('NEW', 'PENDING', 'SENDING', 'SENT');
 
 CREATE TABLE campaigns (
   id                 BIGSERIAL PRIMARY KEY,
-  user_id            BIGINT          NOT NULL REFERENCES users(id),
-  newsletter_id      BIGINT          NOT NULL REFERENCES newsletters (id),
-  name               TEXT            NOT NULL,
-  subject            TEXT            NOT NULL,
+  edition_id         BIGINT          NOT NULL REFERENCES editions (id),
   preview            TEXT,
-  from_name          TEXT            NOT NULL,
-  from_email         TEXT            NOT NULL,
   status             campaign_status NOT NULL,
-  email_sent         INT             NOT NULL DEFAULT 0,
   send_time          TIMESTAMPTZ     NOT NULL,
-  recipient_id       BIGINT          NOT NULL REFERENCES recipient_lists (id),
   options            JSONB,
   created_timestamp  TIMESTAMPTZ     NOT NULL DEFAULT timezone('UTC', now()),
   modified_timestamp TIMESTAMPTZ     NOT NULL DEFAULT timezone('UTC', now())
 );
 
-CREATE INDEX campaigns_id_and_user_id_idx
-  ON campaigns (id, user_id);
-
-CREATE UNIQUE INDEX campaigns_newsletter_id_unique_idx
-  ON campaigns (newsletter_id);
+CREATE UNIQUE INDEX campaigns_edition_id_unique_idx
+  ON campaigns (edition_id);
 
 CREATE INDEX campaigns_modified_timestamp_idx
   ON campaigns (modified_timestamp);

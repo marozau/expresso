@@ -11,7 +11,7 @@ import utils.SqlUtils
   * @author im.
   */
 trait PostComponent {
-  this: Repository with UserComponent with NewsletterComponent =>
+  this: Repository with UserComponent with EditionComponent =>
 
   import api._
 
@@ -20,7 +20,7 @@ trait PostComponent {
 
     def userId = column[Long]("user_id")
 
-    def newsletterId = column[Option[Long]]("newsletter_id")
+    def editionId = column[Option[Long]]("edition_id")
 
     def title = column[String]("title")
 
@@ -36,11 +36,11 @@ trait PostComponent {
 
     def modifiedTimestamp = column[ZonedDateTime]("modified_timestamp", SqlUtils.timestampTzNotNullType)
 
-    def * = (id.?, userId, newsletterId, title, annotation, body, refs, options, createdTimestamp.?, modifiedTimestamp.?) <> ((Post.apply _).tupled, Post.unapply)
+    def * = (id.?, userId, editionId, title, annotation, body, refs, options, createdTimestamp.?, modifiedTimestamp.?) <> ((Post.apply _).tupled, Post.unapply)
 
     def userIdSupplier = foreignKey("posts_user_id_fkey", userId, users)(_.id)
 
-    def newsletterIdSupplier = foreignKey("posts_newsletter_id_fkey", newsletterId, newsletters)(_.id.?)
+    def newsletterIdSupplier = foreignKey("posts_newsletter_id_fkey", editionId, editions)(_.id.?)
   }
 
   protected val posts = TableQuery[Posts]

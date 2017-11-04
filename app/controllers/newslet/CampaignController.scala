@@ -30,56 +30,46 @@ class CampaignController @Inject()(
   import forms.newslet.CampaignForm._
   import implicits.CampaignImplicits._
 
-  def getCampaignForm(id: Option[Long], newsletterId: Option[Long]) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
-    val userId = request.identity.id.get
-    val recipient = recipients.getLists(userId)
-
+  def getCampaignForm(id: Option[Long], editionId: Option[Long]) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
     def existing(id: Long) = {
       campaigns.getById(id)
         .map(campaign => form.fill(campaign))
     }
 
     def empty() = {
-      campaigns.getByNewsletterId(userId, newsletterId.get)
-        .flatMap { campaign =>
+      campaigns.getByEditionId(editionId.get)
+        .map { campaign =>
           if (campaign.isDefined) {
-            Future.successful(form.fill(campaign.get))
+            form.fill(campaign.get)
           } else {
-            recipient.map { r =>
-              val defaultList = r.filter(_.default.isDefined).filter(_.default.get)
-              val default = if (defaultList.nonEmpty) defaultList.head else r.head
-              form.fill(campaignDraft(newsletterId.get, default.id.get))
-            }
+            form.fill(campaignDraft(editionId.get))
           }
         }
     }
 
     id.fold(empty())(existing)
-      .flatMap(f => recipient.map((f, _)))
-      .map {
-        case (form, rec) => Ok(views.html.newslet.campaign(form, rec))
+      .map { f =>
+        Ok(views.html.newslet.campaign(f))
       }
   }
 
-  def submitCampaignForm() = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
-    val userId = request.identity.id.get
+  def submitCampaignForm() = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
     form.bindFromRequest.fold(
       formWithErrors => {
         Logger.info(s"bad campaign, form=$formWithErrors")
-        Future.successful(BadRequest(formWithErrors.toString))
-        //        Future(BadRequest(views.html.newslet.campaign(formWithErrors)))
+        Future.successful(BadRequest(views.html.newslet.campaign(formWithErrors)))
       },
       form => {
-        val campaign = Campaign(form.id, userId, form.newsletterId, form.name, form.subject, form.preview, form.fromName, form.fromEmail,
-          form.sendTime.toDateTime, form.recipients)
+        val campaign = Campaign(form.id, form.editionId, form.preview, form.sendTime.toDateTime)
         form.id.fold(campaigns.create(campaign))(_ => campaigns.update(campaign).map(_ => campaign))
-          .map(c => Redirect(routes.NewsletterController.getNewsletterFinal(c.id.get, c.newsletterId)))
+          .map(c => Redirect(routes.EditionController.getNewsletterFinal(c.id.get, c.editionId)))
       }
     )
   }
 
   /**
     * only EDITOR can approve campaign scheduling
+    *
     * @param id
     * @return
     */
@@ -88,9 +78,8 @@ class CampaignController @Inject()(
     campaigns.getById(id)
       .flatMap { campaign =>
         jobScheduler.schedule(campaign)
-          .map(_ => campaign)
       }
-      .flatMap(campaign => campaigns.update(campaign.copy(status = Campaign.Status.PENDING)))
+      .flatMap(_ => campaigns.updateStatus(id, Campaign.Status.PENDING))
       .map(_ => Ok("Done"))
   }
 

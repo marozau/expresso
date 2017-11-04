@@ -11,37 +11,32 @@ import utils.SqlUtils
   * @author im.
   */
 trait CampaignComponent {
-  this: Repository with NewsletterComponent =>
+  this: Repository with EditionComponent =>
 
   import api._
 
   implicit val campaignStatusMapper = createEnumJdbcType("campaign_status", Campaign.Status)
 
-  protected class Campaigns(tag: Tag) extends Table[Campaign](tag, "campaigns") {
+  case class DBCampaign(id: Option[Long],
+                        editionId: Long,
+                        preview: Option[String],
+                        sendTime: ZonedDateTime,
+                        status: Campaign.Status.Value,
+                        options: Option[JsValue] = None,
+                        createdTimestamp: Option[ZonedDateTime] = None,
+                        modifiedTimestamp: Option[ZonedDateTime] = None)
+
+  protected class Campaigns(tag: Tag) extends Table[DBCampaign](tag, "campaigns") {
 
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
 
-    def userId = column[Long]("user_id")
-
-    def newsletterId = column[Long]("newsletter_id")
-
-    def name = column[String]("name")
-
-    def subject = column[String]("subject")
+    def editionId = column[Long]("edition_id")
 
     def preview = column[Option[String]]("preview")
 
-    def fromName = column[String]("from_name")
-
-    def fromEmail = column[String]("from_email")
-
     def sendTime = column[ZonedDateTime]("send_time")
 
-    def recipientId = column[Long]("recipient_id")
-
     def status = column[Campaign.Status.Value]("status")
-
-    def emailSent = column[Int]("email_sent")
 
     def options = column[Option[JsValue]]("options")
 
@@ -49,10 +44,9 @@ trait CampaignComponent {
 
     def modifiedTimestamp = column[ZonedDateTime]("modified_timestamp", SqlUtils.timestampTzNotNullType)
 
-    def * = (id.?, userId, newsletterId, name, subject, preview, fromName, fromEmail, sendTime, recipientId, status, emailSent, options, createdTimestamp.?, modifiedTimestamp.?) <>
-      ((Campaign.apply _).tupled, Campaign.unapply)
+    def * = (id.?, editionId, preview, sendTime, status, options, createdTimestamp.?, modifiedTimestamp.?) <> ((DBCampaign.apply _).tupled, DBCampaign.unapply)
 
-    def newsletterSupplier = foreignKey("campaign_newsletter_id_fkey", newsletterId, newsletters)(_.id)
+    def newsletterSupplier = foreignKey("campaign_edition_id_fkey", editionId, editions)(_.id)
   }
 
   protected val campaigns = TableQuery[Campaigns]

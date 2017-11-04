@@ -2,7 +2,6 @@ package models.components
 
 import java.time.ZonedDateTime
 
-import models.Newsletter
 import models.api.Repository
 import play.api.libs.json.JsValue
 import utils.SqlUtils
@@ -10,36 +9,32 @@ import utils.SqlUtils
 /**
   * @author im.
   */
-
 trait NewsletterComponent {
   this: Repository with UserComponent =>
 
   import api._
 
-  protected class Newsletters(tag: Tag) extends Table[Newsletter](tag, "newsletters") {
+  case class DBNewsletter(id: Option[Long],
+                          userId: Long,
+                          name: String,
+                          options: Option[JsValue] = None,
+                          createdTimestamp: Option[ZonedDateTime] = None,
+                          modifiedTimestamp: Option[ZonedDateTime] = None)
+
+  protected class Newsletters(tag: Tag) extends Table[DBNewsletter](tag, "newsletters") {
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
 
     def userId = column[Long]("user_id")
 
-    def url = column[Option[String]]("url")
-
-    def title = column[Option[String]]("title")
-
-    def header = column[Option[String]]("header")
-
-    def footer = column[Option[String]]("footer")
-
-    def postIds = column[List[Long]]("post_ids")
+    def name = column[String]("name")
 
     def options = column[Option[JsValue]]("options")
-
-    def publishTimestamp = column[Option[ZonedDateTime]]("publish_timestamp", SqlUtils.timestampTzType)
 
     def createdTimestamp = column[ZonedDateTime]("created_timestamp", SqlUtils.timestampTzNotNullType)
 
     def modifiedTimestamp = column[ZonedDateTime]("modified_timestamp", SqlUtils.timestampTzNotNullType)
 
-    def * = (id.?, userId, url, title, header, footer, postIds, options, publishTimestamp, createdTimestamp.?, modifiedTimestamp.?) <> ((Newsletter.apply _).tupled, Newsletter.unapply)
+    def * = (id.?, userId, name, options, createdTimestamp.?, modifiedTimestamp.?) <> ((DBNewsletter.apply _).tupled, DBNewsletter.unapply)
 
     def userIdSupplier = foreignKey("newsletters_user_id_fkey", userId, users)(_.id)
   }

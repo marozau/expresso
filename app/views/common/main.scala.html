@@ -42,9 +42,8 @@
                         <li><a href="@controllers.auth.routes.AuthController.index">@messages("home")</a></li>
                         @user.map { u =>
                                 @if(u.roles.contains(UserRole.EDITOR) || u.roles.contains(UserRole.WRITER)) {
-                                    <li><a href="@controllers.newslet.routes.NewsletterController.getNewsletterPosts(None)">Create Newsletter</a></li>
                                     <li><a href="@controllers.newslet.routes.PostController.getPostForm(None, None)">Create Post</a></li>
-                                    <li><a href="@controllers.newslet.routes.NewsletterController.getNewsletterList()">All</a></li>
+                                    <li><a href="@controllers.newslet.routes.EditionController.getNewsletterList()">All</a></li>
                                 }
                         }
                     </ul>

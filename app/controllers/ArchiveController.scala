@@ -5,8 +5,9 @@ import javax.inject.{Inject, Singleton}
 import models.Post
 import play.api.cache.Cached
 import play.api.mvc.{AbstractController, ControllerComponents}
-import models.daos.{CampaignDao, NewsletterDao, PostDao}
+import models.daos.{CampaignDao, EditionDao, PostDao}
 import clients.PublishingHouse
+import services.EditionService
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -17,9 +18,10 @@ import scala.concurrent.duration._
 @Singleton
 class ArchiveController @Inject()(
                                    cc: ControllerComponents,
-                                   newsletters: NewsletterDao,
+                                   newsletters: EditionDao,
                                    posts: PostDao,
                                    campaigns: CampaignDao,
+                                   editionService: EditionService,
                                    ph: PublishingHouse,
                                    cached: Cached
                                  )(implicit ec: ExecutionContext)
@@ -32,9 +34,9 @@ class ArchiveController @Inject()(
     Action.async { implicit request =>
       campaigns.getLastSent()
         .flatMap { campaign =>
-          newsletters.getWithPostsById(None, campaign.newsletterId)
+          editionService.getById(campaign.editionId)
             .flatMap { nl =>
-              ph.doNewsletter(nl, PublishingHouse.Target.SITE)
+              ph.doEdition(nl, PublishingHouse.Target.SITE)
             }
         }
         .map { newsletter =>
@@ -45,7 +47,7 @@ class ArchiveController @Inject()(
 
   def post(newsletterId: Long, postId: Long) = cached(s"/post/$newsletterId/$postId").includeStatus(OK, 10.seconds) {
     Action.async { implicit request =>
-      newsletters.getWithPostsById(None, newsletterId)
+      editionService.getById(newsletterId)
         .map { newsletter =>
           val archivePosts = {
             // get target post with id==postId with previous and next posts ordered by newsletter
@@ -83,7 +85,7 @@ class ArchiveController @Inject()(
           if (archivePosts.isEmpty) {
             NotFound("error")
           } else {
-            import implicits.NewsletterImplicits._
+            import implicits.CommonImplicits._
             val post = archivePosts(1)
             Ok(views.html.site.post(post.get, Some(newsletter), archivePosts.head, archivePosts.last))
           }
@@ -93,8 +95,8 @@ class ArchiveController @Inject()(
 
   def newsletter(id: Long) = cached("/newsletter/" + id).includeStatus(OK, 10.seconds) {
     Action.async { implicit request =>
-      newsletters.getWithPostsById(None, id)
-        .flatMap(newsletter => ph.doNewsletter(newsletter, PublishingHouse.Target.SITE))
+      editionService.getById(id)
+        .flatMap(newsletter => ph.doEdition(newsletter, PublishingHouse.Target.SITE))
         .map(newsletter => Ok(views.html.site.newsletter(newsletter)))
     }
   }

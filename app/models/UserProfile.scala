@@ -15,7 +15,6 @@ object UserSex extends Enumeration {
 
 case class UserProfile(
                         userId: Long,
-                        locale: Option[String],
                         timezone: Option[Int],
                         firstName: Option[String],
                         lastName: Option[String],
