@@ -8,21 +8,11 @@ import play.api.data._
   */
 object NewsletterForm {
 
-  val headerForm = Form(
+  val form = Form(
     mapping(
-      "id" -> longNumber,
-      "text" -> nonEmptyText
-    )(HeaderData.apply)(HeaderData.unapply)
+      "name" -> nonEmptyText
+    )(Data.apply)(Data.unapply)
   )
 
-  val footerForm = Form(
-    mapping(
-      "id" -> longNumber,
-      "text" -> nonEmptyText
-    )(FooterData.apply)(FooterData.unapply)
-  )
-
-  case class HeaderData(id: Long, text: String)
-
-  case class FooterData(id: Long, text: String)
+  case class Data(name: String)
 }

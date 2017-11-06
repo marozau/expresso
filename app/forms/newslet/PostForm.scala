@@ -16,7 +16,7 @@ object PostForm {
   val form = Form(
     mapping(
       "id" -> optional(longNumber),
-      "newsletterId" -> optional(longNumber),
+      "editionId" -> optional(longNumber),
       "title" -> nonEmptyText,
       "annotation" -> nonEmptyText,
       "body" -> nonEmptyText,
@@ -25,11 +25,11 @@ object PostForm {
   )
 
   case class Data(id: Option[Long],
-                      newsletterId: Option[Long],
-                      title: String,
-                      annotation: String,
-                      body: String,
-                      refs: List[URL])
+                  editionId: Option[Long],
+                  title: String,
+                  annotation: String,
+                  body: String,
+                  refs: List[URL])
 
-  implicit def postFormCast(p: Post): PostForm.Data = Data(p.id, p.newsletterId, p.title, p.annotation, p.body, p.refs)
+  implicit def postFormCast(p: Post): PostForm.Data = Data(p.id, p.editionId, p.title, p.annotation, p.body, p.refs)
 }

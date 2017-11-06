@@ -25,6 +25,7 @@ class AccessLoggingFilter @Inject()(implicit val mat: Materializer) extends Filt
       val msg = s"method=${request.method} uri=${request.uri} remote-address=${request.remoteAddress}" +
         s" status=${result.header.status}"
       accessLogger.info(msg)
+      //TODO: send all error responses to analytics
     })
 
     resultFuture

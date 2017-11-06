@@ -3,11 +3,13 @@ package controllers.newslet
 import javax.inject.{Inject, Singleton}
 
 import com.mohiva.play.silhouette.api.Silhouette
+import controllers.AssetsFinder
 import models.daos.CampaignDao
 import models.{Campaign, UserRole}
 import modules.DefaultEnv
+import org.webjars.play.WebJarsUtil
 import play.api.Logger
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{AbstractController, ControllerComponents}
 import services.{JobSchedulerService, RecipientService}
 import utils.WithRole
@@ -24,7 +26,11 @@ class CampaignController @Inject()(
                                     cc: ControllerComponents,
                                     campaigns: CampaignDao,
                                     recipients: RecipientService,
-                                    jobScheduler: JobSchedulerService)(implicit ec: ExecutionContext)
+                                    jobScheduler: JobSchedulerService)
+                                  (implicit
+                                   webJarsUtil: WebJarsUtil,
+                                   assets: AssetsFinder,
+                                   ec: ExecutionContext)
   extends AbstractController(cc) with I18nSupport {
 
   import forms.newslet.CampaignForm._
@@ -49,7 +55,7 @@ class CampaignController @Inject()(
 
     id.fold(empty())(existing)
       .map { f =>
-        Ok(views.html.newslet.campaign(f))
+        Ok(views.html.newslet.campaign(request.identity, f))
       }
   }
 
@@ -57,7 +63,7 @@ class CampaignController @Inject()(
     form.bindFromRequest.fold(
       formWithErrors => {
         Logger.info(s"bad campaign, form=$formWithErrors")
-        Future.successful(BadRequest(views.html.newslet.campaign(formWithErrors)))
+        Future.successful(BadRequest(views.html.newslet.campaign(request.identity, formWithErrors)))
       },
       form => {
         val campaign = Campaign(form.id, form.editionId, form.preview, form.sendTime.toDateTime)
@@ -80,7 +86,8 @@ class CampaignController @Inject()(
         jobScheduler.schedule(campaign)
       }
       .flatMap(_ => campaigns.updateStatus(id, Campaign.Status.PENDING))
-      .map(_ => Ok("Done"))
+      .map(_ => Redirect(controllers.newslet.routes.NewsletterController.getList())
+        .flashing("info" -> Messages("campaign was schedulled")))
   }
 
 }

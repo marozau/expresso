@@ -1,5 +1,12 @@
+@import play.api.i18n.Messages
+@import play.api.mvc.RequestHeader
+@import org.webjars.play.WebJarsUtil
+@import controllers.AssetsFinder
 @import forms.newslet.CampaignForm.Data
-@(campaignForm: Form[Data])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+@import views.html.common._
+@import helper._
+
+@(user: User, campaignForm: Form[Data])(implicit request: RequestHeader, messages: Messages, webJarsUtil: WebJarsUtil, assets: AssetsFinder)
 
 @implicitFieldConstructor = @{
     b3.horizontal.fieldConstructor("col-md-2", "col-md-10")
@@ -7,24 +14,25 @@
 
 <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("lib/bootstrap/css/bootstrap.min.css")">
 
-@import helper._
 
-@b3.form(action = controllers.newslet.routes.CampaignController.submitCampaignForm()) {
-    @CSRF.formField
-    @b3.textarea(campaignForm("id"), 'style -> "display: none")
-    @b3.textarea(campaignForm("newsletterId"), 'style -> "display: none")
-    @b3.textarea(campaignForm("name"), '_label -> "name", 'rows -> 1, 'cols -> 20)
-    @b3.textarea(campaignForm("subject"), '_label -> "subject", 'rows -> 1, 'cols -> 20)
-    @b3.textarea(campaignForm("preview"), '_label -> "preview", 'rows -> 1, 'cols -> 20)
-    @b3.textarea(campaignForm("fromName"), '_label -> "fromName", 'rows -> 1, 'cols -> 20)
-    @b3.email(campaignForm("fromEmail"), '_label -> "fromEmail", 'rows -> 1, 'cols -> 20)
+<h1>Campaign</h1>
 
-    @b3.date(campaignForm("schedule.date"), '_label -> "date")
-    @b3.time(campaignForm("schedule.time"), '_label -> "date")
-    @b3.number(campaignForm("schedule.zoneOffset"), '_label -> "zoneOffset")
+@main(messages("home.title"), Some(user)) {
+    <div class="user col-md-6 col-md-offset-3">
+        <div class="row">
+            @b3.form(action = controllers.newslet.routes.CampaignController.submitCampaignForm()) {
+                @CSRF.formField
+                @b3.textarea(campaignForm("id"), 'style -> "display: none")
+                @b3.textarea(campaignForm("editionId"), 'style -> "display: none")
+                @b3.textarea(campaignForm("preview"), '_label -> "preview", 'rows -> 1, 'cols -> 20)
 
-    @b3.submit('class -> "btn btn-default") { Schedule }
+                @b3.date(campaignForm("schedule.date"), '_label -> "date")
+                @b3.time(campaignForm("schedule.time"), '_label -> "date")
+                @b3.number(campaignForm("schedule.zoneOffset"), '_label -> "zoneOffset")
+
+                @b3.submit('class -> "btn btn-default") { Schedule }
+            }
+        </div>
+    </div>
 }
 
-<script src="@routes.Assets.versioned("lib/jquery/jquery.js")" crossorigin="anonymous"></script>
-<script src="@routes.Assets.versioned("lib/bootstrap/js/bootstrap.min.js")" crossorigin="anonymous"></script>

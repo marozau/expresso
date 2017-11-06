@@ -1,5 +1,13 @@
 @import clients.PublishingHouse
-@(newsletter: PublishingHouse.ReadyNewsletter)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+@import forms.newslet.EditionForm.TitleData
+@import forms.newslet.EditionForm.HeaderData
+@import forms.newslet.EditionForm.FooterData
+@import forms.newslet.PostForm.Data
+@(newsletter: PublishingHouse.ReadyNewsletter,
+        titleForm: Option[Form[TitleData]] = None,
+        headerForm: Option[Form[HeaderData]] = None,
+        footerForm: Option[Form[FooterData]] = None,
+        postForm: Option[Form[Data]] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 <!doctype html>
 <html xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraph.org/schema/">
@@ -8,69 +16,92 @@
 @site.head(newsletter.title.getOrElse("Expresso.today"))
 
 @site.container {
-    @site.text {
-        <div style="text-align: center;">
-            <em>
-                <span style="font-size: 17px">
-                    <span style="font-family: georgia, times, times new roman, serif">
+    @if(titleForm.isDefined) {
+        @views.html.newslet.title(titleForm.get)
+    } else {
+        <a href="@controllers.newslet.routes.EditionController.getTitleForm(newsletter.id.get)">edit title</a>
+    }
+    @if(headerForm.isDefined) {
+        @views.html.newslet.header(headerForm.get)
+    } else {
+        @site.text {
+            <div style="text-align: center;">
+                <em>
+                    <span style="font-size: 17px">
+                        <span style="font-family: georgia, times, times new roman, serif">
                         @if(newsletter.header.isEmpty) {
                             @Html("Header here")
                         } else {
-                            @{newsletter.header.get(newsletter.config)}
+                            @{
+                                newsletter.header.get(newsletter.config)
+                            }
                         }
+                        </span>
                     </span>
-                </span>
-            </em>
-        </div>
-        <a href="@controllers.newslet.routes.EditionController.getHeaderForm(newsletter.id.get)">edit</a>&nbsp;
+                </em>
+            </div>
+            <a href="@controllers.newslet.routes.EditionController.getHeaderForm(newsletter.id.get)">edit header</a>
+                &nbsp;
+        }
     }
 }
 
 @for(post <- newsletter.posts) {
     @site.container {
-        @site.text {
-            <font face="arial, helvetica neue, helvetica, sans-serif" size="5">
-                <strong>@post.title</strong>
-                <br>
-            </font>
-            <a href="@controllers.newslet.routes.PostController.getPostForm(post.id, newsletter.id)">edit</a>&nbsp;
-            <a href="@controllers.newslet.routes.EditionController.removePost(newsletter.id.get, post.id.get)">remove</a>&nbsp;
-            <a href="@controllers.newslet.routes.EditionController.moveUpPost(newsletter.id.get, post.id.get)">up</a>&nbsp;
-            <a href="@controllers.newslet.routes.EditionController.moveDownPost(newsletter.id.get, post.id.get)">down</a>&nbsp;
+        @if(postForm.isDefined && postForm.get.data.get("id").isDefined && postForm.get.data("id").toLong == post.id.get) {
+            @views.html.newslet.post(postForm.get)
+        } else {
+            @site.text {
+                <font face="arial, helvetica neue, helvetica, sans-serif" size="5">
+                    <strong>@post.title</strong>
+                    <br>
+                </font>
+                <a href="@controllers.newslet.routes.EditionController.getPostForm(post.id, newsletter.id.get)">edit</a>&nbsp;
+                <a href="@controllers.newslet.routes.EditionController.removePost(newsletter.id.get, post.id.get)">remove</a>&nbsp;
+                <a href="@controllers.newslet.routes.EditionController.moveUpPost(newsletter.id.get, post.id.get)">up</a>&nbsp;
+                <a href="@controllers.newslet.routes.EditionController.moveDownPost(newsletter.id.get, post.id.get)">down</a>&nbsp;
+            }
+            @site.divider()
+            @site.text {
+                <div style="text-align: left;">
+                    <span style="font-family: georgia, times, times new roman, serif">
+                    @post.body(post.config)
+                    </span>
+                </div>
+            }
         }
-        @site.divider()
+    }
+}
+@site.container {
+    @if(postForm.isDefined && postForm.get.data.get("id").isEmpty) {
+        @views.html.newslet.post(postForm.get)
+    } else {
+        @site.text {
+            <strong><a href="@controllers.newslet.routes.EditionController.getPostForm(None, newsletter.id.get)">+post</a>&nbsp;</strong>
+        }
+    }
+}
+
+@site.container {
+    @if(footerForm.isDefined) {
+        @views.html.newslet.footer(footerForm.get)
+    } else {
         @site.text {
             <div style="text-align: left;">
-                <span style="font-family: georgia, times, times new roman, serif">
-                @post.body(post.config)
-                </span>
+                <span style="font-size: 17px">
+                    <span style="font-family: georgia, times, times new roman, serif">
+                        ***
+                        <br>
+                        @if(newsletter.footer.isEmpty) {
+                            @Html("Footer here")
+                        } else {
+                            @{newsletter.footer.get(newsletter.config)}
+                        }
+                    </span>
+            </span>
             </div>
+            <a href="@controllers.newslet.routes.EditionController.getFooterForm(newsletter.id.get)">edit</a>&nbsp;
         }
-    }
-}
-
-@site.container {
-    @site.text {
-        <strong><a href="@controllers.newslet.routes.PostController.getPostForm(None, newsletter.id)">+post</a>&nbsp;</strong>
-    }
-}
-
-@site.container {
-    @site.text {
-        <div style="text-align: left;">
-            <span style="font-size: 17px">
-                <span style="font-family: georgia, times, times new roman, serif">
-                    ***
-                    <br>
-                    @if(newsletter.footer.isEmpty) {
-                        @Html("Footer here")
-                    } else {
-                        @{newsletter.footer.get(newsletter.config)}
-                    }
-                </span>
-        </span>
-        </div>
-        <a href="@controllers.newslet.routes.EditionController.getFooterForm(newsletter.id.get)">edit</a>&nbsp;
     }
 }
 

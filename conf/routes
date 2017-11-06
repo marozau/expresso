@@ -27,22 +27,28 @@ GET         /healthz                               controllers.Application.healt
 GET         /admin/post                            controllers.newslet.PostController.getPostForm(id: Option[Long], newsletter: Option[Long])
 POST        /admin/post                            controllers.newslet.PostController.submitPostForm()
 GET         /admin/post/show                       controllers.newslet.PostController.showPost(id: Long)
+GET         /admin/newsletter/list                 controllers.newslet.NewsletterController.getList()
+POST        /admin/newsletter/create               controllers.newslet.NewsletterController.create()
 GET         /admin/edition                         controllers.newslet.EditionController.get(editionId: Long)
-GET         /admin/edition/list                    controllers.newslet.EditionController.getNewsletterList()
 GET         /admin/edition/current                 controllers.newslet.EditionController.getOrCreate(newsletterId: Long)
 GET         /admin/edition/posts/remove            controllers.newslet.EditionController.removePost(id: Long, postId: Long)
 GET         /admin/edition/posts/up                controllers.newslet.EditionController.moveUpPost(id: Long, postId: Long)
 GET         /admin/edition/posts/down              controllers.newslet.EditionController.moveDownPost(id: Long, postId: Long)
+GET         /admin/edition/posts/form              controllers.newslet.EditionController.getPostForm(id: Option[Long], editionId: Long)
 GET         /admin/edition/posts/add               controllers.newslet.EditionController.addPost(id: Long, postId: Long)
 GET         /admin/edition/header                  controllers.newslet.EditionController.getHeaderForm(id: Long)
 POST        /admin/edition/header                  controllers.newslet.EditionController.submitHeaderForm()
 GET         /admin/edition/footer                  controllers.newslet.EditionController.getFooterForm(id: Long)
 POST        /admin/edition/footer                  controllers.newslet.EditionController.submitFooterForm()
+GET         /admin/edition/title                   controllers.newslet.EditionController.getTitleForm(id: Long)
+POST        /admin/edition/title                   controllers.newslet.EditionController.submitTitleForm()
 GET         /admin/edition/show                    controllers.newslet.EditionController.getNewsletterFinal(campaignId: Long, newsletterId: Long)
 GET         /admin/campaign                        controllers.newslet.CampaignController.getCampaignForm(id: Option[Long], newsletterId: Option[Long])
 POST        /admin/campaign                        controllers.newslet.CampaignController.submitCampaignForm()
 GET         /admin/campaign/schedule               controllers.newslet.CampaignController.scheduleCampaign(id: Long)
-GET         /admin/newsletter/recipients           controllers.newslet.RecipientController.list(newsletterId: Long)
+GET         /admin/recipients                      controllers.newslet.RecipientController.list(newsletterId: Long)
+GET         /admin/recipients/add                  controllers.newslet.RecipientController.add(newsletterId: Long, userId: Long)
+POST        /admin/recipients/add                  controllers.newslet.RecipientController.addForm()
 
 GET         /admin/cache/clear-all                 controllers.CacheController.removeAll()
 
@@ -60,4 +66,3 @@ GET         /javascriptRoutes                      controllers.Application.javas
 ->          /webjars                               webjars.Routes
 
 
-GET         /firepad                               controllers.newslet.EditionController.firepad()

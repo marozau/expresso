@@ -7,6 +7,7 @@ import exceptions.{EditionNotFoundException, NewsletterNotFoundException}
 import models.api.Repository
 import models.components.{EditionComponent, NewsletterComponent, PostComponent, UserComponent}
 import models.{Edition, Newsletter, Post}
+import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -20,7 +21,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class EditionDao @Inject()(
                             databaseConfigProvider: DatabaseConfigProvider,
-                            postRepo: PostDao
+                            postDao: PostDao
                           )(implicit ec: ExecutionContext)
   extends Repository with EditionComponent with NewsletterComponent with UserComponent with PostComponent {
 
@@ -29,7 +30,7 @@ class EditionDao @Inject()(
   import api._
   import dbConfig._
 
-  implicit def dbEditionCast(e: Edition) = DBEdition(e.id, e.newsletter.id.get, e.title, e.header, e.footer, e.posts.map(_.id.get), e.options, e.publishTimestamp)
+  implicit def dbEditionCast(e: Edition) = DBEdition(e.id, e.newsletterId, e.title, e.header, e.footer, e.posts.map(_.id.get), e.options, e.publishTimestamp)
 
   def create(edition: Edition) = db.run {
     {
@@ -52,29 +53,60 @@ class EditionDao @Inject()(
   def update(edition: Edition): Future[Int] = db.run(updateDBIO(edition))
 
   def getById(id: Long) = {
-    val editionQuery = for {
-      edition <- editions.filter(_.id === id)
-      newsletter <- newsletters.filter(_.id === edition.newsletterId)
-      user <- users.filter(_.id === newsletter.userId)
-      editionPosts <- posts.filter(_.id === edition.postIds.any)
-    } yield (edition, newsletter, user, editionPosts)
-    db.run(editionQuery.result)
-      .map { (seq: Seq[(DBEdition, DBNewsletter, DBUser, Post)]) =>
-        val (editionOption, newsletterOption, userOption, editionPosts) = (seq.map(_._1).headOption, seq.map(_._2).headOption, seq.map(_._3).headOption, seq.map(_._4))
+    val editionQuery = editions.filter(_.id === id).result.headOption
+      .map { editionOption =>
         if (editionOption.isEmpty) throw EditionNotFoundException(id, "getById failed")
-        val edition = editionOption.get
-        val newsletter = newsletterOption.get
-        val user = userOption.get
+        editionOption.get
+      }
+      .flatMap { edition =>
+        postDao.getListByIdDBIO(edition.postIds).map((edition, _))
+      }
+    db.run(editionQuery)
+      .map { case (edition, editionPosts) =>
         Edition(
           edition.id,
-          Newsletter(newsletter.id, newsletter.userId, user.email, newsletter.name, newsletter.options),
+          edition.newsletterId,
           edition.title,
           edition.header,
           edition.footer,
-          editionPosts.toList,
+          editionPosts,
           edition.options,
           edition.publishTimestamp
         )
+      }
+  }
+
+  def getByNewsletterId(newsletterId: Long) = {
+    val editionQuery = editions.filter(_.newsletterId === newsletterId).result.headOption
+      .flatMap { editionOption =>
+        editionOption.map(edition => postDao.getListByIdDBIO(edition.postIds).map((editionOption, _)))
+          .getOrElse(DBIO.successful((None, List.empty[Post])))
+      }
+    db.run(editionQuery)
+      .map { case (editionOption, editionPosts) =>
+        editionOption.map { edition =>
+          Edition(
+            edition.id,
+            edition.newsletterId,
+            edition.title,
+            edition.header,
+            edition.footer,
+            editionPosts,
+            edition.options,
+            edition.publishTimestamp
+          )
+        }
+      }
+  }
+
+  def getUnpublished(newsletterId: Long) = {
+    val editionQuery = editions
+      .filter(edition => edition.newsletterId === newsletterId && edition.publishTimestamp.isEmpty)
+      .sortBy(_.publishTimestamp.desc).take(1).result.headOption
+    db.run(editionQuery.transactionally)
+      .flatMap { dbEditionOption =>
+        if (dbEditionOption.isDefined) getById(dbEditionOption.get.id.get).map(Some(_))
+        else Future.successful(None)
       }
   }
 
@@ -87,10 +119,12 @@ class EditionDao @Inject()(
       for {
         editionOption <- retrieveEdition
         dbEdition <- editionOption.map(DBIO.successful).getOrElse(insertEdition)
-        edition <- DBIO.from(getById(dbEdition.id.get))
-      } yield edition
+      } yield dbEdition
     }
     db.run(editionAction.transactionally)
+      .flatMap { dbEdition =>
+        getById(dbEdition.id.get)
+      }
   }
 
   def updateTitleDBIO(id: Long, title: String) = {
@@ -109,18 +143,18 @@ class EditionDao @Inject()(
 
   def addPost(id: Long, postIds: List[Long]) = {
     val updateQuery = for {
-      editionsPostIds <- editions.filter(_.id === id).map(_.postIds).result.headOption
+      editionPostIds <- editions.filter(_.id === id).map(_.postIds).result.headOption
       update <- editions.filter(_.id === id).map(_.postIds)
-        .update(editionsPostIds.getOrElse(List.empty) ++ postIds)
+        .update(editionPostIds.getOrElse(List.empty) ++ postIds)
     } yield update
     db.run(updateQuery.transactionally)
   }
 
   def removePost(editionId: Long, postId: Long): Future[Int] = {
     val updateQuery = for {
-      editionsPostIds <- editions.filter(_.id === editionId).map(_.postIds).result.headOption
+      editionPostIds <- editions.filter(_.id === editionId).map(_.postIds).result.headOption
       update <- editions.filter(_.id === editionId).map(_.postIds)
-        .update(editionsPostIds.getOrElse(List.empty).filter(idx => idx != postId))
+        .update(editionPostIds.getOrElse(List.empty).filter(idx => idx != postId))
       _ <- posts.filter(_.id === postId).map(_.editionId).update(None)
     } yield update
     db.run(updateQuery.transactionally)
@@ -128,18 +162,18 @@ class EditionDao @Inject()(
 
   def moveUpPost(id: Long, postId: Long): Future[Int] = {
     val updateQuery = for {
-      editionsPostIds <- editions.filter(_.id === id).map(_.postIds).result.headOption
+      editionPostIds <- editions.filter(_.id === id).map(_.postIds).result.headOption
       update <- editions.filter(_.id === id).map(_.postIds)
-        .update(SeqUtils.moveUp(editionsPostIds.getOrElse(List.empty), postId))
+        .update(SeqUtils.moveUp(editionPostIds.getOrElse(List.empty), postId))
     } yield update
     db.run(updateQuery.transactionally)
   }
 
   def moveDownPost(id: Long, postId: Long): Future[Int] = {
     val updateQuery = for {
-      editionsPostIds <- editions.filter(_.id === id).map(_.postIds).result.headOption
+      editionPostIds <- editions.filter(_.id === id).map(_.postIds).result.headOption
       update <- editions.filter(_.id === id).map(_.postIds)
-        .update(SeqUtils.moveDown(editionsPostIds.getOrElse(List.empty), postId))
+        .update(SeqUtils.moveDown(editionPostIds.getOrElse(List.empty), postId))
     } yield update
     db.run(updateQuery.transactionally)
   }

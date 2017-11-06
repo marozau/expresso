@@ -13,7 +13,7 @@
 @b3.form(action = controllers.newslet.routes.PostController.submitPostForm()) {
     @CSRF.formField
     @b3.text(postForm("id"), 'style -> "display: none")
-    @b3.text(postForm("newsletterId"), 'style -> "display: none")
+    @b3.text(postForm("editionId"), 'style -> "display: none")
     @b3.textarea(postForm("title"), '_label -> s"title", 'rows -> 1)
     @b3.textarea(postForm("annotation"), '_label -> s"annotation", 'rows -> 3)
     @quillInput("body", "text", postForm.data.getOrElse("body", "{}"))

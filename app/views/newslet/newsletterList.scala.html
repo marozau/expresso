@@ -1,13 +1,55 @@
-@(newsletters: Seq[Newsletter])
+@import play.api.i18n.Messages
+@import play.api.mvc.RequestHeader
+@import org.webjars.play.WebJarsUtil
+@import controllers.AssetsFinder
+@import forms.newslet.NewsletterForm.Data
+@import views.html.common._
+@import helper._
+@import java.time.format.DateTimeFormatter
+
+@(user: User, createFrom: Form[Data], newsletters: Seq[(Newsletter, Option[Edition], Option[Campaign])])(implicit request: RequestHeader, messages: Messages, webJarsUtil: WebJarsUtil, assets: AssetsFinder)
+
+@implicitFieldConstructor = @{
+    b3.horizontal.fieldConstructor("col-md-2", "col-md-8")
+}
 
 <h1>Newsletters</h1>
 
-<ul>
-    @for(nl <- newsletters) {
-        <li>
-            <a href="@controllers.newslet.routes.EditionController.getOrCreate(nl.id.get)">current edition</a> &nbsp;
-            @{nl.name} &nbsp;
-            @{nl.email} &nbsp;
-        </li>
-    }
-</ul>
+@main(messages("home.title"), Some(user)) {
+    <div class="user col-md-8 col-md-offset-2">
+        <div class="row">
+            <hr class="col-md-12" />
+            <h4 class="col-md-8">@messages("welcome.signed.in")</h4>
+            <div class="col-md-4 text-right">
+            </div>
+            <hr class="col-md-12" />
+        </div>
+        <div class="row">
+            @b3.form(action = controllers.newslet.routes.NewsletterController.create()) {
+                @CSRF.formField
+                @b3.text(createFrom("name"), '_label -> "name", 'rows -> 1)
+                @b3.submit('class -> "btn btn-default") { Create }
+            }
+        </div>
+        <div class="row data">
+            <div class="col-md-12">
+                <p class="col-md-3"><strong>@messages("newsletter.name")</strong></p>
+                <p class="col-md-3"><strong>@messages("newsletter.email")</strong></p>
+                <p class="col-md-3"><strong>time</strong></p>
+                <p class="col-md-3"><strong>&nbsp;</strong></p>
+            @for((nl, edition, campaign) <- newsletters) {
+                <div class="row">
+                    <p class="col-md-3">@nl.name</p>
+                    <p class="col-md-3">@nl.name</p>
+                    <p class="col-md-3">@campaign.map(_.sendTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).getOrElse("NA")</p>
+                    <p class="col-md-3">
+                        <a href="@controllers.newslet.routes.EditionController.getOrCreate(nl.id.get)">current edition</a> &nbsp;
+                        <a href="@controllers.newslet.routes.RecipientController.list(nl.id.get)">recipients</a> &nbsp;
+                    </p>
+                </div>
+            }
+            </div>
+        </div>
+    </div>
+}
+

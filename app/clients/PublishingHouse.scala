@@ -106,7 +106,7 @@ class PublishingHouse @Inject()(
   }
 
   def doEdition(nl: Edition, target: Target.Value): Future[ReadyNewsletter] = {
-    Logger.info(s"compiling newsletter, id=${nl.id}, newsletter=${nl.newsletter}, title=${nl.title}")
+    Logger.info(s"compiling newsletter, id=${nl.id}, newsletterId=${nl.newsletterId}, title=${nl.title}")
     for {
       header <- if (nl.header.isDefined) compile(quill.toTagStr(nl.header.get), target).map(Some(_)) else Future(None)
       footer <- if (nl.footer.isDefined) compile(quill.toTagStr(nl.footer.get), target).map(Some(_)) else Future(None)

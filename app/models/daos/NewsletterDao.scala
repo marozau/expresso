@@ -23,13 +23,12 @@ class NewsletterDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
   import dbConfig._
 
   def list() = db.run {
-    (newsletters joinLeft users on (_.userId === _.id)).result
+    newsletters.result
       .map { result =>
-        result.map { case (newsletter, userOption) =>
+        result.map { newsletter =>
           Newsletter(
             newsletter.id,
             newsletter.userId,
-            userOption.get.email,
             newsletter.name,
             newsletter.options
           )
@@ -37,7 +36,14 @@ class NewsletterDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
       }
   }
 
-  def add(user: User, name: String) = db.run {
-    (newsletters returning newsletters) += DBNewsletter(None, user.id.get, name)
+  def create(user: User, name: String) = db.run {
+    ((newsletters returning newsletters) += DBNewsletter(None, user.id.get, name))
+      .map{newsletter =>
+        Newsletter(
+          newsletter.id,
+          newsletter.userId,
+          newsletter.name,
+          newsletter.options)
+      }
   }
 }

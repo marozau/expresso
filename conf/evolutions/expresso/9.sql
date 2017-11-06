@@ -38,10 +38,11 @@ CREATE INDEX auth_token_expiry_idx
   ON auth_token (expiry);
 
 
-INSERT INTO users (id, email, status, roles) VALUES (1, 'admin@expresso.today', 'VERIFIED', '{ADMIN, WRITER, EDITOR}');
+INSERT INTO users (id, email, status, roles) VALUES (0, 'admin@expresso.today', 'VERIFIED', '{ADMIN, WRITER, EDITOR}');
 INSERT INTO login_info (id, provider_id, provider_key) VALUES (0, 'credentials', 'admin@expresso.today');
-INSERT INTO user_login_info (user_id, login_info_id) VALUES (1, 0);
+INSERT INTO user_login_info (user_id, login_info_id) VALUES (0, 0);
 INSERT INTO password_info (login_info_id, hasher, password) VALUES (0, 'bcrypt', '$2a$10$fcdIUoXF/ruj1HcPz10eKODDyF/VKXc3kHfj144RhwltpeRXaL3J2');
+
 
 # --- !Downs
 
@@ -50,4 +51,4 @@ DROP TABLE user_login_info;
 DROP TABLE login_info;
 DROP TABLE auth_token;
 DELETE FROM users
-WHERE id = 10000000;
+WHERE id = 0;

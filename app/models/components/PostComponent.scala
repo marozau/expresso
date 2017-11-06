@@ -40,7 +40,7 @@ trait PostComponent {
 
     def userIdSupplier = foreignKey("posts_user_id_fkey", userId, users)(_.id)
 
-    def newsletterIdSupplier = foreignKey("posts_newsletter_id_fkey", editionId, editions)(_.id.?)
+    def editionIdSupplier = foreignKey("posts_edition_id_fkey", editionId, editions)(_.id.?)
   }
 
   protected val posts = TableQuery[Posts]

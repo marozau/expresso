@@ -19,6 +19,7 @@
         @Html(webJarsUtil.css("bootstrap.min.css"))
         @Html(webJarsUtil.css("bootstrap-theme.min.css"))
         <link rel="stylesheet" href="@assets.path("stylesheets/main.css")">
+        <link rel="stylesheet" href="@assets.path("stylesheets/quill/quill.snow.css")">
             <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
             <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -42,8 +43,8 @@
                         <li><a href="@controllers.auth.routes.AuthController.index">@messages("home")</a></li>
                         @user.map { u =>
                                 @if(u.roles.contains(UserRole.EDITOR) || u.roles.contains(UserRole.WRITER)) {
+                                    <li><a href="@controllers.newslet.routes.NewsletterController.getList()">Newsletters</a></li>
                                     <li><a href="@controllers.newslet.routes.PostController.getPostForm(None, None)">Create Post</a></li>
-                                    <li><a href="@controllers.newslet.routes.EditionController.getNewsletterList()">All</a></li>
                                 }
                         }
                     </ul>

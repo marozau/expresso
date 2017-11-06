@@ -5,6 +5,7 @@ import javax.inject.{Inject, Singleton}
 import clients.PublishingHouse
 import clients.PublishingHouse.Target
 import com.mohiva.play.silhouette.api.Silhouette
+import forms.newslet.PostForm.{Data, form}
 import models.UserRole
 import models.daos.PostDao
 import modules.DefaultEnv
@@ -34,16 +35,9 @@ class EditionController @Inject()(
                                  )(implicit ec: ExecutionContext)
   extends AbstractController(cc) with I18nSupport {
 
-  import forms.newslet.NewsletterForm._
+  import forms.newslet.EditionForm._
   import implicits.CommonImplicits._
 
-  def getNewsletterList() = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
-    val userId = request.identity.id.get
-    newsletterService.list()
-      .map { newsletters =>
-        Ok(views.html.newslet.newsletterList(newsletters))
-      }
-  }
 
   def getOrCreate(newsletterId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
     editionService.getUnpublishedOrCreate(newsletterId)
@@ -92,9 +86,32 @@ class EditionController @Inject()(
       }
   }
 
+  def getPostForm(id: Option[Long], editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
+    def getExisting(id: Long) = {
+      posts.getById(id).map(p => form.fill(p))
+    }
+
+    def create(newsletterId: Long) = {
+      Future(form.fill(Data(None, Some(newsletterId), "", "", "", List.empty)))
+    }
+
+    editionService.getById(editionId)
+      .flatMap(edition => ph.doEdition(edition, Target.SITE).map((edition, _)))
+      .flatMap{case (edition, newsletter) => id.fold(create(editionId))(getExisting).map((edition, newsletter, _))}
+      .map { case (_, newsletter, postForm) =>
+        Ok(views.html.newslet.newsletterPosts(newsletter, postForm = Some(postForm)))
+      }
+  }
+
   def getHeaderForm(editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     editionService.getById(editionId)
-      .map(nl => Ok(views.html.newslet.header(headerForm.fill(HeaderData(nl.id.get, nl.header)))))
+      .flatMap(edition => ph.doEdition(edition, Target.SITE).map((edition, _)))
+      .map { case (edition, newsletter) =>
+        Ok(views.html.newslet.newsletterPosts(newsletter, headerForm = Some(headerForm.fill(HeaderData(edition.id.get, edition.header)))))
+      }
+
+//    editionService.getById(editionId)
+//      .map(nl => Ok(views.html.newslet.header(headerForm.fill(HeaderData(nl.id.get, nl.header)))))
   }
 
   def submitHeaderForm() = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
@@ -115,11 +132,16 @@ class EditionController @Inject()(
 
   def getFooterForm(editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     editionService.getById(editionId)
-      .map(nl => Ok(views.html.newslet.footer(footerForm.fill(FooterData(nl.id.get, nl.footer)))))
+      .flatMap(edition => ph.doEdition(edition, Target.SITE).map((edition, _)))
+      .map { case (edition, newsletter) =>
+        Ok(views.html.newslet.newsletterPosts(newsletter, footerForm = Some(footerForm.fill(FooterData(edition.id.get, edition.footer)))))
+      }
+
+//    editionService.getById(editionId)
+//      .map(nl => Ok(views.html.newslet.footer(footerForm.fill(FooterData(nl.id.get, nl.footer)))))
   }
 
   def submitFooterForm() = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
-    val userId = request.identity.id.get
     footerForm.bindFromRequest.fold(
       formWithErrors => {
         Logger.info(s"bad newsletter footer, form=$formWithErrors")
@@ -135,7 +157,31 @@ class EditionController @Inject()(
     )
   }
 
-  def firepad() = Action { implicit request =>
-    Ok(views.html.newslet.firepad())
+  def getTitleForm(editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
+    editionService.getById(editionId)
+      .flatMap(edition => ph.doEdition(edition, Target.SITE))
+      .map { edition =>
+        Ok(views.html.newslet.newsletterPosts(edition, titleForm = Some(titleForm.fill(TitleData(edition.id.get, edition.title)))))
+      }
   }
+
+  def submitTitleForm() = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
+    titleForm.bindFromRequest.fold(
+      formWithErrors => {
+        Logger.info(s"bad newsletter title, form=$formWithErrors")
+        Future(BadRequest(views.html.newslet.title(formWithErrors)))
+      },
+      form => {
+        editionService.getById(form.id)
+          .flatMap { edition =>
+            editionService.update(edition.copy(title = Some(form.text)))
+          }
+          .map(_ => Redirect(routes.EditionController.get(form.id)))
+      }
+    )
+  }
+
+//  def firepad() = Action { implicit request =>
+//    Ok(views.html.newslet.firepad())
+//  }
 }

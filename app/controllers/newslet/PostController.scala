@@ -53,14 +53,14 @@ class PostController @Inject()(
         Future.successful(BadRequest(views.html.newslet.post(formWithErrors)))
       },
       form => {
-        val post = Post(form.id, userId, form.newsletterId, form.title, form.annotation, form.body, form.refs.map(_.toString))
+        val post = Post(form.id, userId, form.editionId, form.title, form.annotation, form.body, form.refs.map(_.toString))
         form.id.fold(posts.create(post).map(_.id))(id => posts.update(post).map(_ => Some(id)))
           .map { postId =>
-            form.newsletterId
+            form.editionId
               .fold {
                 Redirect(routes.PostController.showPost(postId.get))
-              } { newsletterId =>
-                Redirect(routes.EditionController.addPost(newsletterId, postId.get))
+              } { editionId =>
+                form.id.fold(Redirect(routes.EditionController.addPost(editionId, postId.get)))(_ => Redirect(routes.EditionController.get(editionId)))
               }
           }
       }

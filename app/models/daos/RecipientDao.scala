@@ -2,10 +2,10 @@ package models.daos
 
 import javax.inject.{Inject, Singleton}
 
-import exceptions.{EditionNotFoundException, InvalidUserStatusException}
-import models.{Recipient, User, UserStatus}
+import exceptions.{InvalidUserStatusException, UserNotFoundException}
 import models.api.Repository
 import models.components.{EditionComponent, NewsletterComponent, RecipientComponent, UserComponent}
+import models.{Recipient, UserStatus}
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
@@ -43,15 +43,23 @@ class RecipientDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(imp
     db.run(recipientsQuery.result).map(_.map(recipientCast))
   }
 
-  def add(newsletterId: Long, user: User): Future[Recipient] = db.run {
-    val status = user.status match {
-      case UserStatus.NEW => Recipient.Status.PENDING
-      case UserStatus.VERIFIED => Recipient.Status.SUBSCRIBED
-      case UserStatus.BLOCKED =>
-        Logger.info(s"blocked user is trying to subscribe on newsletter, userId=${user.id}, newsletterId=$newsletterId")
-        throw InvalidUserStatusException(user.id.get, user.status, "blocked user is trying to subscribe on newsletter")
+  def add(newsletterId: Long, userId: Long): Future[Recipient] = {
+    def getStatus(status: UserStatus.Value): Recipient.Status.Value = {
+      status match {
+        case UserStatus.NEW => Recipient.Status.PENDING
+        case UserStatus.VERIFIED => Recipient.Status.SUBSCRIBED
+        case UserStatus.BLOCKED =>
+          Logger.info(s"blocked user is trying to subscribe on newsletter, userId=$userId, newsletterId=$newsletterId")
+          throw InvalidUserStatusException(userId, status, "blocked user is trying to subscribe on newsletter")
+      }
     }
-    ((recipients returning recipients) += DBRecipient(newsletterId, user.id.get, status))
-      .map(recipientCast)
+    val recipientAdd = for {
+      userOption <- users.filter(_.id === userId).result.headOption
+      status <- if (userOption.isDefined) DBIO.successful(getStatus(userOption.get.status))
+        else DBIO.failed(UserNotFoundException(Some(userId), None, s"failed to add user to the newsletter list, newsletterId=$newsletterId"))
+      recipient <- (recipients returning recipients) += DBRecipient(newsletterId, userId, status)
+    } yield recipientCast(recipient)
+
+    db.run(recipientAdd.transactionally)
   }
 }
