@@ -18,6 +18,7 @@ object Campaign {
 
 // TODO: https://github.com/typesafehub/lightbend-emoji
 case class Campaign(id: Option[Long],
+                    newsletterId: Long,
                     editionId: Long,
                     preview: Option[String],
                     sendTime: ZonedDateTime,

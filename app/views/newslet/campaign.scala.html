@@ -12,9 +12,6 @@
     b3.horizontal.fieldConstructor("col-md-2", "col-md-10")
 }
 
-<link rel="stylesheet" media="screen" href="@routes.Assets.versioned("lib/bootstrap/css/bootstrap.min.css")">
-
-
 <h1>Campaign</h1>
 
 @main(messages("home.title"), Some(user)) {
@@ -23,6 +20,7 @@
             @b3.form(action = controllers.newslet.routes.CampaignController.submitCampaignForm()) {
                 @CSRF.formField
                 @b3.textarea(campaignForm("id"), 'style -> "display: none")
+                @b3.textarea(campaignForm("newsletterId"), 'style -> "display: none")
                 @b3.textarea(campaignForm("editionId"), 'style -> "display: none")
                 @b3.textarea(campaignForm("preview"), '_label -> "preview", 'rows -> 1, 'cols -> 20)
 

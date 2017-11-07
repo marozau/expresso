@@ -1,10 +1,10 @@
 # --- !Ups
 
-DROP TYPE IF EXISTS campaign_status;
 CREATE TYPE campaign_status AS ENUM ('NEW', 'PENDING', 'SENDING', 'SENT');
 
 CREATE TABLE campaigns (
   id                 BIGSERIAL PRIMARY KEY,
+  newsletter_id      BIGINT          NOT NULL REFERENCES newsletters (id),
   edition_id         BIGINT          NOT NULL REFERENCES editions (id),
   preview            TEXT,
   status             campaign_status NOT NULL,
@@ -38,3 +38,4 @@ EXECUTE PROCEDURE update_create_timestamp();
 # --- !Downs
 
 DROP TABLE IF EXISTS campaigns CASCADE;
+DROP TYPE IF EXISTS campaign_status;

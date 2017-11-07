@@ -11,13 +11,14 @@ import utils.SqlUtils
   * @author im.
   */
 trait CampaignComponent {
-  this: Repository with EditionComponent =>
+  this: Repository with EditionComponent with NewsletterComponent with UserComponent =>
 
   import api._
 
   implicit val campaignStatusMapper = createEnumJdbcType("campaign_status", Campaign.Status)
 
   case class DBCampaign(id: Option[Long],
+                        newsletterId: Long,
                         editionId: Long,
                         preview: Option[String],
                         sendTime: ZonedDateTime,
@@ -29,6 +30,8 @@ trait CampaignComponent {
   protected class Campaigns(tag: Tag) extends Table[DBCampaign](tag, "campaigns") {
 
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
+
+    def newsletterId = column[Long]("newsletter_id")
 
     def editionId = column[Long]("edition_id")
 
@@ -44,9 +47,10 @@ trait CampaignComponent {
 
     def modifiedTimestamp = column[ZonedDateTime]("modified_timestamp", SqlUtils.timestampTzNotNullType)
 
-    def * = (id.?, editionId, preview, sendTime, status, options, createdTimestamp.?, modifiedTimestamp.?) <> ((DBCampaign.apply _).tupled, DBCampaign.unapply)
+    def * = (id.?, newsletterId, editionId, preview, sendTime, status, options, createdTimestamp.?, modifiedTimestamp.?) <> ((DBCampaign.apply _).tupled, DBCampaign.unapply)
 
-    def newsletterSupplier = foreignKey("campaign_edition_id_fkey", editionId, editions)(_.id)
+    def newsletterSupplier = foreignKey("campaign_newsletter_id_fkey", newsletterId, newsletters)(_.id)
+    def editionSupplier = foreignKey("campaign_edition_id_fkey", editionId, editions)(_.id)
   }
 
   protected val campaigns = TableQuery[Campaigns]

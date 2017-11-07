@@ -1,6 +1,5 @@
 # --- !Ups
 
-DROP TYPE IF EXISTS recipient_status CASCADE;
 CREATE TYPE recipient_status AS ENUM ('SUBSCRIBED', 'UNSUBSCRIBED', 'REMOVED', 'CLEANED', 'SPAM');
 
 CREATE TABLE recipients (
@@ -41,3 +40,4 @@ EXECUTE PROCEDURE update_create_timestamp();
 # --- !Downs
 
 DROP TABLE IF EXISTS recipients CASCADE;
+DROP TYPE IF EXISTS recipient_status CASCADE;

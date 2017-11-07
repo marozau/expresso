@@ -26,49 +26,36 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
   import api._
   import dbConfig._
 
+  implicit def campaignCast(db: DBCampaign): Campaign = Campaign(db.id, db.newsletterId, db.editionId, db.preview, db.sendTime, db.status, db.options)
+
+  implicit def dbCampaignCast(c: Campaign): DBCampaign = DBCampaign(c.id, c.newsletterId, c.editionId, c.preview, c.sendTime, c.status, c.options)
+
   //TODO: compose create and update into one method
   def save(campaign: Campaign): Future[Campaign] = {
     campaign.id.fold(create(campaign))(_ => update(campaign).map(_ => campaign))
   }
 
   def create(campaign: Campaign): Future[Campaign] = db.run {
-    ((campaigns returning campaigns) += DBCampaign(None, campaign.editionId, campaign.preview, campaign.sendTime, Campaign.Status.NEW, campaign.options))
-      .map(db => campaign.copy(id = db.id, status = db.status))
+    ((campaigns returning campaigns) += campaign.copy(status = Campaign.Status.NEW))
+      .map(campaignCast)
   }
 
-  def getByIdDBIO(id: Long): DBIOAction[Campaign, NoStream, Effect.Read] = {
-    campaigns.filter(_.id === id).result.map {
-      p =>
-        if (p.isEmpty) throw CampaignNotFoundException(id, s"getByIdDBIO failed")
-        val db = p.head
-        Campaign(db.id,
-          db.editionId,
-          db.preview,
-          db.sendTime,
-          db.status,
-          db.options)
-    }
+
+  def getById(id: Long) = db.run {
+    campaigns.filter(_.id === id).result.headOption.map(_.map(campaignCast))
   }
 
-  def getById(id: Long): Future[Campaign] = db.run(getByIdDBIO(id))
-
-  def updateDBIO(campaign: Campaign) = {
-    getByIdDBIO(campaign.id.get)
-      .flatMap { dbCampaign =>
-        val q = for (p <- campaigns if p.id === campaign.id) yield p
-        // update status only with separate procedure
-        q.update(DBCampaign(campaign.id, campaign.editionId, campaign.preview, campaign.sendTime, dbCampaign.status, campaign.options))
-      }
-      .transactionally.withPinnedSession
-  }
-
-  def update(campaign: Campaign): Future[Int] = db.run {
-    updateDBIO(campaign)
+  //TODO: thinks about campaign status. is it possible to change campaign when it is scheduled or sent or else???
+  def update(campaign: Campaign): Future[Int] = {
+    val updateQuery = campaigns.filter(c => c.id === campaign.id && c.status === Campaign.Status.NEW)
+      .map(c => (c.preview, c.sendTime, c.options))
+      .update(campaign.preview, campaign.sendTime, campaign.options)
+    db.run(updateQuery.transactionally.withPinnedSession)
   }
 
   def getByEditionId(editionId: Long): Future[Option[Campaign]] = db.run {
     campaigns.filter(_.editionId === editionId).result.headOption
-      .map(_.map(db => Campaign(db.id, db.editionId, db.preview, db.sendTime, db.status, db.options)))
+      .map(_.map(campaignCast))
   }
 
   def getLastSent(): Future[Campaign] = db.run {
@@ -77,30 +64,45 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
       .sortBy(_.sendTime)
       .take(1)
       .result.head
-      .map(db => Campaign(db.id, db.editionId, db.preview, db.sendTime, db.status, db.options))
+      .map(campaignCast)
   }
 
-  def setPendingStatus(campaignId: Long, status: Campaign.Status.Value) = db.run {
+  def setPendingStatus(campaignId: Long) = db.run {
     campaigns
-      .filter(c => c.id === campaignId && c.status =!= Campaign.Status.SENT)
+      .filter(c => c.id === campaignId && c.status === Campaign.Status.NEW)
       .map(_.status)
-      .update(status)
-      .map { res =>
-        if (res == 0) throw InvalidCampaignStatusException(campaignId, status, "cannot update status")
-        res
-      }
+      .update(Campaign.Status.PENDING)
       .transactionally
   }
 
+  def setSendingStatus(campaignId: Long) = db.run {
+    campaigns
+      .filter(c => c.id === campaignId && c.status === Campaign.Status.PENDING)
+      .map(_.status)
+      .update(Campaign.Status.SENDING)
+      .transactionally
+  }
+
+  def setSentStatus(campaignId: Long) = db.run {
+    campaigns
+      .filter(c => c.id === campaignId && c.status === Campaign.Status.SENDING)
+      .map(_.status)
+      .update(Campaign.Status.SENT)
+      .transactionally
+  }
+
+  /**
+    * Used for recovery operations, in normal cases more specialised methods must be used (aka setPendingStatus, setSendingStatus etc)
+    *
+    * @param campaignId
+    * @param status
+    * @return
+    */
   def updateStatus(campaignId: Long, status: Campaign.Status.Value) = db.run {
     campaigns
       .filter(_.id === campaignId)
       .map(_.status)
       .update(status)
-      .map { res =>
-        if (res == 0) throw InvalidCampaignStatusException(campaignId, status, "cannot update status")
-        res
-      }
       .transactionally
   }
 }

@@ -41,7 +41,7 @@
                 <div class="row">
                     <p class="col-md-3">@nl.name</p>
                     <p class="col-md-3">@nl.name</p>
-                    <p class="col-md-3">@campaign.map(_.sendTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).getOrElse("NA")</p>
+                    <p class="col-md-3">@campaign.map(_.sendTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).getOrElse("No Campaign")</p>
                     <p class="col-md-3">
                         <a href="@controllers.newslet.routes.EditionController.getOrCreate(nl.id.get)">current edition</a> &nbsp;
                         <a href="@controllers.newslet.routes.RecipientController.list(nl.id.get)">recipients</a> &nbsp;

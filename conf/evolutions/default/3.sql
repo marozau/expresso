@@ -1,6 +1,5 @@
 # --- !Ups
 
-DROP TYPE IF EXISTS user_sex;
 CREATE TYPE user_sex AS ENUM ('MALE', 'FEMALE', 'UNKNOWN');
 
 CREATE TABLE user_profiles (
@@ -32,5 +31,5 @@ EXECUTE PROCEDURE update_last_modified_timestamp();
 
 
 # --- !Downs
-
 DROP TABLE IF EXISTS user_profiles CASCADE;
+DROP TYPE IF EXISTS user_sex;

@@ -15,6 +15,6 @@ object CampaignImplicits {
     ScheduleForm.Data(TimeUnit.SECONDS.convert(s.getOffset.getTotalSeconds, TimeUnit.HOURS).toInt, s.toLocalDate, ScheduleForm.Time(s.getHour, s.getMinute))
   }
   implicit def campaignFormCast(c: Campaign): CampaignForm.Data = {
-    CampaignForm.Data(c.id, c.editionId, c.preview, c.sendTime)
+    CampaignForm.Data(c.id, c.newsletterId, c.editionId, c.preview, c.sendTime)
   }
 }

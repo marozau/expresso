@@ -9,6 +9,7 @@ import play.api.data.Forms._
 object CampaignForm {
 
   case class Data(id: Option[Long],
+                  newsletterId: Long,
                   editionId: Long,
                   preview: Option[String], //TODO: emoji
                   sendTime: ScheduleForm.Data)
@@ -16,12 +17,12 @@ object CampaignForm {
   val form = Form(
     mapping(
       "id" -> optional(longNumber),
+      "newsletterId" -> longNumber,
       "editionId" -> longNumber,
       "preview" -> optional(text),
       "schedule" -> ScheduleForm.form.mapping
     )(Data.apply)(Data.unapply)
   )
 
-  //TODO: get fromName and fromEmail from user profile
-  def campaignDraft(editionId: Long) = Data(None, editionId, None, ScheduleForm.defaultScheduleTime)
+  def campaignDraft(editionId: Long, newsletterId: Long) = Data(None, newsletterId, editionId, None, ScheduleForm.defaultScheduleTime)
 }

@@ -40,15 +40,15 @@ object PublishingHouse {
                         config: Configuration,
                         target: Target.Value) extends PublishingPost
 
-  case class ReadyNewsletter(
-                              id: Option[Long],
-                              title: Option[String],
-                              header: Option[HtmlTemplate], //TODO: make it optional in the model
-                              footer: Option[HtmlTemplate], //TODO: make it optional in the model
-                              posts: List[ReadyPost],
-                              config: Configuration,
-                              target: Target.Value,
-                              publishTimestamp: Option[ZonedDateTime]) extends PublishingPost
+  case class ReadyEdition(id: Option[Long],
+                          newsletterId: Long,
+                          title: Option[String],
+                          header: Option[HtmlTemplate], //TODO: make it optional in the model
+                          footer: Option[HtmlTemplate], //TODO: make it optional in the model
+                          posts: List[ReadyPost],
+                          config: Configuration,
+                          target: Target.Value,
+                          publishTimestamp: Option[ZonedDateTime]) extends PublishingPost
 
 }
 
@@ -105,12 +105,12 @@ class PublishingHouse @Inject()(
     Future.sequence(posts.map(post => post.fold(Future(Option.empty[ReadyPost]))(p => doPost(p, target).map(Some(_)))))
   }
 
-  def doEdition(nl: Edition, target: Target.Value): Future[ReadyNewsletter] = {
+  def doEdition(nl: Edition, target: Target.Value): Future[ReadyEdition] = {
     Logger.info(s"compiling newsletter, id=${nl.id}, newsletterId=${nl.newsletterId}, title=${nl.title}")
     for {
       header <- if (nl.header.isDefined) compile(quill.toTagStr(nl.header.get), target).map(Some(_)) else Future(None)
       footer <- if (nl.footer.isDefined) compile(quill.toTagStr(nl.footer.get), target).map(Some(_)) else Future(None)
       posts <- doPosts(nl.posts, target)
-    } yield ReadyNewsletter(nl.id, nl.title, header, footer, posts, Configuration.from(nl.options), target, nl.publishTimestamp)
+    } yield ReadyEdition(nl.id, nl.newsletterId, nl.title, header, footer, posts, Configuration.from(nl.options), target, nl.publishTimestamp)
   }
 }

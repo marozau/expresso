@@ -11,7 +11,7 @@ import org.webjars.play.WebJarsUtil
 import play.api.Logger
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc.{AbstractController, ControllerComponents}
-import services.{JobSchedulerService, RecipientService}
+import services.{CampaignService, EditionService, JobSchedulerService}
 import utils.WithRole
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -24,8 +24,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class CampaignController @Inject()(
                                     silhouette: Silhouette[DefaultEnv],
                                     cc: ControllerComponents,
-                                    campaigns: CampaignDao,
-                                    recipients: RecipientService,
+                                    campaigns: CampaignService,
+                                    editions: EditionService,
                                     jobScheduler: JobSchedulerService)
                                   (implicit
                                    webJarsUtil: WebJarsUtil,
@@ -44,11 +44,13 @@ class CampaignController @Inject()(
 
     def empty() = {
       campaigns.getByEditionId(editionId.get)
-        .map { campaign =>
+        .flatMap { campaign =>
           if (campaign.isDefined) {
-            form.fill(campaign.get)
+            Future.successful(form.fill(campaign.get))
           } else {
-            form.fill(campaignDraft(editionId.get))
+            editions.getById(editionId.get).map { edition =>
+              form.fill(campaignDraft(editionId.get, edition.newsletterId))
+            }
           }
         }
     }
@@ -66,28 +68,29 @@ class CampaignController @Inject()(
         Future.successful(BadRequest(views.html.newslet.campaign(request.identity, formWithErrors)))
       },
       form => {
-        val campaign = Campaign(form.id, form.editionId, form.preview, form.sendTime.toDateTime)
-        form.id.fold(campaigns.create(campaign))(_ => campaigns.update(campaign).map(_ => campaign))
+        val campaign = Campaign(form.id, form.newsletterId, form.editionId, form.preview, form.sendTime.toDateTime)
+        campaigns.save(campaign)
           .map(c => Redirect(routes.EditionController.getNewsletterFinal(c.id.get, c.editionId)))
       }
     )
   }
 
   /**
-    * only EDITOR can approve campaign scheduling
+    * NOTE: only EDITOR can approve campaign scheduling
     *
-    * @param id
-    * @return
+    * @param id campaign id you want to schedule
+    * @return redirects to the newsletter list view
     */
-  //TODO: add information about who schedule campaign
   def scheduleCampaign(id: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
     campaigns.getById(id)
       .flatMap { campaign =>
-        jobScheduler.schedule(campaign)
+        jobScheduler.scheduleCampaign(campaign)
       }
-      .flatMap(_ => campaigns.updateStatus(id, Campaign.Status.PENDING))
-      .map(_ => Redirect(controllers.newslet.routes.NewsletterController.getList())
-        .flashing("info" -> Messages("campaign was schedulled")))
+      .map { date =>
+        Logger.info(s"campaign was scheduled, campaignId=$id, date=$date, by=${request.identity.id.get}")
+        Redirect(controllers.newslet.routes.NewsletterController.getList())
+          .flashing("info" -> Messages("campaign was schedule"))
+      }
   }
 
 }

@@ -49,8 +49,20 @@ class Quartz @Inject()(appLifecycle: ApplicationLifecycle, config: Configuration
     scheduler.scheduleJob(trigger)
   }
 
-  def scheduleJob(jobDetail: JobDetail, trigger: Trigger): Future[Date] = {
+  def rescheduleJobBlocking(triggerKey: TriggerKey, newTrigger: Trigger): Date = {
+    scheduler.rescheduleJob(triggerKey, newTrigger)
+  }
+
+  def scheduleUniqueJob(jobDetail: JobDetail, trigger: Trigger): Future[Date] = {
     Future(scheduler.scheduleJob(jobDetail, trigger))(blockingExecutionContext)
+  }
+
+  def scheduleJob(jobDetail: JobDetail, trigger: Trigger): Future[Date] = {
+    checkExists(trigger.getKey)
+      .flatMap { exists =>
+        if (exists) rescheduleJob(trigger.getKey, trigger)
+        else scheduleUniqueJob(jobDetail, trigger)
+      }
   }
 
   def rescheduleJob(triggerKey: TriggerKey, newTrigger: Trigger): Future[Date] = {
@@ -67,6 +79,10 @@ class Quartz @Inject()(appLifecycle: ApplicationLifecycle, config: Configuration
 
   def checkExists(triggerKey: TriggerKey): Future[Boolean] = {
     Future(scheduler.checkExists(triggerKey))(blockingExecutionContext)
+  }
+
+  def getJobKeys(matcher: GroupMatcher[JobKey]) = {
+    Future(scheduler.getJobKeys(matcher))(blockingExecutionContext)
   }
 }
 
