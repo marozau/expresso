@@ -8,9 +8,9 @@ import javax.inject.Inject
 
 import clients.Quartz
 import models.Campaign
-import org.quartz.{JobBuilder, JobExecutionContext, Trigger, TriggerBuilder}
 import org.quartz.core.jmx.JobDataMapSupport
 import org.quartz.impl.matchers.GroupMatcher
+import org.quartz.{JobBuilder, JobExecutionContext, Trigger, TriggerBuilder}
 import org.slf4j.LoggerFactory
 import services.CampaignService
 
@@ -58,6 +58,7 @@ class CampaignCompleteJob @Inject()(quartz: Quartz, campaignService: CampaignSer
   override protected def execute(context: JobExecutionContext, retry: Int): Unit = {
     val data = context.getMergedJobDataMap
     val campaignId = data.get("campaignId").asInstanceOf[Long]
+    logger.info(s"execute CampaignCompleteJob, campaignId=$campaignId")
     val jobKeysFuture = quartz.getJobKeys(GroupMatcher.groupStartsWith(EditionSendJob.edition(campaignId)))
     val jobKeys = Await.result(jobKeysFuture, Duration.Inf)
     if (jobKeys.isEmpty) {

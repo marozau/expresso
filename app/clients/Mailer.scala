@@ -35,7 +35,7 @@ class Mailer @Inject()(configuration: Configuration, mailerClient: MailerClient)
 
   private val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
 
-  private val config = configuration.get[Configuration]("mailer")
+  private val config = configuration.get[Configuration]("play.mailer")
   private val bounceAddress = config.get[String]("email.bounce")
 
   @throws[EmailSendException]

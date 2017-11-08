@@ -33,6 +33,10 @@ class JobSchedulerService @Inject()(quartz: Quartz, campaigns: CampaignService, 
         val trigger = CampaignCompleteJob.buildTrigger(campaign)
         quartz.scheduleJob(job, trigger)
       }
+      .map{date =>
+        logger.info(s"campaign scheduled, campaignId=${campaign.id.get}, newsletterId=${campaign.newsletterId}, editionId=${campaign.editionId}")
+        date
+      }
       .recover {
         case t: Throwable =>
           logger.error(s"failed to schedule campaign, campaign=$campaign", t)
@@ -45,7 +49,7 @@ class JobSchedulerService @Inject()(quartz: Quartz, campaigns: CampaignService, 
 
   def pauseCampaign() = ???
 
-  def scheduleEdition(campaign: Campaign): Future[Seq[(Long, Option[Date])]] = {
+  def scheduleEdition(campaign: Campaign) = {
     campaigns
       .setSendingStatus(campaign.id.get)
       .flatMap { _ =>
@@ -57,11 +61,14 @@ class JobSchedulerService @Inject()(quartz: Quartz, campaigns: CampaignService, 
                 val trigger = EditionSendJob.buildTrigger(userId, campaign)
                 val job = EditionSendJob.buildJob(userId, campaign)
                 quartz.scheduleJob(job, trigger)
-                  .map(date => (userId, Some(date)))
+                  .map{_ =>
+                    logger.info(s"edition scheduled, campaignId=${campaign.id.get}, newsletterId=${campaign.newsletterId}, editionId=${campaign.editionId}, userId=$userId")
+                    Left(userId)
+                  }
                   .recover {
                     case t: Throwable =>
                       logger.error(s"failed to schedule job for $userId", t)
-                      (userId, None)
+                      Right(userId)
                   }
               }
             )

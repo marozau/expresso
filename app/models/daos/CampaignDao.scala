@@ -69,7 +69,7 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
 
   def setPendingStatus(campaignId: Long) = db.run {
     campaigns
-      .filter(c => c.id === campaignId && c.status === Campaign.Status.NEW)
+      .filter(c => c.id === campaignId && c.status.inSet(List(Campaign.Status.NEW, Campaign.Status.PENDING)))
       .map(_.status)
       .update(Campaign.Status.PENDING)
       .transactionally

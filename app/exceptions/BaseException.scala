@@ -19,6 +19,7 @@ object BaseException {
     val USER_NOT_FOUND = Value
     val EMAIL_NOT_FOUND = Value
     val INVALID_CAMPAIGN_STATUS = Value
+    val INVALID_CAMPAIGN_SCHEDULE = Value
     val INVALID_USER_STATUS = Value
   }
 }

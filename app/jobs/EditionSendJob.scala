@@ -1,10 +1,12 @@
 package jobs
 
 import java.lang.invoke.MethodHandles
+import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Date
 import javax.inject.Inject
 
+import clients.Mailer.EmailHtml
 import models.Campaign
 import org.quartz.core.jmx.JobDataMapSupport
 import org.quartz._
@@ -35,7 +37,7 @@ object EditionSendJob {
     TriggerBuilder.newTrigger()
       .withIdentity(identity(userId, campaign), group)
       .usingJobData(jobData)
-      .startAt(Date.from(campaign.sendTime.toInstant.minus(10, ChronoUnit.MINUTES)))
+      .startAt(Date.from(Instant.now().plus(1, ChronoUnit.MINUTES)))
       .build()
   }
 
@@ -57,7 +59,15 @@ class EditionSendJob @Inject()(quartz: Quartz, emailService: Mailer) extends Rec
     val campaignId = data.get("campaignId").asInstanceOf[Long]
     val editionId = data.get("editionId").asInstanceOf[Long]
     val newsletterId = data.get("newsletterId").asInstanceOf[Long]
-    logger.info(s"EditionSendJob: userId=$userId, campaignId=$campaignId, newsletterId=$newsletterId, editionId=$editionId")
+    logger.info(s"execute EditionSendJob: userId=$userId, campaignId=$campaignId, newsletterId=$newsletterId, editionId=$editionId")
+
+//    emailService.send(
+//      EmailHtml(
+//        campaignId,
+//        userId,
+//
+//      )
+//    )
 //    quartz.scheduler.pauseTriggers(new GroupMatcher[TriggerKey]("asdf", StringMatcher.StringOperatorName.STARTS_WITH))
   }
 
