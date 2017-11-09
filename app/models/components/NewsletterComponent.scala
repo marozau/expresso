@@ -17,6 +17,7 @@ trait NewsletterComponent {
   case class DBNewsletter(id: Option[Long],
                           userId: Long,
                           name: String,
+                          email: String,
                           options: Option[JsValue] = None,
                           createdTimestamp: Option[ZonedDateTime] = None,
                           modifiedTimestamp: Option[ZonedDateTime] = None)
@@ -28,13 +29,15 @@ trait NewsletterComponent {
 
     def name = column[String]("name")
 
+    def email = column[String]("email")
+
     def options = column[Option[JsValue]]("options")
 
     def createdTimestamp = column[ZonedDateTime]("created_timestamp", SqlUtils.timestampTzNotNullType)
 
     def modifiedTimestamp = column[ZonedDateTime]("modified_timestamp", SqlUtils.timestampTzNotNullType)
 
-    def * = (id.?, userId, name, options, createdTimestamp.?, modifiedTimestamp.?) <> ((DBNewsletter.apply _).tupled, DBNewsletter.unapply)
+    def * = (id.?, userId, name, email, options, createdTimestamp.?, modifiedTimestamp.?) <> ((DBNewsletter.apply _).tupled, DBNewsletter.unapply)
 
     def userIdSupplier = foreignKey("newsletters_user_id_fkey", userId, users)(_.id)
   }

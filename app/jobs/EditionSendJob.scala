@@ -7,11 +7,15 @@ import java.util.Date
 import javax.inject.Inject
 
 import clients.Mailer.EmailHtml
+import clients.PublishingHouse.Target
+import clients.{Mailer, PublishingHouse, Quartz}
 import models.Campaign
-import org.quartz.core.jmx.JobDataMapSupport
 import org.quartz._
+import org.quartz.core.jmx.JobDataMapSupport
 import org.slf4j.LoggerFactory
-import clients.{Mailer, Quartz}
+import services.{EditionService, NewsletterService, UserService}
+
+import scala.concurrent.ExecutionContext
 
 /**
   * @author im.
@@ -19,7 +23,9 @@ import clients.{Mailer, Quartz}
 object EditionSendJob {
 
   def group = "edition"
+
   def edition(campaignId: Long) = s"$group-$campaignId"
+
   def identity(userId: Long, campaign: Campaign) = s"${edition(campaign.id.get)}-$userId"
 
 
@@ -49,7 +55,14 @@ object EditionSendJob {
   }
 }
 
-class EditionSendJob @Inject()(quartz: Quartz, emailService: Mailer) extends RecoveringJob(quartz) {
+class EditionSendJob @Inject()(quartz: Quartz,
+                               userService: UserService,
+                               newsletterService: NewsletterService,
+                               editionService: EditionService,
+                               mailer: Mailer,
+                               ph: PublishingHouse)
+                              (implicit ec: ExecutionContext)
+  extends RecoveringJob(quartz) {
 
   private val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
 
@@ -60,15 +73,29 @@ class EditionSendJob @Inject()(quartz: Quartz, emailService: Mailer) extends Rec
     val editionId = data.get("editionId").asInstanceOf[Long]
     val newsletterId = data.get("newsletterId").asInstanceOf[Long]
     logger.info(s"execute EditionSendJob: userId=$userId, campaignId=$campaignId, newsletterId=$newsletterId, editionId=$editionId")
+    editionService.getById(editionId)
+      .flatMap(edition => ph.doEdition(edition, Target.SITE))
+      .flatMap(edition => userService.retrieve(userId).map((_, edition)))
+      .flatMap { case (user, edition) => newsletterService.getById(edition.newsletterId).map((user, edition, _)) }
+      .map { case (user, edition, newsletter) =>
+        if (user.isEmpty) {
+          logger.error(s"failed to send edition, user not found, userId=$userId, editionId=$editionId")
+          None
+        } else {
+          val email = EmailHtml(
+            campaignId,
+            userId,
+            edition.title.getOrElse(newsletter.name),
+            Seq(user.get.email),
+            newsletter.name,
+            newsletter.email,
+            views.html.site.newsletter(edition).body
+          )
+          mailer.send(email).map(Some(_))
+        }
+      }
 
-//    emailService.send(
-//      EmailHtml(
-//        campaignId,
-//        userId,
-//
-//      )
-//    )
-//    quartz.scheduler.pauseTriggers(new GroupMatcher[TriggerKey]("asdf", StringMatcher.StringOperatorName.STARTS_WITH))
+    //    quartz.scheduler.pauseTriggers(new GroupMatcher[TriggerKey]("asdf", StringMatcher.StringOperatorName.STARTS_WITH))
   }
 
   //  // TODO: move to the service

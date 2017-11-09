@@ -69,6 +69,7 @@ class CampaignController @Inject()(
       },
       form => {
         val campaign = Campaign(form.id, form.newsletterId, form.editionId, form.preview, form.sendTime.toDateTime)
+        Logger.info(s"submit campaign, campaign=$campaign")
         campaigns.save(campaign)
           .map(c => Redirect(routes.EditionController.getNewsletterFinal(c.id.get, c.editionId)))
       }
@@ -87,9 +88,8 @@ class CampaignController @Inject()(
         jobScheduler.scheduleCampaign(campaign)
       }
       .map { date =>
-        Logger.info(s"campaign was scheduled, campaignId=$id, date=$date, by=${request.identity.id.get}")
         Redirect(controllers.newslet.routes.NewsletterController.getList())
-          .flashing("info" -> Messages("campaign was schedule"))
+          .flashing("info" -> Messages("campaign was scheduled"))
       }
   }
 

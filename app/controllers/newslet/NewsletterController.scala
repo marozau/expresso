@@ -47,7 +47,7 @@ class NewsletterController @Inject()(silhouette: Silhouette[DefaultEnv],
           }
       },
       form => {
-        newsletterService.create(request.identity, form.name)
+        newsletterService.create(request.identity, form.name, form.email)
           .map(_ => Redirect(controllers.newslet.routes.NewsletterController.getList()))
       }
     )

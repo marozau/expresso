@@ -2,7 +2,7 @@
 
 CREATE TYPE user_status AS ENUM ('NEW', 'VERIFIED', 'BLOCKED');
 
-CREATE TYPE user_role AS ENUM ('READER', 'WRITER', 'EDITOR', 'ADMIN');
+CREATE TYPE user_role AS ENUM ('READER', 'WRITER', 'EDITOR', 'CHIEF_EDITOR', 'ADMIN');
 
 CREATE TABLE users (
   id                 BIGSERIAL PRIMARY KEY,

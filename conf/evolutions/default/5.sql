@@ -4,6 +4,7 @@ CREATE TABLE newsletters (
   id                 BIGSERIAL PRIMARY KEY,
   user_id            BIGINT      NOT NULL REFERENCES users (id),
   name               TEXT        NOT NULL,
+  email              TEXT        NOT NULL,
   options            JSONB,
   created_timestamp  TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now()),
   modified_timestamp TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now())
@@ -63,5 +64,5 @@ EXECUTE PROCEDURE update_create_timestamp();
 
 # --- !Downs
 
-DROP TABLE IF EXISTS newsletter_editions CASCADE;
+DROP TABLE IF EXISTS editions CASCADE;
 DROP TABLE IF EXISTS newsletters CASCADE;

@@ -10,9 +10,10 @@ object NewsletterForm {
 
   val form = Form(
     mapping(
-      "name" -> nonEmptyText
+      "name" -> nonEmptyText,
+      "email" -> email
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(name: String)
+  case class Data(name: String, email: String)
 }

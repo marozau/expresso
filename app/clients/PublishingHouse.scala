@@ -1,12 +1,14 @@
 package clients
 
+import java.lang.invoke.MethodHandles
 import java.net.URL
 import java.time.ZonedDateTime
 import javax.inject.{Inject, Singleton}
 
-import models.{Edition, Post}
-import play.api.{Configuration, Logger}
 import clients.Compiler.HtmlTemplate
+import models.{Edition, Post}
+import org.slf4j.LoggerFactory
+import play.api.Configuration
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -58,8 +60,8 @@ class CompilerCache(compiler: Compiler)(implicit ec: ExecutionContext) {
   import com.github.benmanes.caffeine.cache.Caffeine
 
   import scalacache._
-  import memoization._
   import caffeine._
+  import memoization._
   import scala.concurrent.duration._
 
   private val underlyingCaffeineCache = Caffeine.newBuilder().maximumSize(100000L).build[String, Object]
@@ -85,6 +87,8 @@ class PublishingHouse @Inject()(
   import PublishingHouse._
   import implicits.PostImplicits._
 
+  private val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
+
   private val cache = new CompilerCache(compiler)
 
   private def compile(tags: String, target: Target.Value): Future[HtmlTemplate] = {
@@ -92,7 +96,7 @@ class PublishingHouse @Inject()(
   }
 
   def doPost(post: Post, target: Target.Value): Future[ReadyPost] = {
-    Logger.info(s"compiling post, id=${post.id}, userId=${post.userId}, title=${post.title}")
+    logger.info(s"compiling post, id=${post.id}, userId=${post.userId}, title=${post.title}")
     compile(quill.toTagStr(post.body), target)
       .map(html => ReadyPost(post.id, post.title, post.annotation, html, post.refs, Configuration.from(post.options), target))
   }
@@ -106,7 +110,7 @@ class PublishingHouse @Inject()(
   }
 
   def doEdition(nl: Edition, target: Target.Value): Future[ReadyEdition] = {
-    Logger.info(s"compiling newsletter, id=${nl.id}, newsletterId=${nl.newsletterId}, title=${nl.title}")
+    logger.info(s"compiling newsletter, id=${nl.id}, newsletterId=${nl.newsletterId}, title=${nl.title}")
     for {
       header <- if (nl.header.isDefined) compile(quill.toTagStr(nl.header.get), target).map(Some(_)) else Future(None)
       footer <- if (nl.footer.isDefined) compile(quill.toTagStr(nl.footer.get), target).map(Some(_)) else Future(None)

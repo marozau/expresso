@@ -30,11 +30,7 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
 
   implicit def dbCampaignCast(c: Campaign): DBCampaign = DBCampaign(c.id, c.newsletterId, c.editionId, c.preview, c.sendTime, c.status, c.options)
 
-  //TODO: compose create and update into one method
-  def save(campaign: Campaign): Future[Campaign] = {
-    campaign.id.fold(create(campaign))(_ => update(campaign).map(_ => campaign))
-  }
-
+  
   def create(campaign: Campaign): Future[Campaign] = db.run {
     ((campaigns returning campaigns) += campaign.copy(status = Campaign.Status.NEW))
       .map(campaignCast)
@@ -47,7 +43,7 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
 
   //TODO: thinks about campaign status. is it possible to change campaign when it is scheduled or sent or else???
   def update(campaign: Campaign): Future[Int] = {
-    val updateQuery = campaigns.filter(c => c.id === campaign.id && c.status === Campaign.Status.NEW)
+    val updateQuery = campaigns.filter(c => c.id === campaign.id && c.status.inSet(List(Campaign.Status.NEW, Campaign.Status.PENDING)))
       .map(c => (c.preview, c.sendTime, c.options))
       .update(campaign.preview, campaign.sendTime, campaign.options)
     db.run(updateQuery.transactionally.withPinnedSession)

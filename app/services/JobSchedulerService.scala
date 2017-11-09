@@ -33,8 +33,8 @@ class JobSchedulerService @Inject()(quartz: Quartz, campaigns: CampaignService, 
         val trigger = CampaignCompleteJob.buildTrigger(campaign)
         quartz.scheduleJob(job, trigger)
       }
-      .map{date =>
-        logger.info(s"campaign scheduled, campaignId=${campaign.id.get}, newsletterId=${campaign.newsletterId}, editionId=${campaign.editionId}")
+      .map { date =>
+        logger.info(s"campaign scheduled, campaignId=${campaign.id.get}, newsletterId=${campaign.newsletterId}, editionId=${campaign.editionId}, date=$date")
         date
       }
       .recover {
@@ -61,7 +61,7 @@ class JobSchedulerService @Inject()(quartz: Quartz, campaigns: CampaignService, 
                 val trigger = EditionSendJob.buildTrigger(userId, campaign)
                 val job = EditionSendJob.buildJob(userId, campaign)
                 quartz.scheduleJob(job, trigger)
-                  .map{_ =>
+                  .map { _ =>
                     logger.info(s"edition scheduled, campaignId=${campaign.id.get}, newsletterId=${campaign.newsletterId}, editionId=${campaign.editionId}, userId=$userId")
                     Left(userId)
                   }

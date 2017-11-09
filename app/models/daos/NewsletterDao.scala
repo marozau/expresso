@@ -22,28 +22,30 @@ class NewsletterDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
   import api._
   import dbConfig._
 
-  def list() = db.run {
-    newsletters.result
-      .map { result =>
-        result.map { newsletter =>
-          Newsletter(
-            newsletter.id,
-            newsletter.userId,
-            newsletter.name,
-            newsletter.options
-          )
-        }
-      }
+  implicit def newsletterCast(newsletter: DBNewsletter): Newsletter =
+    Newsletter(
+      newsletter.id,
+      newsletter.userId,
+      newsletter.name,
+      newsletter.email,
+      newsletter.options
+    )
+
+  implicit def newsletterOptionCast(newsletter: Option[DBNewsletter]): Option[Newsletter] =
+    newsletter.map(newsletterCast)
+
+  def getById(newsletterId: Long) = db.run {
+    newsletters.filter(_.id === newsletterId).result.headOption
+      .map(newsletterOptionCast)
   }
 
-  def create(user: User, name: String) = db.run {
-    ((newsletters returning newsletters) += DBNewsletter(None, user.id.get, name))
-      .map{newsletter =>
-        Newsletter(
-          newsletter.id,
-          newsletter.userId,
-          newsletter.name,
-          newsletter.options)
-      }
+  def list() = db.run {
+    newsletters.result
+      .map { result => result.map(newsletterCast) }
+  }
+
+  def create(user: User, name: String, email: String) = db.run {
+    ((newsletters returning newsletters) += DBNewsletter(None, user.id.get, name, email))
+        .map(newsletterCast)
   }
 }

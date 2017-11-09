@@ -27,8 +27,22 @@ class RecipientDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(imp
 
   implicit def recipientCast(r: DBRecipient) = Recipient(r.newsletterId, r.userId, r.status)
 
-  // only editor must has access to this method
+  /**
+    *
+    * @param newsletterId
+    * @return newsletter recipients with SUBSCRIBED status
+    */
   def getByNewsletterId(newsletterId: Long) = db.run {
+    recipients.filter(r => r.newsletterId === newsletterId && r.status === Recipient.Status.SUBSCRIBED).result
+      .map(_.map(recipientCast))
+  }
+
+  /**
+    *
+    * @param newsletterId
+    * @return all newsletter recipients despite of recipient status
+    */
+  def getAllByNewsletterId(newsletterId: Long) = db.run {
     recipients.filter(_.newsletterId === newsletterId).result
       .map(_.map(recipientCast))
   }

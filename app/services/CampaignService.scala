@@ -14,7 +14,20 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class CampaignService @Inject()(campaignDao: CampaignDao)(implicit ec: ExecutionContext) {
 
-  def save(campaign: Campaign) = campaignDao.save(campaign)
+  def save(campaign: Campaign) = {
+    def ifEmpty() = campaignDao.create(campaign)
+
+    def ifExist(campaignId: Long) = {
+      campaignDao.update(campaign)
+        .map { result =>
+          if (result == 0) throw CampaignNotFoundException(campaignId, "save failed")
+          campaign
+        }
+
+    }
+
+    campaign.id.fold(ifEmpty())(ifExist)
+  }
 
   def getById(campaignId: Long) = {
     campaignDao.getById(campaignId)

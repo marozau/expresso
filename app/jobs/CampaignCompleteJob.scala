@@ -37,7 +37,7 @@ object CampaignCompleteJob {
     TriggerBuilder.newTrigger()
       .withIdentity(identity(campaign), group)
       .usingJobData(jobData)
-      .startAt(Date.from(campaign.sendTime.toInstant.plus(15, ChronoUnit.MINUTES)))
+      .startAt(Date.from(campaign.sendTime.toInstant.plus(5, ChronoUnit.MINUTES)))
       .build()
   }
 
@@ -64,12 +64,12 @@ class CampaignCompleteJob @Inject()(quartz: Quartz, campaignService: CampaignSer
     if (jobKeys.isEmpty) {
       Await.result(campaignService.setSentStatus(campaignId), Duration.Inf)
     } else {
-      logger.warn(s"reschedule campaign completion check job, edition job size is ${jobKeys.size()}")
+      logger.warn(s"reschedule CampaignCompleteJob, campaignId=$campaignId, jobKeys.size=${jobKeys.size()}")
       val campaign = Await.result(campaignService.getById(campaignId), Duration.Inf)
       val trigger = TriggerBuilder.newTrigger()
         .withIdentity(identity(campaign), group)
         .usingJobData(data)
-        .startAt(Date.from(Instant.now().plus(5, ChronoUnit.MINUTES)))
+        .startAt(Date.from(Instant.now().plus(1, ChronoUnit.MINUTES)))
         .build()
       quartz.rescheduleJobBlocking(trigger.getKey, trigger)
     }

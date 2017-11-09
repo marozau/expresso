@@ -2,6 +2,7 @@ package services
 
 import javax.inject.{Inject, Singleton}
 
+import exceptions.NewsletterNotFoundException
 import models.{Campaign, Edition, Newsletter, User}
 import models.daos.{CampaignDao, EditionDao, NewsletterDao}
 
@@ -12,6 +13,14 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 @Singleton
 class NewsletterService @Inject()(newsletterDao: NewsletterDao, editionDao: EditionDao, campaignDao: CampaignDao)(implicit ec: ExecutionContext) {
+
+  def getById(newsletterId: Long) = {
+    newsletterDao.getById(newsletterId)
+      .map { result =>
+        if (result.isEmpty) throw NewsletterNotFoundException(newsletterId, s"getById failed")
+        result.get
+      }
+  }
 
   def list(): Future[Seq[(Newsletter, Option[Edition], Option[Campaign])]] = {
     newsletterDao.list()
@@ -27,5 +36,5 @@ class NewsletterService @Inject()(newsletterDao: NewsletterDao, editionDao: Edit
       }
   }
 
-  def create(user: User, name: String) = newsletterDao.create(user, name)
+  def create(user: User, name: String, email: String) = newsletterDao.create(user, name, email)
 }

@@ -6,12 +6,9 @@
 @import views.html.common._
 @import helper._
 @import java.time.format.DateTimeFormatter
+@import b3.inline.fieldConstructor
 
 @(user: User, createFrom: Form[Data], newsletters: Seq[(Newsletter, Option[Edition], Option[Campaign])])(implicit request: RequestHeader, messages: Messages, webJarsUtil: WebJarsUtil, assets: AssetsFinder)
-
-@implicitFieldConstructor = @{
-    b3.horizontal.fieldConstructor("col-md-2", "col-md-8")
-}
 
 <h1>Newsletters</h1>
 
@@ -28,6 +25,7 @@
             @b3.form(action = controllers.newslet.routes.NewsletterController.create()) {
                 @CSRF.formField
                 @b3.text(createFrom("name"), '_label -> "name", 'rows -> 1)
+                @b3.email(createFrom("email"), '_label -> "email", 'rows -> 1)
                 @b3.submit('class -> "btn btn-default") { Create }
             }
         </div>
@@ -40,8 +38,14 @@
             @for((nl, edition, campaign) <- newsletters) {
                 <div class="row">
                     <p class="col-md-3">@nl.name</p>
-                    <p class="col-md-3">@nl.name</p>
-                    <p class="col-md-3">@campaign.map(_.sendTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).getOrElse("No Campaign")</p>
+                    <p class="col-md-3">@nl.email</p>
+                    <p class="col-md-3">
+                        @if(campaign.isDefined) {
+                            <a href="@controllers.newslet.routes.CampaignController.getCampaignForm(campaign.get.id, None)">@campaign.get.sendTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)</a>
+                        } else {
+                            No Campaign
+                        }
+                    </p>
                     <p class="col-md-3">
                         <a href="@controllers.newslet.routes.EditionController.getOrCreate(nl.id.get)">current edition</a> &nbsp;
                         <a href="@controllers.newslet.routes.RecipientController.list(nl.id.get)">recipients</a> &nbsp;
