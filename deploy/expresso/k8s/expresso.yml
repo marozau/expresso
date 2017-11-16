@@ -34,4 +34,9 @@ spec:
               secretKeyRef:
                 name: expresso
                 key: options
-        args: ["-Dplay.http.secret.key=QCY?tAnfk?aZ?iwrNwnxIlR6CTf:G3gf:90Latabg@5241AB`R5W:1uDFN];Ik@n", "-Dslick.dbs.default.db.properties.user=postgres", "-Dslick.dbs.default.db.properties.password=dpCZeUU83VnsdsfN", "-Dslick.dbs.default.db.properties.url=jdbc:postgresql://google/postgres?socketFactory=com.google.cloud.sql.postgres.SocketFactory&socketFactoryArg=expresso-today:europe-west1:expresso"]
+        args: [
+        "-Dplay.http.secret.key=QCY?tAnfk?aZ?iwrNwnxIlR6CTf:G3gf:90Latabg@5241AB`R5W:1uDFN];Ik@n",
+        "-Dslick.dbs.default.db.properties.user=postgres",
+        "-Dslick.dbs.default.db.properties.password=dpCZeUU83VnsdsfN",
+        "-Dslick.dbs.default.db.properties.url=jdbc:postgresql://google/postgres?socketFactory=com.google.cloud.sql.postgres.SocketFactory&socketFactoryArg=expresso-today:europe-west1:expresso",
+        "-Dlogger.resource=logback.prod.xml"]
