@@ -1,9 +1,12 @@
 package controllers.newslet
 
+import java.time.ZoneOffset
+import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.AssetsFinder
+import forms.newslet.CampaignForm
 import models.daos.CampaignDao
 import models.{Campaign, UserRole}
 import modules.DefaultEnv
@@ -37,19 +40,25 @@ class CampaignController @Inject()(
   import implicits.CampaignImplicits._
 
   def getCampaignForm(id: Option[Long], editionId: Option[Long]) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
+
+    val zoneOffset = ZoneOffset.ofHours(request.identity.timezone.getOrElse(0))
+
     def existing(id: Long) = {
       campaigns.getById(id)
-        .map(campaign => form.fill(campaign))
+        .map { campaign =>
+          val zoneOffset = ZoneOffset.ofHours(request.identity.timezone.getOrElse(0))
+          form.fill(campaign.copy(sendTime = campaign.sendTime.withZoneSameInstant(zoneOffset)))
+        }
     }
 
     def empty() = {
       campaigns.getByEditionId(editionId.get)
         .flatMap { campaign =>
           if (campaign.isDefined) {
-            Future.successful(form.fill(campaign.get))
+            Future.successful(form.fill(campaign.get.copy(sendTime = campaign.get.sendTime.withZoneSameInstant(zoneOffset))))
           } else {
             editions.getById(editionId.get).map { edition =>
-              form.fill(campaignDraft(editionId.get, edition.newsletterId))
+              form.fill(CampaignForm.campaignDraft(request.identity, edition))
             }
           }
         }

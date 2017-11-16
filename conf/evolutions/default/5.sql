@@ -4,7 +4,10 @@ CREATE TABLE newsletters (
   id                 BIGSERIAL PRIMARY KEY,
   user_id            BIGINT      NOT NULL REFERENCES users (id),
   name               TEXT        NOT NULL,
+  name_url           TEXT        NOT NULL,
   email              TEXT        NOT NULL,
+  locale             TEXT        NOT NULL,
+  logo_url           TEXT,
   options            JSONB,
   created_timestamp  TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now()),
   modified_timestamp TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now())
@@ -12,6 +15,9 @@ CREATE TABLE newsletters (
 
 CREATE UNIQUE INDEX newsletters_name_idx
   ON newsletters (name);
+
+CREATE UNIQUE INDEX newsletters_name_url_idx
+  ON newsletters (name_url);
 
 DROP TRIGGER IF EXISTS trigger_newsletter_modified
 ON newsletters;
@@ -31,12 +37,13 @@ EXECUTE PROCEDURE update_create_timestamp();
 CREATE TABLE editions (
   id                 BIGSERIAL PRIMARY KEY,
   newsletter_id      BIGINT      NOT NULL REFERENCES newsletters (id),
+  date               DATE        NOT NULL,
+  url                TEXT,
   title              TEXT,
   header             TEXT,
   footer             TEXT,
   post_ids           BIGINT []   NOT NULL,
   options            JSONB,
-  publish_timestamp  TIMESTAMPTZ,
   created_timestamp  TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now()),
   modified_timestamp TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now())
 );
@@ -63,6 +70,6 @@ EXECUTE PROCEDURE update_create_timestamp();
 
 
 # --- !Downs
-
+TRUNCATE posts CASCADE;
 DROP TABLE IF EXISTS editions CASCADE;
 DROP TABLE IF EXISTS newsletters CASCADE;

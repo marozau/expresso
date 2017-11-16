@@ -8,7 +8,7 @@
 @import java.time.format.DateTimeFormatter
 @import b3.inline.fieldConstructor
 
-@(user: User, createFrom: Form[Data], newsletters: Seq[(Newsletter, Option[Edition], Option[Campaign])])(implicit request: RequestHeader, messages: Messages, webJarsUtil: WebJarsUtil, assets: AssetsFinder)
+@(user: User, createFrom: Form[Data], newsletters: Seq[(Newsletter, Option[Edition], Option[Campaign])])(implicit request: RequestHeader, messages: Messages, langs: Langs, webJarsUtil: WebJarsUtil, assets: AssetsFinder)
 
 <h1>Newsletters</h1>
 
@@ -25,7 +25,10 @@
             @b3.form(action = controllers.newslet.routes.NewsletterController.create()) {
                 @CSRF.formField
                 @b3.text(createFrom("name"), '_label -> "name", 'rows -> 1)
+                @b3.text(createFrom("nameUrl"), '_label -> "nameUrl", 'rows -> 1)
                 @b3.email(createFrom("email"), '_label -> "email", 'rows -> 1)
+                @b3.select(createFrom("lang"), options = langs.availables.map(l => (l.language, messages(s"lang.${l.language}"))), '_label -> "language", 'rows -> 1 )
+                @b3.url(createFrom("logo"), '_label -> "logo url", 'rows -> 1)
                 @b3.submit('class -> "btn btn-default") { Create }
             }
         </div>

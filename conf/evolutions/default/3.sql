@@ -5,7 +5,6 @@ CREATE TYPE user_sex AS ENUM ('MALE', 'FEMALE', 'UNKNOWN');
 CREATE TABLE user_profiles (
   user_id            BIGINT PRIMARY KEY REFERENCES users (id),
 
-  timezone           INT,
   first_name         TEXT,
   last_name          TEXT,
   sex                user_sex,

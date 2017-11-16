@@ -24,6 +24,8 @@ trait PostComponent {
 
     def title = column[String]("title")
 
+    def titleUrl = column[String]("title_url")
+
     def annotation = column[String]("annotation")
 
     def body = column[String]("body")
@@ -36,7 +38,7 @@ trait PostComponent {
 
     def modifiedTimestamp = column[ZonedDateTime]("modified_timestamp", SqlUtils.timestampTzNotNullType)
 
-    def * = (id.?, userId, editionId, title, annotation, body, refs, options, createdTimestamp.?, modifiedTimestamp.?) <> ((Post.apply _).tupled, Post.unapply)
+    def * = (id.?, userId, editionId, title, titleUrl, annotation, body, refs, options, createdTimestamp.?, modifiedTimestamp.?) <> ((Post.apply _).tupled, Post.unapply)
 
     def userIdSupplier = foreignKey("posts_user_id_fkey", userId, users)(_.id)
 

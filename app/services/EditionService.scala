@@ -1,8 +1,10 @@
 package services
 
+import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 
-import models.Edition
+import exceptions.PostNotFoundException
+import models.{Edition, Post}
 import models.daos.EditionDao
 
 /**
@@ -10,6 +12,17 @@ import models.daos.EditionDao
   */
 @Singleton
 class EditionService @Inject()(editionDao: EditionDao) {
+
+  def getCurrent(newsletterId: Long) = editionDao.getCurrent(newsletterId)
+
+  /**
+    * Get newsletter edition post for the specified date or throw exception if none
+    *
+    * @param newsletterId The newsletter id of interested edition
+    * @param date         The date when edition was published
+    * @return The edition object
+    */
+  def getByDate(newsletterId: Long, date: LocalDate) = editionDao.getByDate(newsletterId, date)
 
   def getById(id: Long) = editionDao.getById(id)
 
@@ -24,5 +37,4 @@ class EditionService @Inject()(editionDao: EditionDao) {
   def moveUpPost(editionId: Long, postId: Long) = editionDao.moveUpPost(editionId, postId)
 
   def moveDownPost(editionId: Long, postId: Long) = editionDao.moveDownPost(editionId, postId)
-
 }

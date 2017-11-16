@@ -1,15 +1,16 @@
 @import clients.PublishingHouse
-@(newsletter: PublishingHouse.ReadyEdition, campaignId: Long)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
-@site.newsletter(newsletter)
+@(newsletter: PublishingHouse.ReadyEdition, campaignId: Long)(implicit request: RequestHeader, messages: Messages, assets: AssetsFinder)
+
+@views.html.site.newsletter(newsletter)
 
 <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("lib/bootstrap/css/bootstrap.min.css")">
 
 @implicitFieldConstructor = @{
     b3.vertical.fieldConstructor
 }
-@site.container {
-    @b3.form(action = controllers.newslet.routes.CampaignController.scheduleCampaign(0)) {
+@views.html.site.container {
+    @b3.form(action = controllers.newslet.routes.CampaignController.scheduleCampaign(campaignId)) {
         <input type="hidden" name="id" value="@campaignId" />
         @b3.submit('class -> "btn btn-default") { Looks Good! }
     }

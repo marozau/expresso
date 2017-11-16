@@ -3,16 +3,18 @@ package jobs
 import java.lang.invoke.MethodHandles
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.Date
+import java.util.{Date, Locale}
 import javax.inject.Inject
 
 import clients.Mailer.EmailHtml
-import clients.PublishingHouse.Target
+import clients.PublishingHouse.{ReadyEdition, Target}
 import clients.{Mailer, PublishingHouse, Quartz}
-import models.Campaign
+import controllers.AssetsFinder
+import models.{Campaign, Edition}
 import org.quartz._
 import org.quartz.core.jmx.JobDataMapSupport
 import org.slf4j.LoggerFactory
+import play.api.i18n._
 import services.{EditionService, NewsletterService, UserService}
 
 import scala.concurrent.ExecutionContext
@@ -60,8 +62,12 @@ class EditionSendJob @Inject()(quartz: Quartz,
                                newsletterService: NewsletterService,
                                editionService: EditionService,
                                mailer: Mailer,
-                               ph: PublishingHouse)
-                              (implicit ec: ExecutionContext)
+                               ph: PublishingHouse,
+                               langs: Langs,
+                               messagesApi: MessagesApi)
+                              (implicit
+                               ec: ExecutionContext,
+                               assets: AssetsFinder)
   extends RecoveringJob(quartz) {
 
   private val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
@@ -72,12 +78,13 @@ class EditionSendJob @Inject()(quartz: Quartz,
     val campaignId = data.get("campaignId").asInstanceOf[Long]
     val editionId = data.get("editionId").asInstanceOf[Long]
     val newsletterId = data.get("newsletterId").asInstanceOf[Long]
+    val lang: Lang = Lang(Locale.ENGLISH) //langs.availables.head //TODO: get lang from newsletter
+    implicit val messages: Messages = MessagesImpl(lang, messagesApi)
     logger.info(s"execute EditionSendJob: userId=$userId, campaignId=$campaignId, newsletterId=$newsletterId, editionId=$editionId")
     editionService.getById(editionId)
       .flatMap(edition => ph.doEdition(edition, Target.SITE))
       .flatMap(edition => userService.retrieve(userId).map((_, edition)))
-      .flatMap { case (user, edition) => newsletterService.getById(edition.newsletterId).map((user, edition, _)) }
-      .map { case (user, edition, newsletter) =>
+      .map { case (user, edition) =>
         if (user.isEmpty) {
           logger.error(s"failed to send edition, user not found, userId=$userId, editionId=$editionId")
           None
@@ -85,10 +92,10 @@ class EditionSendJob @Inject()(quartz: Quartz,
           val email = EmailHtml(
             campaignId,
             userId,
-            edition.title.getOrElse(newsletter.name),
+            edition.title.getOrElse(edition.newsletter.name),
             Seq(user.get.email),
-            newsletter.name,
-            newsletter.email,
+            edition.newsletter.name,
+            edition.newsletter.email,
             views.html.site.newsletter(edition).body
           )
           mailer.send(email).map(Some(_))

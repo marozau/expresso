@@ -1,10 +1,12 @@
 package controllers.newslet
 
+import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Singleton}
 
 import clients.PublishingHouse
 import clients.PublishingHouse.Target
 import com.mohiva.play.silhouette.api.Silhouette
+import controllers.AssetsFinder
 import forms.newslet.PostForm.{Data, form}
 import models.UserRole
 import models.daos.PostDao
@@ -32,7 +34,9 @@ class EditionController @Inject()(
                                    posts: PostDao,
                                    htmlUtils: HtmlUtils,
                                    ph: PublishingHouse
-                                 )(implicit ec: ExecutionContext)
+                                 )(implicit
+                                   ec: ExecutionContext,
+                                   assets: AssetsFinder)
   extends AbstractController(cc) with I18nSupport {
 
   import forms.newslet.EditionForm._
@@ -47,8 +51,21 @@ class EditionController @Inject()(
       }
   }
 
-  def get(editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
+  def get(editionId: Long, cleanCache: Boolean) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     editionService.getById(editionId)
+      .flatMap { edition =>
+        if (cleanCache) {
+          Logger.info(s"cleaning cache, editionId=$editionId")
+          for {
+            _ <- cache.remove(s"/archive/${edition.newsletter.nameUrl}/${edition.date.format(DateTimeFormatter.BASIC_ISO_DATE)}")
+            _ <- cache.remove(s"/archive/${edition.newsletter.nameUrl}/${edition.date.format(DateTimeFormatter.BASIC_ISO_DATE)}-etag")
+            _ <- Future.sequence(
+              edition.posts.map(post => cache.remove(s"/archive/${edition.newsletter.nameUrl}/${edition.date.format(DateTimeFormatter.BASIC_ISO_DATE)}/${post.titleUrl}")))
+            _ <- Future.sequence(
+              edition.posts.map(post => cache.remove(s"/archive/${edition.newsletter.nameUrl}/${edition.date.format(DateTimeFormatter.BASIC_ISO_DATE)}/${post.titleUrl}-etag")))
+          } yield edition
+        } else Future.successful(edition)
+      }
       .flatMap(edition => ph.doEdition(edition, Target.SITE))
       .map { edition =>
         Ok(views.html.newslet.newsletterPosts(edition))
@@ -57,22 +74,22 @@ class EditionController @Inject()(
 
   def addPost(id: Long, postId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     editionService.addPost(id, List(postId))
-      .map(_ => Redirect(controllers.newslet.routes.EditionController.get(id)))
+      .map(_ => Redirect(controllers.newslet.routes.EditionController.get(id, cleanCache = true)))
   }
 
   def removePost(id: Long, postId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
     editionService.removePost(id, postId)
-      .map(_ => Redirect(controllers.newslet.routes.EditionController.get(id)))
+      .map(_ => Redirect(controllers.newslet.routes.EditionController.get(id, cleanCache = true)))
   }
 
   def moveUpPost(id: Long, postId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
     editionService.moveUpPost(id, postId)
-      .map(_ => Redirect(controllers.newslet.routes.EditionController.get(id)))
+      .map(_ => Redirect(controllers.newslet.routes.EditionController.get(id, cleanCache = true)))
   }
 
   def moveDownPost(id: Long, postId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
     editionService.moveDownPost(id, postId)
-      .map(_ => Redirect(controllers.newslet.routes.EditionController.get(id)))
+      .map(_ => Redirect(controllers.newslet.routes.EditionController.get(id, cleanCache = true)))
   }
 
   //TODO: replace by ususal get newsletter
@@ -97,7 +114,7 @@ class EditionController @Inject()(
 
     editionService.getById(editionId)
       .flatMap(edition => ph.doEdition(edition, Target.SITE).map((edition, _)))
-      .flatMap{case (edition, newsletter) => id.fold(create(editionId))(getExisting).map((edition, newsletter, _))}
+      .flatMap { case (edition, newsletter) => id.fold(create(editionId))(getExisting).map((edition, newsletter, _)) }
       .map { case (_, newsletter, postForm) =>
         Ok(views.html.newslet.newsletterPosts(newsletter, postForm = Some(postForm)))
       }
@@ -109,9 +126,6 @@ class EditionController @Inject()(
       .map { case (edition, newsletter) =>
         Ok(views.html.newslet.newsletterPosts(newsletter, headerForm = Some(headerForm.fill(HeaderData(edition.id.get, edition.header)))))
       }
-
-//    editionService.getById(editionId)
-//      .map(nl => Ok(views.html.newslet.header(headerForm.fill(HeaderData(nl.id.get, nl.header)))))
   }
 
   def submitHeaderForm() = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
@@ -125,7 +139,7 @@ class EditionController @Inject()(
           .flatMap { edition =>
             editionService.update(edition.copy(header = Some(form.text)))
           }
-          .map(_ => Redirect(routes.EditionController.get(form.id)))
+          .map(_ => Redirect(routes.EditionController.get(form.id, cleanCache = true)))
       }
     )
   }
@@ -136,23 +150,20 @@ class EditionController @Inject()(
       .map { case (edition, newsletter) =>
         Ok(views.html.newslet.newsletterPosts(newsletter, footerForm = Some(footerForm.fill(FooterData(edition.id.get, edition.footer)))))
       }
-
-//    editionService.getById(editionId)
-//      .map(nl => Ok(views.html.newslet.footer(footerForm.fill(FooterData(nl.id.get, nl.footer)))))
   }
 
   def submitFooterForm() = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     footerForm.bindFromRequest.fold(
       formWithErrors => {
         Logger.info(s"bad newsletter footer, form=$formWithErrors")
-        Future(BadRequest(views.html.newslet.footer(formWithErrors)))
+        Future.successful(BadRequest(views.html.newslet.footer(formWithErrors)))
       },
       form => {
         editionService.getById(form.id)
           .flatMap { edition =>
             editionService.update(edition.copy(footer = Some(form.text)))
           }
-          .map(_ => Redirect(routes.EditionController.get(form.id)))
+          .map(_ => Redirect(routes.EditionController.get(form.id, cleanCache = true)))
       }
     )
   }
@@ -169,19 +180,67 @@ class EditionController @Inject()(
     titleForm.bindFromRequest.fold(
       formWithErrors => {
         Logger.info(s"bad newsletter title, form=$formWithErrors")
-        Future(BadRequest(views.html.newslet.title(formWithErrors)))
+        Future.successful(BadRequest(views.html.newslet.title(formWithErrors)))
       },
       form => {
         editionService.getById(form.id)
           .flatMap { edition =>
             editionService.update(edition.copy(title = Some(form.text)))
           }
-          .map(_ => Redirect(routes.EditionController.get(form.id)))
+          .map(_ => Redirect(routes.EditionController.get(form.id, cleanCache = true)))
       }
     )
   }
 
-//  def firepad() = Action { implicit request =>
-//    Ok(views.html.newslet.firepad())
-//  }
+  def getDateForm(editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
+    editionService.getById(editionId)
+      .flatMap(edition => ph.doEdition(edition, Target.SITE))
+      .map { edition =>
+        Ok(views.html.newslet.newsletterPosts(edition, dateForm = Some(dateForm.fill(DateData(edition.id.get, edition.date)))))
+      }
+  }
+
+  def submitDateForm() = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
+    dateForm.bindFromRequest.fold(
+      formWithErrors => {
+        Logger.info(s"bad newsletter date, form=$formWithErrors")
+        Future.successful(Redirect(routes.EditionController.get(formWithErrors.data("id").toLong, cleanCache = false)))
+      },
+      form => {
+        editionService.getById(form.id)
+          .flatMap { edition =>
+            editionService.update(edition.copy(date = form.date))
+          }
+          .map(_ => Redirect(routes.EditionController.get(form.id, cleanCache = true)))
+      }
+    )
+  }
+
+  def getUrlForm(editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
+    editionService.getById(editionId)
+      .flatMap(edition => ph.doEdition(edition, Target.SITE))
+      .map { edition =>
+        Ok(views.html.newslet.newsletterPosts(edition, urlForm = Some(urlForm.fill(UrlData(edition.id.get, edition.url)))))
+      }
+  }
+
+  def submitUrlForm() = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
+    urlForm.bindFromRequest.fold(
+      formWithErrors => {
+        Logger.info(s"bad newsletter url, form=$formWithErrors")
+        Future.successful(Redirect(routes.EditionController.get(formWithErrors.data("id").toLong, cleanCache = false)))
+      },
+      form => {
+        editionService.getById(form.id)
+          .flatMap { edition =>
+            editionService.update(edition.copy(url = form.url))
+          }
+          .map(_ => Redirect(routes.EditionController.get(form.id, cleanCache = true)))
+      }
+    )
+  }
+
+  //  def firepad() = Action { implicit request =>
+  //    Ok(views.html.newslet.firepad())
+  //  }
 }

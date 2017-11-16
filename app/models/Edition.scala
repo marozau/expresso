@@ -1,6 +1,7 @@
 package models
 
-import java.time.ZonedDateTime
+import java.net.URL
+import java.time.LocalDate
 
 import play.api.libs.json.JsValue
 
@@ -9,10 +10,11 @@ import play.api.libs.json.JsValue
   */
 
 case class Edition(id: Option[Long],
-                   newsletterId: Long,
+                   newsletter: Newsletter,
+                   date: LocalDate,
+                   url: Option[URL] = None,
                    title: Option[String] = None,
                    header: Option[String] = None,
                    footer: Option[String] = None,
                    posts: List[Post] = List.empty,
-                   options: Option[JsValue] = None,
-                   publishTimestamp: Option[ZonedDateTime] = None)
+                   options: Option[JsValue] = None)

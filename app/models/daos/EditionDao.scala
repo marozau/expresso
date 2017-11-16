@@ -1,18 +1,20 @@
 package models.daos
 
-import java.time.ZonedDateTime
+import java.net.URL
+import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 
 import exceptions.{EditionNotFoundException, NewsletterNotFoundException}
 import models.api.Repository
 import models.components.{EditionComponent, NewsletterComponent, PostComponent, UserComponent}
 import models.{Edition, Newsletter, Post}
-import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
+import play.api.i18n.Lang
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import utils.SeqUtils
 
+import scala.collection.immutable
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
@@ -30,79 +32,110 @@ class EditionDao @Inject()(
   import api._
   import dbConfig._
 
-  implicit def dbEditionCast(e: Edition) = DBEdition(e.id, e.newsletterId, e.title, e.header, e.footer, e.posts.map(_.id.get), e.options, e.publishTimestamp)
+  implicit def dbEditionCast(e: Edition) =
+    DBEdition(e.id, e.newsletter.id.get, e.date, e.url.map(_.toString), e.title, e.header, e.footer, e.posts.map(_.id.get), e.options)
 
-  def create(edition: Edition) = db.run {
-    {
-      for {
-        nl <- (editions returning editions) += edition
-        //        _ <- DBIO.sequence(newsletter.postIds.map(id => postRepo.setNewsletterIdDBIO(newsletter.userId, id, nl.id)))
-      } yield nl
-    }.transactionally.withPinnedSession
-  }
+  def editionCast(newsletter: DBNewsletter, edition: DBEdition, editionPosts: immutable.Seq[Post]) =
+    Edition(
+      edition.id,
+      Newsletter(
+        newsletter.id,
+        newsletter.userId,
+        newsletter.name,
+        newsletter.nameUrl,
+        newsletter.email,
+        Lang(newsletter.locale),
+        newsletter.logoUrl.map(new URL(_)),
+        newsletter.options),
+      edition.date,
+      edition.url.map(new URL(_)),
+      edition.title,
+      edition.header,
+      edition.footer,
+      editionPosts.toList,
+      edition.options
+    )
 
   def updateDBIO(edition: Edition) = {
     val q = for (p <- editions if p.id === edition.id) yield p
     q.update(edition)
       .map { updated =>
-        if (updated == 0) throw NewsletterNotFoundException(edition.id.get, s"edition update failed")
+        if (updated == 0) throw EditionNotFoundException(s"edition update failed, '${edition.id}' not found")
         updated
       }
   }
 
   def update(edition: Edition): Future[Int] = db.run(updateDBIO(edition))
 
-  def getById(id: Long) = {
-    val editionQuery = editions.filter(_.id === id).result.headOption
+  private def getByIdDBIO(id: Long) = {
+    editions.filter(_.id === id).result.headOption
       .map { editionOption =>
-        if (editionOption.isEmpty) throw EditionNotFoundException(id, "getById failed")
+        if (editionOption.isEmpty) throw EditionNotFoundException(s"getById failed, edition with id=$id not found")
         editionOption.get
       }
       .flatMap { edition =>
-        postDao.getListByIdDBIO(edition.postIds).map((edition, _))
+        newsletters.filter(_.id === edition.newsletterId).result.headOption
+          .map { newsletterOption =>
+            if (newsletterOption.isEmpty) throw NewsletterNotFoundException(s"getById failed, 'newsletter ${edition.newsletterId}' not found")
+            (newsletterOption.get, edition)
+          }
       }
-    db.run(editionQuery)
-      .map { case (edition, editionPosts) =>
-        Edition(
-          edition.id,
-          edition.newsletterId,
-          edition.title,
-          edition.header,
-          edition.footer,
-          editionPosts,
-          edition.options,
-          edition.publishTimestamp
-        )
+      .flatMap { case (newsletter, edition) =>
+        postDao.getListByIdDBIO(edition.postIds).map((newsletter, edition, _))
       }
   }
 
-  def getByNewsletterId(newsletterId: Long) = {
-    val editionQuery = editions.filter(_.newsletterId === newsletterId).result.headOption
+  def getById(id: Long) = {
+    db.run(getByIdDBIO(id)).map(result => (editionCast _).tupled(result))
+  }
+
+  def getByDate(newsletterId: Long, date: LocalDate) = {
+    val query = editions.filter(edition => edition.newsletterId === newsletterId && edition.date === date).result.headOption
       .flatMap { editionOption =>
-        editionOption.map(edition => postDao.getListByIdDBIO(edition.postIds).map((editionOption, _)))
-          .getOrElse(DBIO.successful((None, List.empty[Post])))
+        if (editionOption.isEmpty) throw EditionNotFoundException(s"getByDate failed, edition for date=$date not found")
+        getByIdDBIO(editionOption.get.id.get)
       }
-    db.run(editionQuery)
-      .map { case (editionOption, editionPosts) =>
-        editionOption.map { edition =>
-          Edition(
-            edition.id,
-            edition.newsletterId,
-            edition.title,
-            edition.header,
-            edition.footer,
-            editionPosts,
-            edition.options,
-            edition.publishTimestamp
-          )
-        }
+    db.run(query).map(result => (editionCast _).tupled(result))
+  }
+
+  //
+  //  //FIXME: filter returns all newsletter editions and it is undefined which result.headOption will return
+  //  def getByNewsletterId(newsletterId: Long) = {
+  //    val editionQuery = editions.filter(_.newsletterId === newsletterId).result.headOption
+  //      .flatMap { editionOption =>
+  //        editionOption.map(edition => postDao.getListByIdDBIO(edition.postIds).map((editionOption, _)))
+  //          .getOrElse(DBIO.successful((None, List.empty[Post])))
+  //      }
+  //    db.run(editionQuery)
+  //      .map { case (editionOption, editionPosts) =>
+  //        editionOption.map { edition =>
+  //          Edition(
+  //            edition.id,
+  //            edition.newsletterId,
+  //            edition.title,
+  //            edition.header,
+  //            edition.footer,
+  //            editionPosts,
+  //            edition.options,
+  //            edition.date
+  //          )
+  //        }
+  //      }
+  //  }
+
+  def getCurrent(newsletterId: Long) = {
+    val query = editions.filter(_.newsletterId === newsletterId).sortBy(_.date.desc).result.headOption
+      .flatMap { editionOption =>
+        if (editionOption.isEmpty) throw EditionNotFoundException(s"getCurrent failed, '$newsletterId' not found")
+        getByIdDBIO(editionOption.get.id.get)
       }
+    db.run(query).map(result => (editionCast _).tupled(result))
   }
 
   def getUnpublished(newsletterId: Long) = {
     val editionQuery = editions
-      .filter(edition => edition.newsletterId === newsletterId && edition.publishTimestamp.isEmpty)
-      .sortBy(_.publishTimestamp.desc).take(1).result.headOption
+      .filter(edition => edition.newsletterId === newsletterId)
+      .sortBy(_.date.desc).take(1).result.headOption
     db.run(editionQuery.transactionally)
       .flatMap { dbEditionOption =>
         if (dbEditionOption.isDefined) getById(dbEditionOption.get.id.get).map(Some(_))
@@ -113,9 +146,9 @@ class EditionDao @Inject()(
   def getUnpublishedOrCreate(newsletterId: Long) = {
     val editionAction = {
       val retrieveEdition = editions
-        .filter(edition => edition.newsletterId === newsletterId && edition.publishTimestamp.isEmpty)
-        .sortBy(_.publishTimestamp.desc).take(1).result.headOption
-      val insertEdition = (editions returning editions) += DBEdition(None, newsletterId)
+        .filter(edition => edition.newsletterId === newsletterId)
+        .sortBy(_.date.desc).take(1).result.headOption
+      val insertEdition = (editions returning editions) += DBEdition(None, newsletterId, LocalDate.now().plusDays(1))
       for {
         editionOption <- retrieveEdition
         dbEdition <- editionOption.map(DBIO.successful).getOrElse(insertEdition)
@@ -125,20 +158,6 @@ class EditionDao @Inject()(
       .flatMap { dbEdition =>
         getById(dbEdition.id.get)
       }
-  }
-
-  def updateTitleDBIO(id: Long, title: String) = {
-    val q = for (nl <- editions if nl.id === id) yield nl.title
-    q.update(Some(title))
-  }
-
-  def updatePublishTimestampDBIO(id: Long, timestamp: ZonedDateTime) = {
-    val q = for (nl <- editions if nl.id === id) yield nl.publishTimestamp
-    q.update(Some(timestamp))
-  }
-
-  def updateTitle(id: Long, title: String): Future[Int] = db.run {
-    updateTitleDBIO(id, title)
   }
 
   def addPost(id: Long, postIds: List[Long]) = {

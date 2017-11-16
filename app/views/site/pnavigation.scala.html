@@ -1,23 +1,18 @@
 @import clients.PublishingHouse
 @import java.time.format.DateTimeFormatter
-@(newsletter: Edition, prev: Option[PublishingHouse.ReadyPost] = None, next: Option[PublishingHouse.ReadyPost] = None)
+@(edition: Edition, prev: Option[PublishingHouse.ReadyPost] = None, next: Option[PublishingHouse.ReadyPost] = None)
 
-@container {
-    @text {
+@views.html.site.container {
+    @views.html.site.text {
         <div style="text-align: center;">
             <em>
                 <span style="font-size: 17px">
                     <span style="font-family: georgia, times, times new roman, serif">
-                        <a href="@routes.ArchiveController.newsletter(newsletter.id.get)">
-                        @if(newsletter.publishTimestamp.isDefined) {
-                            This blurb is from the
+                        <a href="@controllers.site.routes.ArchiveController.edition(edition.newsletter.nameUrl, edition.date.format(DateTimeFormatter.BASIC_ISO_DATE))">
+                            Это пост из выпуска Expresso за
                             @{
-                                newsletter.publishTimestamp.get.format(DateTimeFormatter.ISO_LOCAL_DATE)
+                                edition.date.format(DateTimeFormatter.ISO_LOCAL_DATE)
                             }
-                            edition of Expresso
-                        } else {
-                            You are lucky. This stuff is unpublished yet:)
-                        }
                         </a>
                     </span>
                 </span>
@@ -26,13 +21,13 @@
     }
     <br>
 
-    @text {
+    @views.html.site.text {
         <div>
             <em>
                 @if(prev.isDefined) {
                     <span style="font-size: 17px">
                         <span style="font-family: georgia, times, times new roman, serif" class="mcnPrevUrl">
-                            <a href="@routes.ArchiveController.post(newsletter.id.get, prev.get.id.get)">
+                            <a href="@controllers.site.routes.ArchiveController.post(edition.newsletter.nameUrl, edition.date.format(DateTimeFormatter.BASIC_ISO_DATE), prev.get.titleUrl)">
                             @{
                                 prev.get.title
                             }
@@ -43,7 +38,7 @@
                 @if(next.isDefined) {
                     <span style="font-size: 17px">
                         <span style="font-family: georgia, times, times new roman, serif" class="mcnNextUrl">
-                            <a href="@routes.ArchiveController.post(newsletter.id.get, next.get.id.get)">
+                            <a href="@controllers.site.routes.ArchiveController.post(edition.newsletter.nameUrl, edition.date.format(DateTimeFormatter.BASIC_ISO_DATE), next.get.titleUrl)">
                             @{
                                 next.get.title
                             }

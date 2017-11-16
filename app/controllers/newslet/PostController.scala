@@ -6,13 +6,13 @@ import clients.PublishingHouse
 import clients.PublishingHouse.Target
 import com.mohiva.play.silhouette.api.Silhouette
 import models.daos.PostDao
-import models.{Post, UserRole}
+import models.{Post, PostView, UserRole}
 import modules.DefaultEnv
 import play.api.Logger
 import play.api.cache._
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, ControllerComponents}
-import utils.{HtmlUtils, WithRole}
+import utils.{HtmlUtils, UrlUtils, WithRole}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -53,14 +53,14 @@ class PostController @Inject()(
         Future.successful(BadRequest(views.html.newslet.post(formWithErrors)))
       },
       form => {
-        val post = Post(form.id, userId, form.editionId, form.title, form.annotation, form.body, form.refs.map(_.toString))
+        val post = Post(form.id, userId, form.editionId, form.title, UrlUtils.toUrl(form.title), form.annotation, form.body, form.refs.map(_.toString))
         form.id.fold(posts.create(post).map(_.id))(id => posts.update(post).map(_ => Some(id)))
           .map { postId =>
             form.editionId
               .fold {
                 Redirect(routes.PostController.showPost(postId.get))
               } { editionId =>
-                form.id.fold(Redirect(routes.EditionController.addPost(editionId, postId.get)))(_ => Redirect(routes.EditionController.get(editionId)))
+                form.id.fold(Redirect(routes.EditionController.addPost(editionId, postId.get)))(_ => Redirect(routes.EditionController.get(editionId, true)))
               }
           }
       }
@@ -69,7 +69,7 @@ class PostController @Inject()(
 
   def showPost(id: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     posts.getById(id)
-      .flatMap(post => ph.doPost(post, Target.SITE))
+      .flatMap(post => ph.doPostView(PostView(post), Target.SITE))
       .map(post => Ok(views.html.site.post(post)))
   }
 }

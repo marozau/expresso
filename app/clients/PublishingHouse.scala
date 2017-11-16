@@ -2,11 +2,11 @@ package clients
 
 import java.lang.invoke.MethodHandles
 import java.net.URL
-import java.time.ZonedDateTime
+import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 
 import clients.Compiler.HtmlTemplate
-import models.{Edition, Post}
+import models.{Edition, Newsletter, Post, PostView}
 import org.slf4j.LoggerFactory
 import play.api.Configuration
 
@@ -28,7 +28,7 @@ object PublishingHouse {
   //    val INTRO, PHILOSOPHY, TEXT, URLS, ADVERTISEMENT = Value
   //  }
 
-  sealed trait PublishingPost
+  sealed trait PublishingMaterials
 
   // options will contain post type: urls, interesting text, thoughts or else
 
@@ -36,21 +36,25 @@ object PublishingHouse {
   case class ReadyPost(
                         id: Option[Long],
                         title: String,
+                        titleUrl: String,
                         annotation: String,
                         body: HtmlTemplate,
                         references: List[URL],
                         config: Configuration,
-                        target: Target.Value) extends PublishingPost
+                        target: Target.Value)
 
   case class ReadyEdition(id: Option[Long],
-                          newsletterId: Long,
+                          newsletter: Newsletter,
+                          date: LocalDate,
+                          url: Option[URL],
                           title: Option[String],
                           header: Option[HtmlTemplate], //TODO: make it optional in the model
                           footer: Option[HtmlTemplate], //TODO: make it optional in the model
                           posts: List[ReadyPost],
                           config: Configuration,
-                          target: Target.Value,
-                          publishTimestamp: Option[ZonedDateTime]) extends PublishingPost
+                          target: Target.Value)
+
+  case class ReadyPostView(post: ReadyPost, edition: Option[Edition], prev: Option[ReadyPost], next: Option[ReadyPost])
 
 }
 
@@ -98,7 +102,7 @@ class PublishingHouse @Inject()(
   def doPost(post: Post, target: Target.Value): Future[ReadyPost] = {
     logger.info(s"compiling post, id=${post.id}, userId=${post.userId}, title=${post.title}")
     compile(quill.toTagStr(post.body), target)
-      .map(html => ReadyPost(post.id, post.title, post.annotation, html, post.refs, Configuration.from(post.options), target))
+      .map(html => ReadyPost(post.id, post.title, post.titleUrl, post.annotation, html, post.refs, Configuration.from(post.options), target))
   }
 
   def doPosts(posts: List[Post], target: Target.Value): Future[List[ReadyPost]] = {
@@ -109,12 +113,20 @@ class PublishingHouse @Inject()(
     Future.sequence(posts.map(post => post.fold(Future(Option.empty[ReadyPost]))(p => doPost(p, target).map(Some(_)))))
   }
 
-  def doEdition(nl: Edition, target: Target.Value): Future[ReadyEdition] = {
-    logger.info(s"compiling newsletter, id=${nl.id}, newsletterId=${nl.newsletterId}, title=${nl.title}")
+  def doPostView(postView: PostView, target: Target.Value): Future[ReadyPostView] = {
     for {
-      header <- if (nl.header.isDefined) compile(quill.toTagStr(nl.header.get), target).map(Some(_)) else Future(None)
-      footer <- if (nl.footer.isDefined) compile(quill.toTagStr(nl.footer.get), target).map(Some(_)) else Future(None)
-      posts <- doPosts(nl.posts, target)
-    } yield ReadyEdition(nl.id, nl.newsletterId, nl.title, header, footer, posts, Configuration.from(nl.options), target, nl.publishTimestamp)
+      post <- doPost(postView.post, target)
+      prev <- postView.prev.fold(Future(Option.empty[ReadyPost]))(p => doPost(p, target).map(Some(_)))
+      next <- postView.next.fold(Future(Option.empty[ReadyPost]))(p => doPost(p, target).map(Some(_)))
+    } yield ReadyPostView(post, postView.edition, prev, next)
+  }
+
+  def doEdition(edition: Edition, target: Target.Value): Future[ReadyEdition] = {
+    logger.info(s"compiling edition, id=${edition.id}, newsletterId=${edition.newsletter.name}, title=${edition.title}")
+    for {
+      header <- if (edition.header.isDefined) compile(quill.toTagStr(edition.header.get), target).map(Some(_)) else Future(None)
+      footer <- if (edition.footer.isDefined) compile(quill.toTagStr(edition.footer.get), target).map(Some(_)) else Future(None)
+      posts <- doPosts(edition.posts, target)
+    } yield ReadyEdition(edition.id, edition.newsletter, edition.date, edition.url, edition.title, header, footer, posts, Configuration.from(edition.options), target)
   }
 }

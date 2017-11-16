@@ -27,6 +27,7 @@ case class User(
                  roles: List[UserRole.Value],
                  status: UserStatus.Value,
                  locale: Option[String] = None,
+                 timezone: Option[Int] = None,
                  reason: Option[String] = None,
                  createdTimestamp: Option[ZonedDateTime] = None,
                  modifiedTimestamp: Option[ZonedDateTime] = None

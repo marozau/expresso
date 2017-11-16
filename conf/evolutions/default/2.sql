@@ -10,6 +10,7 @@ CREATE TABLE users (
   status             user_status NOT NULL,
   roles              user_role[] NOT NULL,
   locale             TEXT,
+  timezone           INT,
   reason             TEXT,
   created_timestamp  TIMESTAMPTZ DEFAULT timezone('UTC', now()),
   modified_timestamp TIMESTAMPTZ DEFAULT timezone('UTC', now())

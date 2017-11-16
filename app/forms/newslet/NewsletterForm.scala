@@ -1,5 +1,7 @@
 package forms.newslet
 
+import java.net.URL
+
 import play.api.data.Forms._
 import play.api.data._
 
@@ -8,12 +10,17 @@ import play.api.data._
   */
 object NewsletterForm {
 
+  import utils.UrlUtils._
+
   val form = Form(
     mapping(
       "name" -> nonEmptyText,
-      "email" -> email
+      "nameUrl" -> nonEmptyText,
+      "email" -> email,
+      "lang" -> nonEmptyText,
+      "logo" -> optional(of[URL])
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(name: String, email: String)
+  case class Data(name: String, nameUrl: String, email: String, lang: String, logo: Option[URL])
 }

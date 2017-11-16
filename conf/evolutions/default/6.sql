@@ -5,6 +5,7 @@ CREATE TABLE posts (
   user_id            BIGINT      NOT NULL REFERENCES users (id),
   edition_id         BIGINT REFERENCES editions (id),
   title              TEXT        NOT NULL,
+  title_url          TEXT        NOT NULL,
   annotation         TEXT        NOT NULL,
   body               TEXT        NOT NULL,
   refs               TEXT []     NOT NULL,
@@ -12,6 +13,9 @@ CREATE TABLE posts (
   created_timestamp  TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now()),
   modified_timestamp TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now())
 );
+
+CREATE UNIQUE INDEX posts_title_url_idx
+  ON posts (edition_id, title_url);
 
 CREATE INDEX posts_id_and_user_id_idx
   ON posts (id, user_id);

@@ -1,5 +1,6 @@
 package forms.newslet
 
+import models.{Edition, User}
 import play.api.data.Form
 import play.api.data.Forms._
 
@@ -24,5 +25,12 @@ object CampaignForm {
     )(Data.apply)(Data.unapply)
   )
 
-  def campaignDraft(editionId: Long, newsletterId: Long) = Data(None, newsletterId, editionId, None, ScheduleForm.defaultScheduleTime)
+  implicit def campaignDraft(user: User, edition: Edition): Data = {
+    Data(
+      None,
+      edition.newsletter.id.get,
+      edition.id.get,
+      None,
+      ScheduleForm.defaultScheduleTime(user.timezone.getOrElse(0), edition.date))
+  }
 }

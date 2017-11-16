@@ -17,7 +17,15 @@ class NewsletterService @Inject()(newsletterDao: NewsletterDao, editionDao: Edit
   def getById(newsletterId: Long) = {
     newsletterDao.getById(newsletterId)
       .map { result =>
-        if (result.isEmpty) throw NewsletterNotFoundException(newsletterId, s"getById failed")
+        if (result.isEmpty) throw NewsletterNotFoundException(s"getById failed, '$newsletterId' not found" )
+        result.get
+      }
+  }
+
+  def getByNameUrl(nameUrl: String) = {
+    newsletterDao.getByNameUrl(nameUrl)
+      .map { result =>
+        if (result.isEmpty) throw NewsletterNotFoundException(s"getByNameUrl failed, '$nameUrl' not found")
         result.get
       }
   }
@@ -36,5 +44,5 @@ class NewsletterService @Inject()(newsletterDao: NewsletterDao, editionDao: Edit
       }
   }
 
-  def create(user: User, name: String, email: String) = newsletterDao.create(user, name, email)
+  def create(newsletter: Newsletter) = newsletterDao.create(newsletter)
 }

@@ -1,11 +1,13 @@
 package models.daos
 
+import java.net.URL
 import javax.inject.{Inject, Singleton}
 
-import models.{Newsletter, User}
+import models.Newsletter
 import models.api.Repository
 import models.components.{NewsletterComponent, UserComponent}
 import play.api.db.slick.DatabaseConfigProvider
+import play.api.i18n.Lang
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
@@ -27,7 +29,10 @@ class NewsletterDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
       newsletter.id,
       newsletter.userId,
       newsletter.name,
+      newsletter.nameUrl,
       newsletter.email,
+      Lang(newsletter.locale),
+      newsletter.logoUrl.map(new URL(_)),
       newsletter.options
     )
 
@@ -39,13 +44,18 @@ class NewsletterDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
       .map(newsletterOptionCast)
   }
 
+  def getByNameUrl(nameUrl: String) = db.run {
+    newsletters.filter(_.nameUrl === nameUrl).result.headOption
+      .map(newsletterOptionCast)
+  }
+
   def list() = db.run {
     newsletters.result
       .map { result => result.map(newsletterCast) }
   }
 
-  def create(user: User, name: String, email: String) = db.run {
-    ((newsletters returning newsletters) += DBNewsletter(None, user.id.get, name, email))
+  def create(newsletter: Newsletter) = db.run {
+    ((newsletters returning newsletters) += DBNewsletter(None, newsletter.userId, newsletter.name, newsletter.nameUrl, newsletter.email, newsletter.lang.code))
         .map(newsletterCast)
   }
 }

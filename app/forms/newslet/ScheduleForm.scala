@@ -32,16 +32,8 @@ object ScheduleForm {
     override def unbind(key: String, value: Time) = Map(key -> value.toString)
   }
 
-  def nearestDate(): LocalDate = {
-    val zoneOffset = ZoneOffset.ofHours(defaultTimeZone)
-    val now = Instant.now().atOffset(zoneOffset).toEpochSecond
-    val fire = LocalDate.now.atTime(defaultTime.hour, defaultTime.minute).toEpochSecond(zoneOffset)
-    if (fire < now) LocalDate.now.plusDays(1) else LocalDate.now
-  }
-
-  val defaultTimeZone = 3
   val defaultTime = Time(6, 30)
-  val defaultScheduleTime = Data(defaultTimeZone, nearestDate(), defaultTime)
+  def defaultScheduleTime(timezone: Int, date: LocalDate) = Data(timezone, date, defaultTime)
 
   case class Data(zoneOffset: Int, date: java.time.LocalDate, time: Time) {
     lazy val toDateTime: ZonedDateTime = ZonedDateTime.of(date, time.toLocal, ZoneOffset.ofHours(zoneOffset))

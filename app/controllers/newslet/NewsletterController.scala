@@ -4,16 +4,16 @@ import javax.inject.{Inject, Singleton}
 
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.AssetsFinder
-import models.UserRole
+import models.{Newsletter, UserRole}
 import modules.DefaultEnv
 import org.webjars.play.WebJarsUtil
 import play.api.Logger
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, Lang, Langs}
 import play.api.mvc.{AbstractController, ControllerComponents}
 import services.NewsletterService
 import utils.WithRole
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 /**
   * @author im.
@@ -25,7 +25,8 @@ class NewsletterController @Inject()(silhouette: Silhouette[DefaultEnv],
                                     (implicit
                                      ec: ExecutionContext,
                                      webJarsUtil: WebJarsUtil,
-                                     assets: AssetsFinder)
+                                     assets: AssetsFinder,
+                                     langs: Langs)
   extends AbstractController(cc) with I18nSupport {
 
   import forms.newslet.NewsletterForm._
@@ -47,7 +48,8 @@ class NewsletterController @Inject()(silhouette: Silhouette[DefaultEnv],
           }
       },
       form => {
-        newsletterService.create(request.identity, form.name, form.email)
+        val newsletter = Newsletter(None, request.identity.id.get, form.name, form.nameUrl, form.email, Lang(form.lang), form.logo)
+        newsletterService.create(newsletter)
           .map(_ => Redirect(controllers.newslet.routes.NewsletterController.getList()))
       }
     )

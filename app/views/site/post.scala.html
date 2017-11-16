@@ -1,26 +1,21 @@
-@import clients.PublishingHouse
-@import java.time.format.DateTimeFormatter
-@(post: PublishingHouse.ReadyPost, newsletter: Option[Edition] = None, prev: Option[PublishingHouse.ReadyPost] = None, next: Option[PublishingHouse.ReadyPost] = None)
+@import clients.PublishingHouse.ReadyPostView
+@(data: ReadyPostView)
 
-@main {
-    @head(post.title)
+@views.html.site.main {
+    @views.html.site.head(data.post.title) {
 
-    @image {
-        @ex._image("https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png", Some("http://www.expresso.today"))
-    }
-
-    @annotation(post.annotation)
-
-    @container {
-        @title(post.title)
-        @divider()
-        @body {
-            @post.body(post.config)
+        @views.html.site.image {
+            @views.html.site.ex._image("https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png", Some("http://www.expresso.today"))
         }
-    }
 
-    @if(newsletter.isDefined) {
-        @map(newsletter.get, prev, next)
+        @views.html.site.title(data.post.title)
+        @views.html.site.body {
+            @data.post.body(data.post.config)
+        }
+
+        @if(data.edition.isDefined) {
+            @views.html.site.pnavigation(data.edition.get, data.prev, data.next)
+        }
     }
 }
 
