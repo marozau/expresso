@@ -29,7 +29,7 @@
                 @b3.inputWrapped("time", campaignForm("schedule.time"), '_label -> "send time") { input =>
                     @input
                     <span class="help-block">
-                        <a href="www.google.com">timezone</a>
+                        <a href="www.google.com">timezone: @Html(java.time.ZoneOffset.ofHours(user.timezone.getOrElse(0)).toString)</a>
                     </span>
                 }
                 @b3.submit('class -> "btn btn-default") { Schedule }

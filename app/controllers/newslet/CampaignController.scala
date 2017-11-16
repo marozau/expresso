@@ -1,13 +1,11 @@
 package controllers.newslet
 
 import java.time.ZoneOffset
-import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.AssetsFinder
 import forms.newslet.CampaignForm
-import models.daos.CampaignDao
 import models.{Campaign, UserRole}
 import modules.DefaultEnv
 import org.webjars.play.WebJarsUtil
