@@ -24,8 +24,17 @@
                 font-size: 15px;
                 line-height: 150%;
                 text-align: left;">
-                <div style="text-align: left;"><span style="font-size: 14px"><span style="font-family: georgia, times, times new roman, serif"><span style="color: #696969"><strong>
-                    @{date.format(DateTimeFormatter.BASIC_ISO_DATE)}</strong></span></span></span></div>
+                <div style="text-align: left;"><span style="font-size: 14px">
+                    <span style="font-family: georgia, times, times new roman, serif"><span style="color: #696969">
+                        <strong>
+                            @{
+                                date.format(DateTimeFormatter.BASIC_ISO_DATE)
+                            }
+                        </strong>
+                    </span>
+                    </span>
+                </span>
+                </div>
             </td>
         </tr>
     </tbody>
