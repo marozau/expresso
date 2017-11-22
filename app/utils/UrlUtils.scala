@@ -1,22 +1,40 @@
 package utils
 
 import java.net.URL
+import javax.inject.{Inject, Singleton}
 
+import play.api.Configuration
 import play.api.data.FormError
+import play.api.mvc.Call
 
 import scala.collection.immutable.HashMap
 
 /**
   * @author im.
   */
+@Singleton
+class UrlUtils @Inject()(configuration: Configuration) {
+
+  private val url = configuration.get[String]("domain.url")
+
+  implicit def absoluteURL(call: Call): String =
+    url + call.url + appendFragment(call)
+
+  protected def appendFragment(call: Call) =
+    if (call.fragment != null && !call.fragment.trim.isEmpty) "#" + call.fragment else ""
+}
+
 object UrlUtils {
 
   import play.api.data.format.Formats._
   import play.api.data.format.Formatter
+
   implicit object UrlFormatter extends Formatter[URL] {
     override val format = Some(("format.url", Nil))
+
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], URL] =
       parsing(new URL(_), "error.url", Nil)(key, data)
+
     override def unbind(key: String, value: URL) = Map(key -> value.toString)
   }
 

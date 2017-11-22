@@ -1,6 +1,7 @@
 package models.components
 
 import java.time.ZonedDateTime
+import java.util.UUID
 
 import models.Recipient
 import models.api.Repository
@@ -16,13 +17,16 @@ trait RecipientComponent {
 
   implicit val recipientStatusTypeMapper = createEnumJdbcType("recipient_status", Recipient.Status)
 
-  case class DBRecipient(newsletterId: Long,
+  case class DBRecipient(id: Option[UUID],
+                         newsletterId: Long,
                          userId: Long,
                          status: Recipient.Status.Value,
                          createdTimestamp: Option[ZonedDateTime] = None,
                          modifiedTimestamp: Option[ZonedDateTime] = None)
 
   protected class Recipients(tag: Tag) extends Table[DBRecipient](tag, "recipients") {
+
+    def uuid = column[UUID]("id", O.PrimaryKey, O.AutoInc)
 
     def newsletterId = column[Long]("newsletter_id")
 
@@ -34,9 +38,9 @@ trait RecipientComponent {
 
     def modifiedTimestamp = column[ZonedDateTime]("modified_timestamp", SqlUtils.timestampTzNotNullType)
 
-    def * = (newsletterId, userId, status, createdTimestamp.?, modifiedTimestamp.?) <> ((DBRecipient.apply _).tupled, DBRecipient.unapply)
+    def * = (uuid.?, newsletterId, userId, status, createdTimestamp.?, modifiedTimestamp.?) <> ((DBRecipient.apply _).tupled, DBRecipient.unapply)
 
-//    def listIdSupplier = foreignKey("recipients_list_id_fkey", userId, rlists)(_.id)
+    //    def listIdSupplier = foreignKey("recipients_list_id_fkey", userId, rlists)(_.id)
     def userIdSupplier = foreignKey("recipients_user_id_fkey", userId, users)(_.id)
   }
 

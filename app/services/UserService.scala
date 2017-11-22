@@ -34,4 +34,26 @@ class UserService @Inject()(userDao: UserDao)(implicit ec: ExecutionContext)
       //TODO: update personal info
     }
   }
+
+  def getOrCreate(loginInfo: LoginInfo, roles: List[UserRole.Value]) = {
+    retrieve(loginInfo)
+      .flatMap { userOption =>
+        if (userOption.isDefined) {
+          Future.successful(userOption.get)
+        } else {
+          val user = User(
+            id = None,
+            loginInfo = loginInfo,
+            email = loginInfo.providerKey,
+            roles = roles,
+            status = UserStatus.NEW
+          )
+          save(user)
+        }
+      }
+  }
+
+  def verify(userId: Long) = {
+    userDao.verify(userId)
+  }
 }

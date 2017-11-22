@@ -4,13 +4,13 @@ import javax.inject.{Inject, Singleton}
 
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.AssetsFinder
-import models.UserRole
+import models.{Recipient, UserRole}
 import modules.DefaultEnv
 import org.webjars.play.WebJarsUtil
 import play.api.Logger
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, ControllerComponents}
-import services.RecipientService
+import services.{AuthTokenService, RecipientService, UserService}
 import utils.WithRole
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -22,13 +22,15 @@ import scala.concurrent.{ExecutionContext, Future}
 class RecipientController @Inject()(
                                      silhouette: Silhouette[DefaultEnv],
                                      cc: ControllerComponents,
-                                     recipientsService: RecipientService)
+                                     recipientsService: RecipientService,
+                                     authTokenService: AuthTokenService,
+                                     userService: UserService)
                                    (implicit ec: ExecutionContext,
                                     webJarsUtil: WebJarsUtil,
                                     assets: AssetsFinder)
   extends AbstractController(cc) with I18nSupport {
 
-  import forms.newslet.RecipientForm._
+  import forms.site.SignUpForm._
 
   def list(newsletterId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
     recipientsService.getNewsletterRecipients(newsletterId)
@@ -37,19 +39,19 @@ class RecipientController @Inject()(
       }
   }
 
-  def add(newsletterId: Long, userId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
-    recipientsService.add(newsletterId, userId)
+  def signUp(newsletterId: Long, userId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
+    recipientsService.addUser(newsletterId, userId)
       .map(_ => Redirect(controllers.newslet.routes.RecipientController.list(newsletterId)))
   }
 
-  def addForm() = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
+  def signUpForm() = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
     form.bindFromRequest.fold(
       formWithErrors => {
-        Logger.error(s"formWithErrors - s${formWithErrors}")
+        Logger.error(s"formWithErrors - s$formWithErrors")
         Future.successful(BadRequest("TODO:"))
       },
       form => {
-        recipientsService.add(form.newsletterId, form.userId.get)
+        recipientsService.subscribe(form.newsletterId, form.email.get, Recipient.Status.SUBSCRIBED)
           .map(_ => Redirect(controllers.newslet.routes.RecipientController.list(form.newsletterId)))
       }
     )

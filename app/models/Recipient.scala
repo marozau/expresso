@@ -1,5 +1,7 @@
 package models
 
+import java.util.UUID
+
 import play.api.libs.json.Reads
 
 /**
@@ -13,9 +15,11 @@ object Recipient {
 
     implicit val recipientStatusFormat = Reads.enumNameReads(Status)
   }
+
 }
 
-case class Recipient(newsletterId: Long,
+case class Recipient(id: Option[UUID],
+                     newsletterId: Long,
                      userId: Long,
                      status: Recipient.Status.Value)
 

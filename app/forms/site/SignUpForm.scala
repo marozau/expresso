@@ -1,21 +1,21 @@
-package forms.newslet
+package forms.site
 
+import play.api.data.Form
 import play.api.data.Forms._
-import play.api.data._
 
 /**
   * @author im.
   */
-object RecipientForm {
+object SignUpForm {
 
   val form = Form(
     mapping(
       "newsletterId" -> longNumber,
-      "userId" -> optional(longNumber)
+      "email" -> optional(email)
     )(Data.apply)(Data.unapply)
   )
 
-  case class Data(newsletterId: Long, userId: Option[Long])
+  case class Data(newsletterId: Long, email: Option[String])
 
   def empty(newsletterId: Long) = form.fill(Data(newsletterId, None))
 }

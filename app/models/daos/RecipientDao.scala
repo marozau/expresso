@@ -25,7 +25,7 @@ class RecipientDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(imp
   import api._
   import dbConfig._
 
-  implicit def recipientCast(r: DBRecipient) = Recipient(r.newsletterId, r.userId, r.status)
+  implicit def recipientCast(r: DBRecipient) = Recipient(r.id, r.newsletterId, r.userId, r.status)
 
   /**
     *
@@ -57,23 +57,29 @@ class RecipientDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(imp
     db.run(recipientsQuery.result).map(_.map(recipientCast))
   }
 
-  def add(newsletterId: Long, userId: Long): Future[Recipient] = {
-    def getStatus(status: UserStatus.Value): Recipient.Status.Value = {
-      status match {
-        case UserStatus.NEW => Recipient.Status.PENDING
-        case UserStatus.VERIFIED => Recipient.Status.SUBSCRIBED
-        case UserStatus.BLOCKED =>
-          Logger.info(s"blocked user is trying to subscribe on newsletter, userId=$userId, newsletterId=$newsletterId")
-          throw InvalidUserStatusException(userId, status, "blocked user is trying to subscribe on newsletter")
-      }
-    }
+  //TODO: process case of unsubscribed user who wants to subsribe again
+  def add(newsletterId: Long, userId: Long, status: Recipient.Status.Value) = {
     val recipientAdd = for {
       userOption <- users.filter(_.id === userId).result.headOption
-      status <- if (userOption.isDefined) DBIO.successful(getStatus(userOption.get.status))
-        else DBIO.failed(UserNotFoundException(Some(userId), None, s"failed to add user to the newsletter list, newsletterId=$newsletterId"))
-      recipient <- (recipients returning recipients) += DBRecipient(newsletterId, userId, status)
+      status <- if (userOption.isDefined) DBIO.successful(getStatus(userOption.get.status, status))
+      else DBIO.failed(UserNotFoundException(Some(userId), None, s"failed to add user to the newsletter list, newsletterId=$newsletterId, userId=$userId"))
+      recipient <- (recipients returning recipients) += DBRecipient(None, newsletterId, userId, status)
     } yield recipientCast(recipient)
-
     db.run(recipientAdd.transactionally)
+  }
+
+  private def getStatus(userStatus: UserStatus.Value, recipientStatus: Recipient.Status.Value): Recipient.Status.Value = {
+    userStatus match {
+      case UserStatus.NEW => recipientStatus
+      case UserStatus.VERIFIED => recipientStatus
+      case UserStatus.BLOCKED => Recipient.Status.REMOVED // don't subscribe blocked users
+    }
+  }
+
+  def updateStatus(newsletterId: Long, userId: Long, status: Recipient.Status.Value) = db.run {
+    recipients
+      .filter(r => r.newsletterId === newsletterId && r.userId === userId)
+      .map(_.status)
+      .update(status)
   }
 }

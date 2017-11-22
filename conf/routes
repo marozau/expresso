@@ -51,19 +51,22 @@ GET         /admin/campaign                        controllers.newslet.CampaignC
 POST        /admin/campaign                        controllers.newslet.CampaignController.submitCampaignForm()
 GET         /admin/campaign/schedule               controllers.newslet.CampaignController.scheduleCampaign(id: Long)
 GET         /admin/recipients                      controllers.newslet.RecipientController.list(newsletterId: Long)
-GET         /admin/recipients/add                  controllers.newslet.RecipientController.add(newsletterId: Long, userId: Long)
-POST        /admin/recipients/add                  controllers.newslet.RecipientController.addForm()
+GET         /admin/recipients/add                  controllers.newslet.RecipientController.signUp(newsletterId: Long, userId: Long)
+POST        /admin/recipients/add                  controllers.newslet.RecipientController.signUpForm()
 
 GET         /admin/cache/clear-all                 controllers.CacheController.removeAll()
 
-GET         /click                                 controllers.TrackingController.click(data: events.newsletter.Click)
-#GET         /click                           controllers.TrackingController.click(data: String)
+GET         /event/click                           controllers.EventController.click(data: events.newsletter.Click)
+GET         /event/subscribe                       controllers.EventController.subscribe(data: events.newsletter.Subscribe)
+GET         /event/unsubscribe                     controllers.EventController.unsubscribe(data: events.newsletter.Unsubscribe)
 
 #GET         /list                               controllers.site.ArchiveController.list()
 GET         /current/:name                         controllers.site.ArchiveController.current(name: String)
 GET         /archive/:name/:date                   controllers.site.ArchiveController.edition(name: String, date: String)
 GET         /archive/:name/:date/:title            controllers.site.ArchiveController.post(name: String, date: String, title: String)
 
+GET         /subscribe/:newsletterId               controllers.site.SubscriptionController.signUpForm(newsletterId: Long)
+POST        /subscribe                             controllers.site.SubscriptionController.submitSignUpForm()
 
 GET         /assets/*file                          controllers.Assets.versioned(file)
 #GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)

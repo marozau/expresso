@@ -1,0 +1,23 @@
+@import play.api.i18n.Messages
+@import play.api.mvc.RequestHeader
+@import org.webjars.play.WebJarsUtil
+@import controllers.AssetsFinder
+@import forms.site.SignUpForm.Data
+@(form: Form[Data])(implicit request: RequestHeader, messages: Messages, webJarsUtil: WebJarsUtil, assets: AssetsFinder)
+
+@Html(webJarsUtil.css("bootstrap.min.css"))
+@Html(webJarsUtil.css("bootstrap-theme.min.css"))
+
+@implicitFieldConstructor = @{
+    b3.horizontal.fieldConstructor("col-md-2", "col-md-10")
+}
+
+@b3.form(action = controllers.site.routes.SubscriptionController.submitSignUpForm()) {
+    @helper.CSRF.formField
+    @b3.text(form("newsletterId"), 'style -> "display: none")
+    @b3.email(form("email"), '_label -> "email")
+    @b3.submit('class -> "btn btn-default") { Subscribe }
+}
+
+@Html(webJarsUtil.script("jquery.min.js"))
+@Html(webJarsUtil.script("bootstrap.min.js"))

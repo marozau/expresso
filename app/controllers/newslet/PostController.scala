@@ -5,9 +5,11 @@ import javax.inject.{Inject, Singleton}
 import clients.PublishingHouse
 import clients.PublishingHouse.Target
 import com.mohiva.play.silhouette.api.Silhouette
+import controllers.AssetsFinder
 import models.daos.PostDao
 import models.{Post, PostView, UserRole}
 import modules.DefaultEnv
+import org.webjars.play.WebJarsUtil
 import play.api.Logger
 import play.api.cache._
 import play.api.i18n.I18nSupport
@@ -27,7 +29,11 @@ class PostController @Inject()(
                                 cc: ControllerComponents,
                                 htmlUtils: HtmlUtils,
                                 ph: PublishingHouse,
-                                posts: PostDao)(implicit ec: ExecutionContext)
+                                posts: PostDao
+                              )(implicit
+                                ec: ExecutionContext,
+                                webJarsUtil: WebJarsUtil,
+                                assets: AssetsFinder)
   extends AbstractController(cc) with I18nSupport {
 
   import forms.newslet.PostForm._

@@ -12,11 +12,12 @@ import play.api.mvc.QueryStringBindable
   */
 // TODO: to generate sequencial ID from database we need cache range.
 // TODO: to calculate optimal range size it is better to analyse mailchimp data
+@AvroNamespace("today.expresso.newslet")
 case class Click(
                   @AvroDoc("urls table id") urlId: Long,
                   @AvroDoc("users table id") userId: Long,
-                  @AvroDoc("campaigns table id") campaignId: Long,
-                  @AvroDoc("server side event id") eventId: Option[Long],
+                  @AvroDoc("edition table id") editionId: Long,
+                  @AvroDoc("server side event id") eventId: Option[Long] = None,
                   @AvroDoc("server side event timestamp") timestamp: Option[Long] = None,
                   @AvroDoc("client's ip address, can be a proxy server address") ip: Option[String] = None,
                   useragent: Option[String] = None) extends Tracking
@@ -40,16 +41,16 @@ object Click {
             val in = new ByteArrayInputStream(bytes)
             val input = AvroInputStream.binary[Click](in)
             input.iterator.toSeq.headOption
-              .map(click => Right(click)).getOrElse(Left("Unable to bind a Click"))
-          case _ => Left("Unable to bind a Click")
+              .map(event => Right(event)).getOrElse(Left("Unable to bind Click event"))
+          case _ => Left("Unable to bind Click event")
         }
       }
     }
 
-    override def unbind(key: String, click: Click): String = {
+    override def unbind(key: String, event: Click): String = {
       val baos = new ByteArrayOutputStream()
       val output = AvroOutputStream.binary[Click](baos)
-      output.write(click)
+      output.write(event)
       output.close()
       val payload = BaseEncoding.base64().encode(baos.toByteArray)
       stringBinder.unbind("data", payload)

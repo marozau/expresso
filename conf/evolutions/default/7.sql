@@ -1,8 +1,9 @@
 # --- !Ups
 
-CREATE TYPE recipient_status AS ENUM ('SUBSCRIBED', 'UNSUBSCRIBED', 'REMOVED', 'CLEANED', 'SPAM');
+CREATE TYPE recipient_status AS ENUM ('PENDING', 'SUBSCRIBED', 'UNSUBSCRIBED', 'REMOVED', 'CLEANED', 'SPAM');
 
 CREATE TABLE recipients (
+  id                 UUID PRIMARY KEY          DEFAULT uuid_generate_v4(),
   newsletter_id      BIGINT           NOT NULL REFERENCES newsletters (id),
   user_id            BIGINT           NOT NULL REFERENCES users (id),
   status             recipient_status NOT NULL,
@@ -40,4 +41,4 @@ EXECUTE PROCEDURE update_create_timestamp();
 # --- !Downs
 
 DROP TABLE IF EXISTS recipients CASCADE;
-DROP TYPE IF EXISTS recipient_status CASCADE;
+DROP TYPE IF EXISTS RECIPIENT_STATUS CASCADE;
