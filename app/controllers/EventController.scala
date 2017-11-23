@@ -16,13 +16,6 @@ import scala.concurrent.ExecutionContext
 class EventController @Inject()(cc: ControllerComponents, app: models.Application)(implicit ec: ExecutionContext)
   extends AbstractController(cc) {
 
-  import Click._
-
-//  val click = Click(1,1,1,1)
-//  private val str: String = queryStringBindable.unbind("test", click)
-//  Logger.info(str)
-
-
   def click(data: Click) = Action { implicit request =>
     Logger.info(s"$data")
     // TODO: add utm and utp tags
