@@ -73,7 +73,7 @@ libraryDependencies ++= Seq(
 //play.sbt.routes.RoutesKeys.routesImport += "clients.PublishingHouse._"
 
 //https://github.com/KarelCemus/play-redis
-libraryDependencies += "com.github.karelcemus" %% "play-redis" % "1.6.0"
+libraryDependencies += "com.github.karelcemus" %% "play-redis" % "1.6.1"
 //https://github.com/cb372/scalacache
 libraryDependencies += "com.github.cb372" %% "scalacache-caffeine" % "0.10.0"
 //https://github.com/mohiva/play-html-compressor/blob/master/README.md
