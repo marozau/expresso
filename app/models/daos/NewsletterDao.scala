@@ -3,15 +3,19 @@ package models.daos
 import java.net.URL
 import javax.inject.{Inject, Singleton}
 
+import exceptions.{NewsletterAlreadyExistException, NewsletterNameUrlAlreadyExistException, NewsletterNotFoundException}
 import models.Newsletter
 import models.api.Repository
 import models.components.{NewsletterComponent, UserComponent}
+import org.postgresql.util.PSQLException
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.i18n.Lang
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
+import utils.SqlUtils.PostgreSQLErrorCodes
 
 import scala.concurrent.ExecutionContext
+import scala.util.{Failure, Success}
 
 /**
   * @author im.
@@ -51,11 +55,29 @@ class NewsletterDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
 
   def list() = db.run {
     newsletters.result
-      .map { result => result.map(newsletterCast) }
+      .map { result =>
+        result.map(newsletterCast)
+      }
   }
 
-  def create(newsletter: Newsletter) = db.run {
-    ((newsletters returning newsletters) += DBNewsletter(None, newsletter.userId, newsletter.name, newsletter.nameUrl, newsletter.email, newsletter.lang.code))
-        .map(newsletterCast)
+  def create(newsletter: Newsletter) = {
+    val query = ((newsletters returning newsletters) += DBNewsletter(None, newsletter.userId, newsletter.name, newsletter.nameUrl, newsletter.email, newsletter.lang.code))
+      .map(newsletterCast)
+    db.run(query.asTry).map {
+      case Success(res) => res
+      case Failure(e: PSQLException) =>
+        //TODO: need to implement same common error handling mechanism to reuse
+        //TODO: db.run(query.asTry).map with error handling code need to be moved to the Repository
+        if (e.getSQLState == PostgreSQLErrorCodes.UniqueViolation.toString) {
+          if (e.getMessage.contains(newsletters.baseTableRow.newslettersNameIdx.name)) {
+            throw NewsletterAlreadyExistException(e.getMessage)
+          } else if (e.getMessage.contains(newsletters.baseTableRow.newslettersNameUrlIdx.name)) {
+            throw NewsletterNameUrlAlreadyExistException(e.getMessage)
+          } else {
+            throw e
+          }
+        }
+        throw e
+    }
   }
 }

@@ -12,8 +12,8 @@ import play.api.mvc.QueryStringBindable
   */
 @AvroNamespace("today.expresso.newslet")
 case class Subscribe(
-                      @AvroDoc("recipients uuid least significant bits") recipientIdMostSigBits: Long,
-                      @AvroDoc("recipients uuid most significant bits") recipientIdLeastSigBits: Long,
+                      @AvroDoc("recipients uuid most significant bits") recipientIdMostSigBits: Long,
+                      @AvroDoc("recipients uuid least significant bits") recipientIdLeastSigBits: Long,
                       @AvroDoc("users table id") userId: Long,
                       @AvroDoc("newsletter table id") newsletterId: Long,
                       @AvroDoc("server side event id") eventId: Option[Long] = None,

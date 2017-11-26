@@ -13,6 +13,8 @@ object BaseException {
     val POST_NOT_FOUND = Value
     val EDITION_NOT_FOUND = Value
     val NEWSLETTER_NOT_FOUND = Value
+    val NEWSLETTER_ALREADY_EXIST = Value
+    val NEWSLETTER_NAME_URL_ALREADY_EXIST = Value
     val ARCHIVE_NOT_FOUND = Value
     val CAMPAIGN_NOT_FOUND = Value
     val RECIPIENT_LIST_NOT_FOUND = Value

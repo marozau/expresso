@@ -11,12 +11,13 @@ import play.api.mvc.QueryStringBindable
   * @author im.
   */
 @AvroNamespace("today.expresso.newslet")
+@AvroDoc("contains recipient id least and most significant bits in opposite order")
 case class Unsubscribe(
                         @AvroDoc("recipients uuid least significant bits")
-                        recipientIdMostSigBits: Long,
+                        recipientIdLeastSigBits: Long,
 
                         @AvroDoc("recipients uuid most significant bits")
-                        recipientIdLeastSigBits: Long,
+                        recipientIdMostSigBits: Long,
 
                         @AvroDoc("users table id")
                         userId: Long,
