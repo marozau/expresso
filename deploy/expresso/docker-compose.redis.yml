@@ -4,4 +4,5 @@ services:
     image: redis:4
     ports:
       - 6379:6379
+    command: "--maxmemory 500mb --maxmemory-policy allkeys-lfu"
 

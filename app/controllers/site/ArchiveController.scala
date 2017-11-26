@@ -35,7 +35,7 @@ class ArchiveController @Inject()(
 
   // TODO: clear cache if needed and store current for the long time
   // TOTO: clear cache when new campaign starts, "current" key does not work, find key
-  def current(name: String) = cached(s"current/$name").includeStatus(OK, 10.seconds) {
+  def current(name: String) = cached(s"current/$name").includeStatus(OK) {
     Action.async { implicit request =>
       newsletterService
         .getByNameUrl(name)
@@ -49,7 +49,7 @@ class ArchiveController @Inject()(
     }
   }
 
-  def post(name: String, date: String, title: String) = cached(s"/archive/$name/$date/$title").includeStatus(OK, 10.seconds) {
+  def post(name: String, date: String, title: String) = cached(s"/archive/$name/$date/$title").includeStatus(OK) {
     Action.async { implicit request =>
       newsletterService
         .getByNameUrl(name)
@@ -64,7 +64,7 @@ class ArchiveController @Inject()(
     }
   }
 
-  def edition(name: String, date: String) = cached(s"/archive/$name/$date").includeStatus(OK, 10.seconds) {
+  def edition(name: String, date: String) = cached(s"/archive/$name/$date").includeStatus(OK) {
     Action.async {
       implicit request =>
         newsletterService
