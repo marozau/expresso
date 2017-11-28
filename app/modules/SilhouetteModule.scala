@@ -52,7 +52,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     bind[DelegableAuthInfoDAO[PasswordInfo]].to[PasswordInfoDao]
     bind[CacheLayer].to[PlayCacheLayer]
     bind[PasswordHasher].toInstance(new BCryptPasswordHasher)
-    bind[FingerprintGenerator].toInstance(new DefaultFingerprintGenerator(true))
+    bind[FingerprintGenerator].toInstance(new DefaultFingerprintGenerator(false))
     bind[EventBus].toInstance(EventBus())
     bind[Clock].toInstance(Clock())
   }
@@ -97,8 +97,8 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     new JcaCrypter(config)
   }
 
-  @Provides
-  def provideAuthenticatorRepository(cacheLayer: CacheLayer): AuthenticatorRepository[JWTAuthenticator] = {
+  @Provides @Named("authenticator-cache")
+  def provideAuthenticatorRepository(cacheLayer: CacheLayer): AuthenticatorRepository[CookieAuthenticator] = {
     new CacheAuthenticatorRepository(cacheLayer)
   }
   /**
@@ -117,6 +117,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
   def provideAuthenticatorService(
                                    @Named("authenticator-signer") signer: Signer,
                                    @Named("authenticator-crypter") crypter: Crypter,
+                                   @Named("authenticator-cache") repository: AuthenticatorRepository[CookieAuthenticator],
                                    cookieHeaderEncoding: CookieHeaderEncoding,
                                    fingerprintGenerator: FingerprintGenerator,
                                    idGenerator: IDGenerator,
@@ -126,7 +127,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
 
     val config = configuration.underlying.as[CookieAuthenticatorSettings]("silhouette.authenticator")
     val authenticatorEncoder = new CrypterAuthenticatorEncoder(crypter)
-    new CookieAuthenticatorService(config, None, signer, cookieHeaderEncoding, authenticatorEncoder, fingerprintGenerator, idGenerator, clock)
+    new CookieAuthenticatorService(config, Some(repository), signer, cookieHeaderEncoding, authenticatorEncoder, fingerprintGenerator, idGenerator, clock)
   }
 
 

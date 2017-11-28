@@ -78,6 +78,7 @@ class NewsletterDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
           }
         }
         throw e
+      case Failure(e: Throwable) => throw e
     }
   }
 }

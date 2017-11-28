@@ -5,7 +5,7 @@ metadata:
   namespace: expresso
 spec:
   tls:
-  - secretName: tls
+  - secretName: tls-expresso
   backend:
     serviceName: expresso-ui
     servicePort: 9000

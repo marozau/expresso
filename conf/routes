@@ -21,7 +21,7 @@ GET         /user/list                             controllers.auth.UserControll
 
 
 GET         /manifest                              controllers.ManifestController.get()
-GET         /mandrill/send/:email/:template        controllers.MandrillController.send(email, template)
+#GET         /mandrill/send/:email/:template        controllers.MandrillController.send(email, template)
 GET         /healthz                               controllers.Application.healthz()
 
 GET         /admin/post                            controllers.newslet.PostController.getPostForm(id: Option[Long], newsletter: Option[Long])

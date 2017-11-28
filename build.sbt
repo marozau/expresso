@@ -8,7 +8,7 @@ resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/model
 // Resolvers is needed for silhouette
 resolvers := ("Atlassian Releases" at "https://maven.atlassian.com/public/") +: resolvers.value
 
-
+//.enablePlugins(PlayScala, PlayAkkaHttp2Support)
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
   .settings(Manifest.manifestSettings: _*)

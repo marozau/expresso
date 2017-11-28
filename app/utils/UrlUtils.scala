@@ -105,7 +105,8 @@ object UrlUtils {
     "э" -> "e",
     "ю" -> "u",
     "я" -> "ya",
-    " " -> "-"
+    " " -> "-",
+    "." -> "",
   ) //TODO: remove all not allowed symbols
 
   def toUrl(text: String): String = {
