@@ -3,74 +3,76 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-GET         /                                      controllers.auth.AuthController.index
-GET         /signOut                               controllers.auth.AuthController.signOut
-GET         /signUp                                controllers.auth.SignUpController.view
-POST        /signUp                                controllers.auth.SignUpController.submit
-GET         /signIn                                controllers.auth.SignInController.view
-POST        /signIn                                controllers.auth.SignInController.submit
-GET         /password/forgot                       controllers.auth.ForgotPasswordController.view
-POST        /password/forgot                       controllers.auth.ForgotPasswordController.submit
-GET         /password/reset/:token                 controllers.auth.ResetPasswordController.view(token: java.util.UUID)
-POST        /password/reset/:token                 controllers.auth.ResetPasswordController.submit(token: java.util.UUID)
-GET         /password/change                       controllers.auth.ChangePasswordController.view
-POST        /password/change                       controllers.auth.ChangePasswordController.submit
-GET         /user/email/:email                     controllers.auth.ActivateAccountController.send(email: String)
-GET         /user/activate/:token                  controllers.auth.ActivateAccountController.activate(token: java.util.UUID)
-GET         /user/list                             controllers.auth.UserController.list
+GET         /                                  controllers.auth.AuthController.index
+GET         /signOut                           controllers.auth.AuthController.signOut
+GET         /signUp                            controllers.auth.SignUpController.view
+POST        /signUp                            controllers.auth.SignUpController.submit
+GET         /signIn                            controllers.auth.SignInController.view
+POST        /signIn                            controllers.auth.SignInController.submit
+GET         /password/forgot                   controllers.auth.ForgotPasswordController.view
+POST        /password/forgot                   controllers.auth.ForgotPasswordController.submit
+GET         /password/reset/:token             controllers.auth.ResetPasswordController.view(token: java.util.UUID)
+POST        /password/reset/:token             controllers.auth.ResetPasswordController.submit(token: java.util.UUID)
+GET         /password/change                   controllers.auth.ChangePasswordController.view
+POST        /password/change                   controllers.auth.ChangePasswordController.submit
+GET         /user/email/:email                 controllers.auth.ActivateAccountController.send(email: String)
+GET         /user/activate/:token              controllers.auth.ActivateAccountController.activate(token: java.util.UUID)
+GET         /user/list                         controllers.auth.UserController.list
 
 
-GET         /manifest                              controllers.ManifestController.get()
+GET         /manifest                          controllers.ManifestController.get()
 #GET         /mandrill/send/:email/:template        controllers.MandrillController.send(email, template)
-GET         /healthz                               controllers.Application.healthz()
+GET         /healthz                           controllers.Application.healthz()
 
-GET         /admin/post                            controllers.newslet.PostController.getPostForm(id: Option[Long], newsletter: Option[Long])
-POST        /admin/post                            controllers.newslet.PostController.submitPostForm()
-GET         /admin/post/show                       controllers.newslet.PostController.showPost(id: Long)
-GET         /admin/newsletter/list                 controllers.newslet.NewsletterController.getList()
-POST        /admin/newsletter/create               controllers.newslet.NewsletterController.create()
-GET         /admin/edition                         controllers.newslet.EditionController.get(editionId: Long, cleanCache: Boolean)
-GET         /admin/edition/current                 controllers.newslet.EditionController.getOrCreate(newsletterId: Long)
-GET         /admin/edition/posts/remove            controllers.newslet.EditionController.removePost(id: Long, postId: Long)
-GET         /admin/edition/posts/up                controllers.newslet.EditionController.moveUpPost(id: Long, postId: Long)
-GET         /admin/edition/posts/down              controllers.newslet.EditionController.moveDownPost(id: Long, postId: Long)
-GET         /admin/edition/posts/form              controllers.newslet.EditionController.getPostForm(id: Option[Long], editionId: Long)
-GET         /admin/edition/posts/add               controllers.newslet.EditionController.addPost(id: Long, postId: Long)
-GET         /admin/edition/header                  controllers.newslet.EditionController.getHeaderForm(id: Long)
-POST        /admin/edition/header                  controllers.newslet.EditionController.submitHeaderForm()
-GET         /admin/edition/footer                  controllers.newslet.EditionController.getFooterForm(id: Long)
-POST        /admin/edition/footer                  controllers.newslet.EditionController.submitFooterForm()
-GET         /admin/edition/title                   controllers.newslet.EditionController.getTitleForm(id: Long)
-POST        /admin/edition/title                   controllers.newslet.EditionController.submitTitleForm()
-GET         /admin/edition/date                    controllers.newslet.EditionController.getDateForm(id: Long)
-POST        /admin/edition/date                    controllers.newslet.EditionController.submitDateForm()
-GET         /admin/edition/url                     controllers.newslet.EditionController.getUrlForm(id: Long)
-POST        /admin/edition/url                     controllers.newslet.EditionController.submitUrlForm()
-GET         /admin/edition/show                    controllers.newslet.EditionController.getNewsletterFinal(campaignId: Long, newsletterId: Long)
-GET         /admin/campaign                        controllers.newslet.CampaignController.getCampaignForm(id: Option[Long], newsletterId: Option[Long])
-POST        /admin/campaign                        controllers.newslet.CampaignController.submitCampaignForm()
-GET         /admin/campaign/schedule               controllers.newslet.CampaignController.scheduleCampaign(id: Long)
-GET         /admin/recipients                      controllers.newslet.RecipientController.list(newsletterId: Long)
-GET         /admin/recipients/add                  controllers.newslet.RecipientController.signUp(newsletterId: Long, userId: Long)
-POST        /admin/recipients/add                  controllers.newslet.RecipientController.signUpForm()
+GET         /admin/post                        controllers.newslet.PostController.getPostForm(id: Option[Long], newsletter: Option[Long])
+POST        /admin/post                        controllers.newslet.PostController.submitPostForm()
+GET         /admin/post/show                   controllers.newslet.PostController.showPost(id: Long)
+GET         /admin/newsletter/list             controllers.newslet.NewsletterController.getList()
+POST        /admin/newsletter/create           controllers.newslet.NewsletterController.create()
+GET         /admin/edition                     controllers.newslet.EditionController.get(editionId: Long, cleanCache: Boolean)
+GET         /admin/edition/current             controllers.newslet.EditionController.getOrCreate(newsletterId: Long)
+GET         /admin/edition/posts/remove        controllers.newslet.EditionController.removePost(id: Long, postId: Long)
+GET         /admin/edition/posts/up            controllers.newslet.EditionController.moveUpPost(id: Long, postId: Long)
+GET         /admin/edition/posts/down          controllers.newslet.EditionController.moveDownPost(id: Long, postId: Long)
+GET         /admin/edition/posts/form          controllers.newslet.EditionController.getPostForm(id: Option[Long], editionId: Long)
+GET         /admin/edition/posts/add           controllers.newslet.EditionController.addPost(id: Long, postId: Long)
+GET         /admin/edition/header              controllers.newslet.EditionController.getHeaderForm(id: Long)
+POST        /admin/edition/header              controllers.newslet.EditionController.submitHeaderForm()
+GET         /admin/edition/footer              controllers.newslet.EditionController.getFooterForm(id: Long)
+POST        /admin/edition/footer              controllers.newslet.EditionController.submitFooterForm()
+GET         /admin/edition/title               controllers.newslet.EditionController.getTitleForm(id: Long)
+POST        /admin/edition/title               controllers.newslet.EditionController.submitTitleForm()
+GET         /admin/edition/date                controllers.newslet.EditionController.getDateForm(id: Long)
+POST        /admin/edition/date                controllers.newslet.EditionController.submitDateForm()
+GET         /admin/edition/url                 controllers.newslet.EditionController.getUrlForm(id: Long)
+POST        /admin/edition/url                 controllers.newslet.EditionController.submitUrlForm()
+GET         /admin/edition/show                controllers.newslet.EditionController.getNewsletterFinal(campaignId: Long, newsletterId: Long)
+GET         /admin/campaign                    controllers.newslet.CampaignController.getCampaignForm(id: Option[Long], newsletterId: Option[Long])
+POST        /admin/campaign                    controllers.newslet.CampaignController.submitCampaignForm()
+GET         /admin/campaign/schedule           controllers.newslet.CampaignController.scheduleCampaign(id: Long)
+GET         /admin/recipients                  controllers.newslet.RecipientController.list(newsletterId: Long)
+GET         /admin/recipients/add              controllers.newslet.RecipientController.signUp(newsletterId: Long, userId: Long)
+POST        /admin/recipients/add              controllers.newslet.RecipientController.signUpForm()
 
-GET         /admin/cache/clear-all                 controllers.CacheController.removeAll()
+GET         /admin/cache/clear-all             controllers.CacheController.removeAll()
 
-GET         /event/click                           controllers.EventController.click(data: events.newsletter.Click)
-GET         /event/subscribe                       controllers.EventController.subscribe(data: events.newsletter.Subscribe)
-GET         /event/unsubscribe                     controllers.EventController.unsubscribe(data: events.newsletter.Unsubscribe)
+GET         /event/click                       controllers.EventController.click(data: events.newsletter.Click)
+GET         /event/subscribe                   controllers.EventController.subscribe(data: events.newsletter.Subscribe)
+GET         /event/unsubscribe                 controllers.EventController.unsubscribe(data: events.newsletter.Unsubscribe)
 
 #GET         /list                               controllers.site.ArchiveController.list()
-GET         /current/:name                         controllers.site.ArchiveController.current(name: String)
-GET         /archive/:name/:date                   controllers.site.ArchiveController.edition(name: String, date: String)
-GET         /archive/:name/:date/:title            controllers.site.ArchiveController.post(name: String, date: String, title: String)
+GET         /current/:name                     controllers.site.ArchiveController.current(name: String)
+GET         /archive/:name/:date               controllers.site.ArchiveController.edition(name: String, date: String)
+GET         /archive/:name/:date/:title        controllers.site.ArchiveController.post(name: String, date: String, title: String)
 
-GET         /subscribe/:newsletterId               controllers.site.SubscriptionController.signUpForm(newsletterId: Long)
-POST        /subscribe                             controllers.site.SubscriptionController.submitSignUpForm()
+GET         /subscribe/:newsletterId           controllers.site.SubscriptionController.signUpForm(newsletterId: Long)
+POST        /subscribe                         controllers.site.SubscriptionController.submitSignUpForm()
 
-GET         /assets/*file                          controllers.Assets.versioned(file)
+GET        /mc/subscribe                      controllers.site.MailChimpController.subscribe(listId: String, email: String)
+
+GET         /assets/*file                      controllers.Assets.versioned(file)
 #GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)
-GET         /javascriptRoutes                      controllers.Application.javascriptRoutes
-->          /webjars                               webjars.Routes
+GET         /javascriptRoutes                  controllers.Application.javascriptRoutes
+->          /webjars                           webjars.Routes
 
 

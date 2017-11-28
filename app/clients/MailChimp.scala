@@ -47,6 +47,20 @@ class MailChimp @Inject()()(ws: WSClient, config: Configuration)(implicit ec: Ex
       }
   }
 
+  private def post[T: BodyWritable](url: String, body: T): Future[WSResponse] = {
+    ws.url(s"$apiUrl$url")
+      .withHttpHeaders("content-type" -> "application/json")
+      .withAuth(user, key, WSAuthScheme.BASIC)
+      .post(body)
+      .map { response =>
+        logger.info("response={}", response)
+        if (response.status != Status.OK) {
+          val error: Error = response.json.validate[Error]
+          throw new MailChimpException(response.status, error, s"$url request failed")
+        } else response
+      }
+  }
+
 
   def getCampaigns(listId: String): Future[Seq[Campaign]] = {
     get("/campaigns", Seq("count" -> Int.MaxValue.toString, "list_id" -> listId))
@@ -78,7 +92,7 @@ class MailChimp @Inject()()(ws: WSClient, config: Configuration)(implicit ec: Ex
 
   def getMembers(listId: String): Future[Seq[Member]] = {
     get(s"/lists/$listId/members", Seq("count" -> Int.MaxValue.toString))
-      .map{ response =>
+      .map { response =>
         (response.json \ "members").validate[Seq[Member]]
       }
   }
@@ -105,17 +119,21 @@ class MailChimp @Inject()()(ws: WSClient, config: Configuration)(implicit ec: Ex
         } else response
       }
       .map { response =>
-          response.body.split("\n").map{ activity =>
-            Json.parse(activity).as[Map[String, Seq[Activity]]]
-          }
+        response.body.split("\n").map { activity =>
+          Json.parse(activity).as[Map[String, Seq[Activity]]]
+        }
       }
   }
 
+  def listMemberAdd(listId: String, email: String): Future[Member] = {
+    post(s"/lists/$listId/members", Json.obj("email_address" -> email, "status" -> "pending"))
+      .map(_.json.validate[Member])
+  }
 }
 
 object MailChimp {
 
-  class MailChimpException(status: Int, error: MailChimpApi.Error, message: String) extends Exception(message)
+  case class MailChimpException(status: Int, error: MailChimpApi.Error, message: String) extends Exception(message)
 
   implicit def jsonResult[A](result: JsResult[A]): A = result match {
     case e: JsError => throw new RuntimeException("failed to parse mailchimp response, error=" + e)
@@ -263,6 +281,7 @@ object MailChimpApi {
                      vip: Option[Boolean],
                      emailClient: Option[String],
                      listId: Option[String])
+
 }
 
 object MailChimpMarshaller {
@@ -417,7 +436,7 @@ object MailChimpMarshaller {
       (__ \ "vip").readNullable[Boolean] and
       (__ \ "email_client").readNullable[String] and
       (__ \ "list_id").readNullable[String]
-    )(Member.apply _)
+    ) (Member.apply _)
 
 }
 
