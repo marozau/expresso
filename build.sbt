@@ -94,5 +94,3 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies += "com.sksamuel.avro4s" %% "avro4s-core" % "1.8.0"
-
-libraryDependencies += "com.google.cloud" % "google-cloud-logging-logback" % "0.30.0-alpha"

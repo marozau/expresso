@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: expresso
-        image: eu.gcr.io/expresso-today/expresso:8
+        image: eu.gcr.io/expresso-today/expresso:10
         ports:
         - containerPort: 9000
         readinessProbe:
@@ -41,7 +41,7 @@ spec:
         "-Dslick.dbs.default.db.properties.user=expresso",
         "-Dslick.dbs.default.db.properties.password=Fqqtanrv92Je77WA",
         "-Dslick.dbs.default.db.properties.url=jdbc:postgresql://google/expresso?socketFactory=com.google.cloud.sql.postgres.SocketFactory&socketFactoryArg=expresso-today:europe-west1:expresso",
-        "-Dlogger.resource=logback.xml",
+        "-Dlogger.resource=logback.prod.xml",
         "-Dconfig.resource=application.prod.conf",
         "-Dsilhouette.authenticator.cookieDomain=.expresso.today",
         "-Dplay.mailer.password=uwpssVrZC6H29V8G"]

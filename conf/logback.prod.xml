@@ -3,11 +3,16 @@
 
   <conversionRule conversionWord="coloredLevel" converterClass="play.api.libs.logback.ColoredLevel" />
 
-  <appender name="CLOUD" class="com.google.cloud.logging.logback.LoggingAppender">
-    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-      <level>INFO</level>
-    </filter>
-    <flushLevel>WARN</flushLevel>
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+      <layout class="logging.GCPJsonLayout">
+        <pattern>%-4relative [%thread] %-5level %logger{35} - %msg</pattern>
+      </layout>
+    </encoder>
+  </appender>
+
+  <appender name="ASYNCSTDOUT" class="ch.qos.logback.classic.AsyncAppender">
+    <appender-ref ref="STDOUT" />
   </appender>
 
   <logger name="play" level="INFO" />
@@ -23,7 +28,7 @@
   <logger name="com.mohiva" level="INFO" />
 
   <root level="INFO">
-    <appender-ref ref="CLOUD" />
+    <appender-ref ref="ASYNCSTDOUT" />
   </root>
 
 </configuration>
