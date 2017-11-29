@@ -55,15 +55,15 @@ public class GCPJsonLayout extends PatternLayout {
     private static String convertLevel(Level level) {
         switch (level.toInt()) {
             case TRACE_INT:
-                return "TRACE";
+                return Level.TRACE.levelStr;
             case DEBUG_INT:
-                return "DEBUG";
+                return Level.DEBUG.levelStr;
             case INFO_INT:
-                return "INFO";
+                return Level.INFO.levelStr;
             case WARN_INT:
-                return "WARN";
+                return Level.WARN.levelStr;
             case ERROR_INT:
-                return "ERROR";
+                return Level.ERROR.levelStr;
             default:
                 return null; /* This should map to no level in GCP Cloud Logging */
         }
