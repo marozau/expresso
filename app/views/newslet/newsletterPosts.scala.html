@@ -14,146 +14,150 @@
         postForm: Option[Form[Data]] = None,
         urlForm: Option[Form[UrlData]] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
-@implicitFieldConstructor = @{
-    b3.vertical.fieldConstructor
-}
-
-<!doctype html>
-<html xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraph.org/schema/">
-    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("lib/bootstrap/css/bootstrap.min.css")">
-
-    @views.html.site.head(edition.title.getOrElse("Expresso.today")) {
-
-        @if(titleForm.isDefined) {
-            @views.html.newslet.title(titleForm.get)
-        } else {
-            <a href="@controllers.newslet.routes.EditionController.getTitleForm(edition.id.get)">edit title</a>
-        }
-        @if(dateForm.isDefined) {
-            @views.html.newslet.date(dateForm.get)
-        } else {
-            <a href="@controllers.newslet.routes.EditionController.getDateForm(edition.id.get)">@views.html.site.date(edition.date)</a>
-        }
-        @if(headerForm.isDefined) {
-            @views.html.newslet.header(headerForm.get)
-        } else {
-            @views.html.site.text {
-                <div style="text-align: center;">
-                    <em>
-                        <span style="font-size: 17px">
-                            <span style="font-family: georgia, times, times new roman, serif">
-                            @if(edition.header.isEmpty) {
-                                <a href="@controllers.newslet.routes.EditionController.getHeaderForm(edition.id.get)">add header</a>
-                            } else {
-                                @{
-                                    edition.header.get(edition.config)
-                                }
-                                <a href="@controllers.newslet.routes.EditionController.getHeaderForm(edition.id.get)">edit</a>
-                            }
-                            </span>
-                        </span>
-                    </em>
-                </div>
-            }
-        }
-
-        @for(post <- edition.posts) {
-            @if(postForm.isDefined && postForm.get.data.get("id").isDefined && postForm.get.data("id").toLong == post.id.get) {
-                @views.html.newslet.post(postForm.get)
-            } else {
-                @views.html.site.text {
-                    <font face="arial, helvetica neue, helvetica, sans-serif" size="5">
-                        <strong>@post.title</strong>
-                        <br>
-                    </font>
-                    <a href="@controllers.newslet.routes.EditionController.getPostForm(post.id, edition.id.get)">edit</a>
-                        &nbsp;
-                    <a href="@controllers.newslet.routes.EditionController.removePost(edition.id.get, post.id.get)">remove</a>
-                        &nbsp;
-                    <a href="@controllers.newslet.routes.EditionController.moveUpPost(edition.id.get, post.id.get)">up</a>
-                        &nbsp;
-                    <a href="@controllers.newslet.routes.EditionController.moveDownPost(edition.id.get, post.id.get)">down</a>
-                        &nbsp;
-                }
-                @views.html.site.divider()
-                @views.html.site.text {
-                    <div style="text-align: left;">
-                        <span style="font-family: georgia, times, times new roman, serif">
-                        @post.body(post.config)
-                        </span>
-                    </div>
-                }
-            }
-        }
-
-        @if(postForm.isDefined && postForm.get.data.get("id").isEmpty) {
-            @views.html.newslet.post(postForm.get)
-        } else {
-            @views.html.site.text {
-                <strong><a href="@controllers.newslet.routes.EditionController.getPostForm(None, edition.id.get)">+post</a>&nbsp;</strong>
-            }
-        }
-
-        @if(footerForm.isDefined) {
-            @views.html.newslet.footer(footerForm.get)
-        } else {
-            @views.html.site.text {
-                <div style="text-align: left;">
-                    <span style="font-size: 17px">
-                        <span style="font-family: georgia, times, times new roman, serif">
-                            ***
-                            <br>
-                            @if(edition.footer.isEmpty) {
-                                <a href="@controllers.newslet.routes.EditionController.getFooterForm(edition.id.get)">add footer</a>
-                                    &nbsp;
-                            } else {
-                                @{
-                                    edition.footer.get(edition.config)
-                                }
-                                <a href="@controllers.newslet.routes.EditionController.getFooterForm(edition.id.get)">edit</a>
-                                    &nbsp;
-                            }
-                        </span>
-                    </span>
-                </div>
-            }
-        }
-
-        @if(urlForm.isDefined) {
-            @views.html.site.text {
-                @views.html.newslet.url(urlForm.get)
-            }
-        } else {
-            @views.html.site.text {
-                <div style="text-align: left;">
-                    <span style="font-size: 17px">
-                        <span style="font-family: georgia, times, times new roman, serif">
-                            ***
-                            <br>
-                            @if(edition.url.isEmpty) {
-                                <a href="@controllers.newslet.routes.EditionController.getUrlForm(edition.id.get)">add url</a>
-                            } else {
-                                <a href="@controllers.newslet.routes.EditionController.getUrlForm(edition.id.get)">
-                                @{
-                                    edition.url.get
-                                }
-                                </a>
-                            }
-                        </span>
-                    </span>
-                </div>
-            }
-        }
-
-        @b3.form(action = controllers.newslet.routes.CampaignController.getCampaignForm(None, edition.id)) {
-            <input type="hidden" name="newsletterId" value="@edition.id" />
-            @b3.submit('class -> "btn btn-default") { Schedule }
-        }
+    @implicitFieldConstructor = @{
+        b3.vertical.fieldConstructor
     }
 
+<!doctype html>
+    <html xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraph.org/schema/">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("lib/bootstrap/css/bootstrap.min.css")">
 
-    <script src="@routes.Assets.versioned("lib/jquery/jquery.js")" crossorigin="anonymous"></script>
-    <script src="@routes.Assets.versioned("lib/bootstrap/js/bootstrap.min.js")" crossorigin="anonymous"></script>
+        @views.html.site.main(edition.title.getOrElse("Expresso.today")) {
+            @views.html.site.container {
+
+                @views.html.site.body {
+
+                    @if(titleForm.isDefined) {
+                        @views.html.newslet.title(titleForm.get)
+                    } else {
+                        <a href="@controllers.newslet.routes.EditionController.getTitleForm(edition.id.get)">edit title</a>
+                    }
+                    @if(dateForm.isDefined) {
+                        @views.html.newslet.date(dateForm.get)
+                    } else {
+                        <a href="@controllers.newslet.routes.EditionController.getDateForm(edition.id.get)">@views.html.site.date(edition.date)</a>
+                    }
+                    @if(headerForm.isDefined) {
+                        @views.html.newslet.header(headerForm.get)
+                    } else {
+                        @views.html.site.text {
+                            <div style="text-align: center;">
+                                <em>
+                                    <span style="font-size: 17px">
+                                        <span style="font-family: georgia, times, times new roman, serif">
+                                        @if(edition.header.isEmpty) {
+                                            <a href="@controllers.newslet.routes.EditionController.getHeaderForm(edition.id.get)">add header</a>
+                                        } else {
+                                            @{
+                                                edition.header.get(edition.config)
+                                            }
+                                            <a href="@controllers.newslet.routes.EditionController.getHeaderForm(edition.id.get)">edit</a>
+                                        }
+                                        </span>
+                                    </span>
+                                </em>
+                            </div>
+                        }
+                    }
+
+                    @for(post <- edition.posts) {
+                        @if(postForm.isDefined && postForm.get.data.get("id").isDefined && postForm.get.data("id").toLong == post.id.get) {
+                            @views.html.newslet.post(postForm.get)
+                        } else {
+                            @views.html.site.text {
+                                <font face="arial, helvetica neue, helvetica, sans-serif" size="5">
+                                    <strong>@post.title</strong>
+                                    <br>
+                                </font>
+                                <a href="@controllers.newslet.routes.EditionController.getPostForm(post.id, edition.id.get)">edit</a>
+                                    &nbsp;
+                                <a href="@controllers.newslet.routes.EditionController.removePost(edition.id.get, post.id.get)">remove</a>
+                                    &nbsp;
+                                <a href="@controllers.newslet.routes.EditionController.moveUpPost(edition.id.get, post.id.get)">up</a>
+                                    &nbsp;
+                                <a href="@controllers.newslet.routes.EditionController.moveDownPost(edition.id.get, post.id.get)">down</a>
+                                    &nbsp;
+                            }
+                            @views.html.site.divider()
+                            @views.html.site.text {
+                                <div style="text-align: left;">
+                                    <span style="font-family: georgia, times, times new roman, serif">
+                                    @post.body(post.config)
+                                    </span>
+                                </div>
+                            }
+                        }
+                    }
+
+                    @if(postForm.isDefined && postForm.get.data.get("id").isEmpty) {
+                        @views.html.newslet.post(postForm.get)
+                    } else {
+                        @views.html.site.text {
+                            <strong><a href="@controllers.newslet.routes.EditionController.getPostForm(None, edition.id.get)">+post</a>&nbsp;</strong>
+                        }
+                    }
+
+                    @if(footerForm.isDefined) {
+                        @views.html.newslet.footer(footerForm.get)
+                    } else {
+                        @views.html.site.text {
+                            <div style="text-align: left;">
+                                <span style="font-size: 17px">
+                                    <span style="font-family: georgia, times, times new roman, serif">
+                                        ***
+                                        <br>
+                                        @if(edition.footer.isEmpty) {
+                                            <a href="@controllers.newslet.routes.EditionController.getFooterForm(edition.id.get)">add footer</a>
+                                                &nbsp;
+                                        } else {
+                                            @{
+                                                edition.footer.get(edition.config)
+                                            }
+                                            <a href="@controllers.newslet.routes.EditionController.getFooterForm(edition.id.get)">edit</a>
+                                                &nbsp;
+                                        }
+                                    </span>
+                                </span>
+                            </div>
+                        }
+                    }
+
+                    @if(urlForm.isDefined) {
+                        @views.html.site.text {
+                            @views.html.newslet.url(urlForm.get)
+                        }
+                    } else {
+                        @views.html.site.text {
+                            <div style="text-align: left;">
+                                <span style="font-size: 17px">
+                                    <span style="font-family: georgia, times, times new roman, serif">
+                                        ***
+                                        <br>
+                                        @if(edition.url.isEmpty) {
+                                            <a href="@controllers.newslet.routes.EditionController.getUrlForm(edition.id.get)">add url</a>
+                                        } else {
+                                            <a href="@controllers.newslet.routes.EditionController.getUrlForm(edition.id.get)">
+                                            @{
+                                                edition.url.get
+                                            }
+                                            </a>
+                                        }
+                                    </span>
+                                </span>
+                            </div>
+                        }
+                    }
+
+                    @b3.form(action = controllers.newslet.routes.CampaignController.getCampaignForm(None, edition.id)) {
+                        <input type="hidden" name="newsletterId" value="@edition.id" />
+                        @b3.submit('class -> "btn btn-default") { Schedule }
+                    }
+                }
+            }
+        }
 
 
-</html>
+        <script src="@routes.Assets.versioned("lib/jquery/jquery.js")" crossorigin="anonymous"></script>
+        <script src="@routes.Assets.versioned("lib/bootstrap/js/bootstrap.min.js")" crossorigin="anonymous"></script>
+
+    </html>

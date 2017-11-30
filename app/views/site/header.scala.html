@@ -1,0 +1,40 @@
+@import java.time.LocalDate
+@import java.time.format.DateTimeFormatter
+
+@(date: LocalDate)
+
+<tr>
+    <td valign="top" id="templateHeader" style="background: #ffffff none no-repeat center/cover;
+        mso-line-height-rule: exactly;
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%;
+        background-color: #ffffff;
+        background-image: none;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        border-top: 0;
+        border-bottom: 0;
+        padding-top: 0px;
+        padding-bottom: 0;">
+
+        @views.html.site.text {
+
+            <span style="color: #696969">
+                <strong>
+                @{
+                    date.format(DateTimeFormatter.BASIC_ISO_DATE)
+                }
+                </strong>
+            </span>
+
+        }
+
+        @views.html.site.image {
+            @views.html.site.ex._image(
+                "https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png",
+                Some("https://www.expresso.today"))
+        }
+
+    </td>
+</tr>

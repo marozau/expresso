@@ -84,6 +84,6 @@ class Quill @Inject()() {
   }
 
   def toTagStr(opsJson: String): String = {
-    toTag(opsJson).map(_.toTag).mkString("\n")
+    toTag(opsJson).map(_.toTag).mkString
   }
 }

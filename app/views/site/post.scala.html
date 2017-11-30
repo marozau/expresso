@@ -1,20 +1,22 @@
 @import clients.PublishingHouse.ReadyPostView
 @(data: ReadyPostView)(implicit messages: Messages, assets: AssetsFinder)
 
-@views.html.site.main {
-    @views.html.site.head(data.post.title) {
-
-        @views.html.site.image {
-            @views.html.site.ex._image(assets.path("images/expresso_logo.png"), Some("http://www.expresso.today"))
-        }
-
-        @views.html.site.title(data.post.title)
+@views.html.site.main(data.post.title) {
+    @views.html.site.container {
         @views.html.site.body {
-            @data.post.body(data.post.config)
-        }
 
-        @if(data.edition.isDefined) {
-            @views.html.site.pnavigation(data.edition.get, data.prev, data.next)
+            @views.html.site.image {
+                @views.html.site.ex._image(assets.path("images/expresso_logo.png"), Some("https://www.expresso.today"))
+            }
+
+            @views.html.site.title(data.post.title)
+            @views.html.site.text {
+                @data.post.body(data.post.config)
+            }
+
+            @if(data.edition.isDefined) {
+                @views.html.site.pnavigation(data.edition.get, data.prev, data.next)
+            }
         }
     }
 }

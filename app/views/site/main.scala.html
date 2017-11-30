@@ -1,6 +1,67 @@
-@(content: Html)
+@(title: String)(content: Html)
 
 <!doctype html>
 <html xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraph.org/schema/">
-    @content
+    <head>
+        <meta property="og:title" content=title/>
+        <meta property="fb:page_id" content="43929265776" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+            <!-- NAME: 1 COLUMN -->
+            <!--[if gte mso 15]>
+		<xml>
+			<o:OfficeDocumentSettings>
+			<o:AllowPNG/>
+			<o:PixelsPerInch>96</o:PixelsPerInch>
+			</o:OfficeDocumentSettings>
+		</xml>
+		<![endif]-->
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>@title</title>
+
+        <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("stylesheets/email.css")">
+    </head>
+
+    <body style="height: 100%;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%;
+        background-color: #ffffff;">
+        <div itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+            <meta itemprop="name" content="Expresso">
+            <link itemprop="url" content="https://expresso.today">
+        </div>
+            <!---->
+        <center>
+            <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable" style="border-collapse: collapse;
+                mso-table-lspace: 0pt;
+                mso-table-rspace: 0pt;
+                -ms-text-size-adjust: 100%;
+                -webkit-text-size-adjust: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                background-color: #ffffff;">
+                <tr>
+                    <td align="center" valign="top" id="bodyCell" style="mso-line-height-rule: exactly;
+                        -ms-text-size-adjust: 100%;
+                        -webkit-text-size-adjust: 100%;
+                        height: 100%;
+                        margin: 0;
+                        padding: 10px;
+                        width: 100%;
+                        border-top: 0;">
+
+                    @content
+
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </body>
+
 </html>
