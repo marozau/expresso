@@ -12,7 +12,7 @@
         footerForm: Option[Form[FooterData]] = None,
         dateForm: Option[Form[DateData]] = None,
         postForm: Option[Form[Data]] = None,
-        urlForm: Option[Form[UrlData]] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+        urlForm: Option[Form[UrlData]] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider, assets: AssetsFinder)
 
     @implicitFieldConstructor = @{
         b3.vertical.fieldConstructor

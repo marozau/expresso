@@ -1,4 +1,4 @@
-@(title: String)(content: Html)
+@(title: String)(content: Html)(implicit messages: Messages, assets: AssetsFinder)
 
 <!doctype html>
 <html xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraph.org/schema/">
@@ -6,6 +6,7 @@
         <meta property="og:title" content=title/>
         <meta property="fb:page_id" content="43929265776" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <link rel="shortcut icon" type="image/png" href="@assets.path("images/expresso_favicon.png")">
             <!-- NAME: 1 COLUMN -->
             <!--[if gte mso 15]>
 		<xml>
@@ -20,7 +21,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>@title</title>
 
-        <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("stylesheets/email.css")">
+        <link rel="stylesheet" type="text/css" href="@assets.path("stylesheets/email.css")">
     </head>
 
     <body style="height: 100%;
