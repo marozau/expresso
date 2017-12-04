@@ -1,5 +1,5 @@
 @import clients.PublishingHouse.ReadyPostView
-@(data: ReadyPostView)(implicit messages: Messages, assets: AssetsFinder)
+@(data: ReadyPostView)(implicit request: RequestHeader, messages: Messages, assets: AssetsFinder)
 
 @views.html.site.main(data.post.title) {
     @views.html.site.container {
@@ -16,6 +16,8 @@
 
             @if(data.edition.isDefined) {
                 @views.html.site.pnavigation(data.edition.get, data.prev, data.next)
+
+                @views.html.site.share(s"${data.edition.get.newsletter.name}: ${data.post.title}", Call(request.method, request.uri).absoluteURL())
             }
         }
     }

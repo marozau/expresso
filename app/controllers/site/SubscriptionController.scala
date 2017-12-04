@@ -40,7 +40,7 @@ class SubscriptionController @Inject()(
         Future.successful(BadRequest("TODO:"))
       },
       form => {
-        recipientsService.subscribe(form.newsletterId, form.email.get, Recipient.Status.PENDING)
+        recipientsService.subscribe(form.newsletterId, form.email.get)
           .map { recipient =>
             Ok("")
           }

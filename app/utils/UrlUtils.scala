@@ -5,7 +5,9 @@ import javax.inject.{Inject, Singleton}
 
 import play.api.Configuration
 import play.api.data.FormError
-import play.api.mvc.Call
+import play.api.mvc.request.{RemoteConnection, RequestTarget}
+import play.api.mvc.{Call, RequestHeader}
+import utils.UrlUtils.{MockRemoveConnection, MockRequestHeader, MockRequestTarget}
 
 import scala.collection.immutable.HashMap
 
@@ -16,12 +18,19 @@ import scala.collection.immutable.HashMap
 class UrlUtils @Inject()(configuration: Configuration) {
 
   private val url = configuration.get[String]("domain.url")
+  private val secure = configuration.get[Boolean]("domain.secure")
 
   implicit def absoluteURL(call: Call): String =
     url + call.url + appendFragment(call)
 
   protected def appendFragment(call: Call) =
     if (call.fragment != null && !call.fragment.trim.isEmpty) "#" + call.fragment else ""
+
+  lazy val mockRequestHeader = {
+    val connection = new MockRemoveConnection(secure)
+    val target = new MockRequestTarget(url)
+    new MockRequestHeader(connection, target)
+  }
 }
 
 object UrlUtils {
@@ -114,5 +123,43 @@ object UrlUtils {
       .map(_.toString)
       .map(l => letters.getOrElse(l, l))
       .mkString("")
+  }
+
+  class MockRequestTarget(_uriString: String) extends RequestTarget {
+    override def uri = ???
+
+    override def uriString = _uriString
+
+    override def path = ???
+
+    override def queryMap = ???
+  }
+
+  class MockRemoveConnection(_secure: Boolean) extends RemoteConnection {
+    override def remoteAddress = ???
+
+    override def secure = _secure
+
+    override def clientCertificateChain = None
+  }
+
+  /**
+    * The class is needed to mock request header in case of email generation whithout real user request
+    * Call::absoluteURL(implicit requestHeader: RequestHeader) is called inside twirl template
+    * @param mockConnection
+    * @param mockRequestTarget
+    */
+  class MockRequestHeader(mockConnection: MockRemoveConnection, mockRequestTarget: MockRequestTarget) extends RequestHeader {
+    override def connection = mockConnection
+
+    override def method = ???
+
+    override def target = mockRequestTarget
+
+    override def version = ???
+
+    override def headers = ???
+
+    override def attrs = ???
   }
 }

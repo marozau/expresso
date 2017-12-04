@@ -33,11 +33,11 @@ class RecipientService @Inject()(recipientsDao: RecipientDao, userService: UserS
     recipientsDao.add(newsletterId, userId, Recipient.Status.SUBSCRIBED)
   }
 
-  def subscribe(newsletterId: Long, email: String, status: Recipient.Status.Value) = {
+  def subscribe(newsletterId: Long, email: String) = {
     val loginInfo = LoginInfo(CredentialsProvider.ID, email)
     userService.getOrCreate(loginInfo, List(UserRole.READER))
       .flatMap { user =>
-        recipientsDao.add(newsletterId, user.id.get, status).map((user, _))
+        recipientsDao.add(newsletterId, user.id.get, Recipient.Status.PENDING).map((user, _))
       }
       .flatMap { case (user, recipient) =>
         if (recipient.status == Recipient.Status.PENDING) {

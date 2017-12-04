@@ -51,7 +51,7 @@ class RecipientController @Inject()(
         Future.successful(BadRequest("TODO:"))
       },
       form => {
-        recipientsService.subscribe(form.newsletterId, form.email.get, Recipient.Status.SUBSCRIBED)
+        recipientsService.subscribe(form.newsletterId, form.email.get)
           .map(_ => Redirect(controllers.newslet.routes.RecipientController.list(form.newsletterId)))
       }
     )

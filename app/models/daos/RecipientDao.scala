@@ -57,7 +57,7 @@ class RecipientDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(imp
     db.run(recipientsQuery.result).map(_.map(recipientCast))
   }
 
-  //TODO: process case of unsubscribed user who wants to subsribe again
+  //TODO: process case of unsubscribed user who wants to subcsribe again
   def add(newsletterId: Long, userId: Long, status: Recipient.Status.Value) = {
     val recipientAdd = for {
       userOption <- users.filter(_.id === userId).result.headOption

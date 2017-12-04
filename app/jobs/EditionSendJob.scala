@@ -11,11 +11,12 @@ import clients.PublishingHouse.{ReadyEdition, Target}
 import clients.{Mailer, PublishingHouse, Quartz}
 import controllers.AssetsFinder
 import models.{Campaign, Edition}
-import org.quartz._
+import org.quartz.{JobBuilder, JobDetail, Trigger, TriggerBuilder, JobExecutionContext}
 import org.quartz.core.jmx.JobDataMapSupport
 import org.slf4j.LoggerFactory
 import play.api.i18n._
 import services.{EditionService, NewsletterService, UserService}
+import utils.UrlUtils
 
 import scala.concurrent.ExecutionContext
 
@@ -63,6 +64,7 @@ class EditionSendJob @Inject()(quartz: Quartz,
                                editionService: EditionService,
                                mailer: Mailer,
                                ph: PublishingHouse,
+                               urlUtils: UrlUtils,
                                langs: Langs,
                                messagesApi: MessagesApi)
                               (implicit
@@ -78,8 +80,6 @@ class EditionSendJob @Inject()(quartz: Quartz,
     val campaignId = data.get("campaignId").asInstanceOf[Long]
     val editionId = data.get("editionId").asInstanceOf[Long]
     val newsletterId = data.get("newsletterId").asInstanceOf[Long]
-    val lang: Lang = Lang(Locale.ENGLISH) //langs.availables.head //TODO: get lang from newsletter
-    implicit val messages: Messages = MessagesImpl(lang, messagesApi)
     logger.info(s"execute EditionSendJob: userId=$userId, campaignId=$campaignId, newsletterId=$newsletterId, editionId=$editionId")
     editionService.getById(editionId)
       .flatMap(edition => ph.doEdition(edition, Target.SITE))
@@ -89,6 +89,11 @@ class EditionSendJob @Inject()(quartz: Quartz,
           logger.error(s"failed to send edition, user not found, userId=$userId, editionId=$editionId")
           None
         } else {
+          val lang: Lang = Lang(Locale.ENGLISH) //langs.availables.head //TODO: get lang from newsletter
+          implicit val requestHeader = urlUtils.mockRequestHeader
+          implicit val messages: Messages = MessagesImpl(lang, messagesApi)
+          val newsletterBody = views.html.site.newsletter(edition).body
+
           val email = EmailHtml(
             campaignId,
             userId,
@@ -96,7 +101,7 @@ class EditionSendJob @Inject()(quartz: Quartz,
             Seq(user.get.email),
             edition.newsletter.name,
             edition.newsletter.email,
-            views.html.site.newsletter(edition).body
+            newsletterBody
           )
           mailer.send(email).map(Some(_))
         }
