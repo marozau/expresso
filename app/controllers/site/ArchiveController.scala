@@ -65,7 +65,8 @@ class ArchiveController @Inject()(
     }
 //  }
 
-  def edition(name: String, date: String) = cached(s"/archive/$name/$date").includeStatus(OK) {
+//  cached(s"/archive/$name/$date").includeStatus(OK) {
+  def edition(name: String, date: String) =
     Action.async {
       implicit request =>
         newsletterService
@@ -75,5 +76,5 @@ class ArchiveController @Inject()(
           .flatMap(edition => ph.doEdition(edition, PublishingHouse.Target.SITE))
           .map(edition => Ok(views.html.site.newsletter(edition)))
     }
-  }
+//  }
 }
