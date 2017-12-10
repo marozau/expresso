@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: expresso
-        image: eu.gcr.io/expresso-today/expresso:12
+        image: eu.gcr.io/expresso-today/expresso:19
         ports:
         - containerPort: 9000
         readinessProbe:
