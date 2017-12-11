@@ -1,12 +1,24 @@
-@(title: String)(content: Html)(implicit messages: Messages, assets: AssetsFinder)
+@(title: String, description: Option[String] = None, url: Option[String] = None)(content: Html)(implicit messages: Messages, assets: AssetsFinder)
 
 <!doctype html>
 <html xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraph.org/schema/">
     <head>
-        <meta property="og:title" content=title/>
-        <meta property="fb:page_id" content="43929265776" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         <link rel="shortcut icon" type="image/png" href="@assets.path("images/expresso_favicon.png")">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+        <meta property="fb:page_id" content="43929265776" />
+
+        <meta name="twitter:image:src" content="https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png">
+        <meta name="twitter:description" content="@description.getOrElse("")">
+        <meta name="twitter:title" content="Expresso: @title">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta property="og:type" content="article">
+
+        <meta property="og:description" content="@description.getOrElse("")">
+        <meta property="og:image" content="https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png">
+        <meta property="og:title" content="Expresso: @title">
+        <meta property="og:url" content="@url.getOrElse("https://expresso.today")">
             <!-- NAME: 1 COLUMN -->
             <!--[if gte mso 15]>
 		<xml>

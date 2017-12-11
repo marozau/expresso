@@ -43,14 +43,7 @@
                     <p class="col-md-3">@nl.name</p>
                     <p class="col-md-3">@nl.email</p>
                     <p class="col-md-3">
-                        @if(campaign.isDefined) {
-                            <a href="@controllers.newslet.routes.CampaignController.getCampaignForm(campaign.get.id, None)">@campaign.get.sendTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)</a>
-                        } else {
-                            No Campaign
-                        }
-                    </p>
-                    <p class="col-md-3">
-                        <a href="@controllers.newslet.routes.EditionController.getOrCreate(nl.id.get)">current edition</a> &nbsp;
+                        <a href="@controllers.newslet.routes.EditionController.list(nl.id.get)">editions</a> &nbsp;
                         <a href="@controllers.newslet.routes.RecipientController.list(nl.id.get)">recipients</a> &nbsp;
                     </p>
                 </div>

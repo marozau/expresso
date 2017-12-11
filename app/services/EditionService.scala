@@ -13,6 +13,10 @@ import models.daos.EditionDao
 @Singleton
 class EditionService @Inject()(editionDao: EditionDao) {
 
+  def list(newsletterId: Long) = editionDao.listSpec(newsletterId)
+
+  def create(newsletterId: Long) = editionDao.create(newsletterId)
+
   def getCurrent(newsletterId: Long) = editionDao.getCurrent(newsletterId)
 
   /**
@@ -27,8 +31,6 @@ class EditionService @Inject()(editionDao: EditionDao) {
   def getById(id: Long) = editionDao.getById(id)
 
   def update(edition: Edition) = editionDao.update(edition)
-
-  def getUnpublishedOrCreate(newsletterId: Long) = editionDao.getUnpublishedOrCreate(newsletterId)
 
   def addPost(editionId: Long, postIds: List[Long]) = editionDao.addPost(editionId, postIds)
 

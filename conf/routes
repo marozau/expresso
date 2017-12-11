@@ -30,7 +30,8 @@ GET         /admin/post/show                   controllers.newslet.PostControlle
 GET         /admin/newsletter/list             controllers.newslet.NewsletterController.getList()
 POST        /admin/newsletter/create           controllers.newslet.NewsletterController.create()
 GET         /admin/edition                     controllers.newslet.EditionController.get(editionId: Long, cleanCache: Boolean)
-GET         /admin/edition/current             controllers.newslet.EditionController.getOrCreate(newsletterId: Long)
+GET         /admin/edition/list                controllers.newslet.EditionController.list(newsletterId: Long)
+GET         /admin/edition/create              controllers.newslet.EditionController.create(newsletterId: Long)
 GET         /admin/edition/posts/remove        controllers.newslet.EditionController.removePost(id: Long, postId: Long)
 GET         /admin/edition/posts/up            controllers.newslet.EditionController.moveUpPost(id: Long, postId: Long)
 GET         /admin/edition/posts/down          controllers.newslet.EditionController.moveDownPost(id: Long, postId: Long)
@@ -68,7 +69,7 @@ GET         /archive/:name/:date/:title        controllers.site.ArchiveControlle
 GET         /subscribe/:newsletterId           controllers.site.SubscriptionController.signUpForm(newsletterId: Long)
 POST        /subscribe                         controllers.site.SubscriptionController.submitSignUpForm()
 
-GET        /mc/subscribe                      controllers.site.MailChimpController.subscribe(listId: String, email: String)
+GET         /mc/subscribe                      controllers.site.MailChimpController.subscribe(listId: String, email: String)
 
 GET         /assets/*file                      controllers.Assets.versioned(file)
 #GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)

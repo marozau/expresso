@@ -7,7 +7,7 @@ import javax.inject.{Inject, Singleton}
 import exceptions.{EditionNotFoundException, NewsletterNotFoundException}
 import models.api.Repository
 import models.components.{EditionComponent, NewsletterComponent, PostComponent, UserComponent}
-import models.{Edition, Newsletter, Post}
+import models.{Edition, EditionSpec, Newsletter, Post}
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.i18n.Lang
 import slick.basic.DatabaseConfig
@@ -55,6 +55,16 @@ class EditionDao @Inject()(
       editionPosts.toList,
       edition.options
     )
+
+  implicit def editionSpecCast(e: DBEdition) = EditionSpec(e.id.get, e.date, e.title)
+
+  def create(newsletterId: Long) = {
+    val insertEdition = (editions returning editions) += DBEdition(None, newsletterId, LocalDate.now().plusDays(1))
+    db.run(insertEdition.transactionally)
+      .flatMap { dbEdition =>
+        getById(dbEdition.id.get)
+      }
+  }
 
   def updateDBIO(edition: Edition) = {
     val q = for (p <- editions if p.id === edition.id) yield p
@@ -123,6 +133,15 @@ class EditionDao @Inject()(
   //      }
   //  }
 
+  def listSpec(newsletterId: Long): Future[Seq[EditionSpec]] = db.run {
+    editions.filter(_.newsletterId === newsletterId)
+      .sortBy(_.date.desc)
+      .result
+      .map { editions =>
+        editions.map(editionSpecCast)
+      }
+  }
+
   def getCurrent(newsletterId: Long) = {
     val query = editions.filter(_.newsletterId === newsletterId).sortBy(_.date.desc).result.headOption
       .flatMap { editionOption =>
@@ -140,23 +159,6 @@ class EditionDao @Inject()(
       .flatMap { dbEditionOption =>
         if (dbEditionOption.isDefined) getById(dbEditionOption.get.id.get).map(Some(_))
         else Future.successful(None)
-      }
-  }
-
-  def getUnpublishedOrCreate(newsletterId: Long) = {
-    val editionAction = {
-      val retrieveEdition = editions
-        .filter(edition => edition.newsletterId === newsletterId)
-        .sortBy(_.date.desc).take(1).result.headOption
-      val insertEdition = (editions returning editions) += DBEdition(None, newsletterId, LocalDate.now().plusDays(1))
-      for {
-        editionOption <- retrieveEdition
-        dbEdition <- editionOption.map(DBIO.successful).getOrElse(insertEdition)
-      } yield dbEdition
-    }
-    db.run(editionAction.transactionally)
-      .flatMap { dbEdition =>
-        getById(dbEdition.id.get)
       }
   }
 

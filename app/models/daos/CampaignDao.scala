@@ -41,7 +41,8 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
     campaigns.filter(_.id === id).result.headOption.map(_.map(campaignCast))
   }
 
-  //TODO: thinks about campaign status. is it possible to change campaign when it is scheduled or sent or else???
+  //TODO: think about campaign status. is it possible to change campaign when it is scheduled or sent or else???
+  //TODO: brake single filter statement into several with custom checks and errors (CampaignNotFound, CampaignInvalidStatus etc)
   def update(campaign: Campaign): Future[Int] = {
     val updateQuery = campaigns.filter(c => c.id === campaign.id && c.status.inSet(List(Campaign.Status.NEW, Campaign.Status.PENDING)))
       .map(c => (c.preview, c.sendTime, c.options))

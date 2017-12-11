@@ -1,7 +1,18 @@
 @import clients.PublishingHouse.ReadyPostView
+@import java.time.format.DateTimeFormatter
 @(data: ReadyPostView)(implicit request: RequestHeader, messages: Messages, assets: AssetsFinder)
 
-@views.html.site.main(data.post.title) {
+@url = @{
+    if(data.edition.isDefined) {
+        Some {
+            controllers.site.routes.ArchiveController.post(data.edition.get.newsletter.nameUrl, data.edition.get.date.format(DateTimeFormatter.BASIC_ISO_DATE), data.post.titleUrl).absoluteURL()
+        }
+    } else {
+        None
+    }
+}
+
+@views.html.site.main(data.post.title, Some(data.post.annotation), url) {
     @views.html.site.container {
         @views.html.site.body {
 

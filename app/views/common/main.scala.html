@@ -42,20 +42,19 @@
                     <ul class="nav navbar-nav">
                         <li><a href="@controllers.auth.routes.AuthController.index">@messages("home")</a></li>
                         @user.map { u =>
-                                @if(u.roles.contains(UserRole.EDITOR) || u.roles.contains(UserRole.WRITER)) {
-                                    <li><a href="@controllers.newslet.routes.NewsletterController.getList()">Newsletters</a></li>
-                                    <li><a href="@controllers.newslet.routes.PostController.getPostForm(None, None)">Create Post</a></li>
-                                }
+                            @if(u.roles.contains(UserRole.EDITOR) || u.roles.contains(UserRole.WRITER)) {
+                                <li><a href="@controllers.newslet.routes.NewsletterController.getList()">Newsletters</a></li>
+                            }
                         }
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
-                        @user.map { u =>
-                            <li><a href="@controllers.auth.routes.AuthController.index">@u.email</a></li>
-                            @*<li><a href="@controllers.auth.routes.ChangePasswordController.view">@messages("change.password")</a></li>*@
-                            <li><a href="@controllers.auth.routes.AuthController.signOut">@messages("sign.out")</a></li>
-                        }.getOrElse {
-                            <li><a href="@controllers.auth.routes.SignInController.view">@messages("sign.in")</a></li>
-                        }
+                    @user.map { u =>
+                    <li><a href="@controllers.auth.routes.AuthController.index">@u.email</a></li>
+                        @*<li><a href="@controllers.auth.routes.ChangePasswordController.view">@messages("change.password")</a></li>*@
+                    <li><a href="@controllers.auth.routes.AuthController.signOut">@messages("sign.out")</a></li>
+                    }.getOrElse {
+                        <li><a href="@controllers.auth.routes.SignInController.view">@messages("sign.in")</a></li>
+                    }
                     </ul>
                 </nav>
             </div>

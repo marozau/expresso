@@ -11,6 +11,7 @@ import forms.newslet.PostForm.{Data, form}
 import models.UserRole
 import models.daos.PostDao
 import modules.DefaultEnv
+import org.webjars.play.WebJarsUtil
 import play.api.Logger
 import play.api.cache.AsyncCacheApi
 import play.api.i18n.I18nSupport
@@ -36,6 +37,7 @@ class EditionController @Inject()(
                                    ph: PublishingHouse
                                  )(implicit
                                    ec: ExecutionContext,
+                                   webJarsUtil: WebJarsUtil,
                                    assets: AssetsFinder)
   extends AbstractController(cc) with I18nSupport {
 
@@ -43,8 +45,18 @@ class EditionController @Inject()(
   import implicits.CommonImplicits._
 
 
-  def getOrCreate(newsletterId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
-    editionService.getUnpublishedOrCreate(newsletterId)
+  def list(newsletterId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
+    (for {
+      newsletter <- newsletterService.getById(newsletterId)
+      editions <- editionService.list(newsletterId)
+    } yield (newsletter, editions))
+      .map { case (newsletter, edition) =>
+        Ok(views.html.newslet.editions(request.identity, newsletter, edition))
+      }
+  }
+
+  def create(newsletterId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
+    editionService.create(newsletterId)
       .flatMap(edition => ph.doEdition(edition, Target.SITE))
       .map { edition =>
         Ok(views.html.newslet.newsletterPosts(edition))
