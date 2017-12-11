@@ -33,23 +33,20 @@ class ArchiveController @Inject()(
   def list() = {
   }
 
-  // TODO: clear cache if needed and store current for the long time
-  // TOTO: clear cache when new campaign starts, "current" key does not work, find key
-//  cached(s"current/$name").includeStatus(OK) {
   def current(name: String) =
     Action.async { implicit request =>
       newsletterService
         .getByNameUrl(name)
         .flatMap(newsletter => editionService.getCurrent(newsletter.id.get))
-        .flatMap { edition =>
-          ph.doEdition(edition, PublishingHouse.Target.SITE)
-        }
         .map { edition =>
-          Ok(views.html.site.newsletter(edition))
+          Redirect(
+            controllers.site.routes.ArchiveController.edition(
+              edition.newsletter.nameUrl, edition.date.format(DateTimeFormatter.BASIC_ISO_DATE))
+          )
         }
     }
-//  }
-//  cached(s"/archive/$name/$date/$title").includeStatus(OK) {
+
+  //  cached(s"/archive/$name/$date/$title").includeStatus(OK) {
   def post(name: String, date: String, title: String) =
     Action.async { implicit request =>
       newsletterService
@@ -63,9 +60,10 @@ class ArchiveController @Inject()(
           Ok(views.html.site.post(postView))
         }
     }
-//  }
 
-//  cached(s"/archive/$name/$date").includeStatus(OK) {
+  //  }
+
+  //  cached(s"/archive/$name/$date").includeStatus(OK) {
   def edition(name: String, date: String) =
     Action.async {
       implicit request =>
@@ -76,5 +74,6 @@ class ArchiveController @Inject()(
           .flatMap(edition => ph.doEdition(edition, PublishingHouse.Target.SITE))
           .map(edition => Ok(views.html.site.newsletter(edition)))
     }
-//  }
+
+  //  }
 }

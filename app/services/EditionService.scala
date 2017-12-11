@@ -5,19 +5,26 @@ import javax.inject.{Inject, Singleton}
 
 import exceptions.PostNotFoundException
 import models.{Edition, Post}
-import models.daos.EditionDao
+import models.daos.{CampaignDao, EditionDao}
+
+import scala.concurrent.ExecutionContext
 
 /**
   * @author im.
   */
 @Singleton
-class EditionService @Inject()(editionDao: EditionDao) {
+class EditionService @Inject()(editionDao: EditionDao, campaignDao: CampaignDao)(implicit ec: ExecutionContext) {
 
   def list(newsletterId: Long) = editionDao.listSpec(newsletterId)
 
   def create(newsletterId: Long) = editionDao.create(newsletterId)
 
-  def getCurrent(newsletterId: Long) = editionDao.getCurrent(newsletterId)
+  def getCurrent(newsletterId: Long) = {
+    campaignDao.getLastSent()
+      .flatMap { campaign =>
+        editionDao.getById(campaign.editionId)
+      }
+  }
 
   /**
     * Get newsletter edition post for the specified date or throw exception if none

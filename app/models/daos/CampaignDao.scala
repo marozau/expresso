@@ -58,7 +58,7 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
   def getLastSent(): Future[Campaign] = db.run {
     campaigns
       .filter(c => c.status === Campaign.Status.SENT)
-      .sortBy(_.sendTime)
+      .sortBy(_.sendTime.desc)
       .take(1)
       .result.head
       .map(campaignCast)
