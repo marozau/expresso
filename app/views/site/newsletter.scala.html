@@ -16,7 +16,7 @@
         ).absoluteURL())
 }
 
-@views.html.site.main(edition.title.get) {
+@views.html.site.main(edition.title.get, Some(edition.newsletter.name), Some(editionUrl)) {
 
     @views.html.site.container {
 
