@@ -7,8 +7,12 @@ GET         /                                  controllers.auth.AuthController.i
 GET         /signOut                           controllers.auth.AuthController.signOut
 GET         /signUp                            controllers.auth.SignUpController.view
 POST        /signUp                            controllers.auth.SignUpController.submit
-GET         /signIn                            controllers.auth.SignInController.view
-POST        /signIn                            controllers.auth.SignInController.submit
+#GET         /signIn                            controllers.auth.SignInController.view
+#POST        /signIn                            controllers.auth.SignInController.submit
+
+GET         /222230275235237                   controllers.auth.SignInController.view
+POST        /222230275235237                   controllers.auth.SignInController.submit
+
 GET         /password/forgot                   controllers.auth.ForgotPasswordController.view
 POST        /password/forgot                   controllers.auth.ForgotPasswordController.submit
 GET         /password/reset/:token             controllers.auth.ResetPasswordController.view(token: java.util.UUID)

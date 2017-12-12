@@ -5,13 +5,13 @@ invalid.credentials = Invalid credentials!
 access.denied = Access denied!
 could.not.authenticate = Could not authenticate with social provider! Please try again!
 
-home.title = Silhouette - Home
-sign.up.title = Silhouette - Sign Up
-sign.in.title = Silhouette - Sign In
-forgot.password.title = Silhouette - Forgot Password
-reset.password.title = Silhouette - Reset Password
-change.password.title = Silhouette - Change Password
-activate.account.title = Silhouette - Activate Account
+home.title = Expresso - Home
+sign.up.title = Expresso - Sign Up
+sign.in.title = Expresso - Sign In
+forgot.password.title = Expresso - Forgot Password
+reset.password.title = Expresso - Reset Password
+change.password.title = Expresso - Change Password
+activate.account.title = Expresso - Activate Account
 
 toggle.navigation = Toggle navigation
 welcome.signed.in = Welcome, you are now signed in!
