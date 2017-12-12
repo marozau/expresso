@@ -1,5 +1,6 @@
 package controllers.newslet
 
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Singleton}
 
@@ -250,6 +251,12 @@ class EditionController @Inject()(
           .map(_ => Redirect(routes.EditionController.get(form.id, cleanCache = true)))
       }
     )
+  }
+
+  def preview(id: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
+    editionService.getById(id)
+      .flatMap(edition => ph.doEdition(edition, PublishingHouse.Target.SITE))
+      .map(edition => Ok(views.html.site.newsletter(edition)))
   }
 
   //  def firepad() = Action { implicit request =>

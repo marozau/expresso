@@ -5,8 +5,6 @@ import java.time.LocalDate
 /**
   * @author im.
   */
-case class EditionSpec(
-                        id: Long,
+case class EditionSpec(id: Long,
                         date: LocalDate,
-                        title: Option[String]
-                      )
+                        title: Option[String])
