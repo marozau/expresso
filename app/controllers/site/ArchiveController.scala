@@ -8,7 +8,7 @@ import clients.PublishingHouse
 import controllers.AssetsFinder
 import models.PostView
 import play.api.cache.Cached
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, Lang, Messages, MessagesImpl}
 import play.api.mvc.{AbstractController, ControllerComponents}
 import services.{EditionService, NewsletterService}
 
@@ -57,7 +57,11 @@ class ArchiveController @Inject()(
           ph.doPostView(PostView(edition, title), PublishingHouse.Target.SITE)
         }
         .map { postView =>
-          Ok(views.html.site.post(postView))
+          implicit val messages: Messages = {
+            val lang = postView.edition.map(_.newsletter.lang).getOrElse(Lang.defaultLang)
+            MessagesImpl(lang, messagesApi)
+          }
+          Ok(views.html.site.post(postView)(request, messages, assets))
         }
     }
 
@@ -72,7 +76,10 @@ class ArchiveController @Inject()(
           .flatMap(newsletter =>
             editionService.getByDate(newsletter.id.get, LocalDate.parse(date, DateTimeFormatter.BASIC_ISO_DATE)))
           .flatMap(edition => ph.doEdition(edition, PublishingHouse.Target.SITE))
-          .map(edition => Ok(views.html.site.newsletter(edition)))
+          .map{edition =>
+            implicit val messages: Messages = MessagesImpl(edition.newsletter.lang, messagesApi)
+            Ok(views.html.site.newsletter(edition)(request, messages, assets))
+          }
     }
 
   //  }

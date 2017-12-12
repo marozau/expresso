@@ -74,6 +74,8 @@ class EditionSendJob @Inject()(quartz: Quartz,
 
   private val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
 
+  val DEFAULT_LOCALE = "ru"
+
   override protected def execute(context: JobExecutionContext, retry: Int): Unit = {
     val data = context.getMergedJobDataMap
     val userId = data.get("userId").asInstanceOf[Long]
@@ -89,9 +91,8 @@ class EditionSendJob @Inject()(quartz: Quartz,
           logger.error(s"failed to send edition, user not found, userId=$userId, editionId=$editionId")
           None
         } else {
-          val lang: Lang = Lang(Locale.ENGLISH) //langs.availables.head //TODO: get lang from newsletter
           implicit val requestHeader = urlUtils.mockRequestHeader
-          implicit val messages: Messages = MessagesImpl(lang, messagesApi)
+          implicit val messages: Messages = MessagesImpl(edition.newsletter.lang, messagesApi)
           val newsletterBody = views.html.site.newsletter(edition).body
 
           val email = EmailHtml(

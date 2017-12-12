@@ -1,6 +1,5 @@
 package controllers.newslet
 
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Singleton}
 
@@ -15,7 +14,7 @@ import modules.DefaultEnv
 import org.webjars.play.WebJarsUtil
 import play.api.Logger
 import play.api.cache.AsyncCacheApi
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, Messages, MessagesImpl}
 import play.api.mvc.{AbstractController, ControllerComponents}
 import services.{EditionService, NewsletterService}
 import utils.{HtmlUtils, WithRole}
@@ -256,7 +255,10 @@ class EditionController @Inject()(
   def preview(id: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     editionService.getById(id)
       .flatMap(edition => ph.doEdition(edition, PublishingHouse.Target.SITE))
-      .map(edition => Ok(views.html.site.newsletter(edition)))
+      .map { edition =>
+        implicit val messages: Messages = MessagesImpl(edition.newsletter.lang, messagesApi)
+        Ok(views.html.site.newsletter(edition)(request, messages, assets))
+      }
   }
 
   //  def firepad() = Action { implicit request =>

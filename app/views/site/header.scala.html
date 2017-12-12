@@ -1,7 +1,16 @@
 @import java.time.LocalDate
 @import java.time.format.DateTimeFormatter
 
-@(date: LocalDate)
+@(date: LocalDate)(implicit messages: Messages)
+
+@dateStr(date: LocalDate) = @{
+//  for example, Пятница, 8 декабря, 2017
+    val weekDay = Messages(s"template.header.date.week.${date.getDayOfWeek.getValue}")
+    val day = date.getDayOfMonth
+    val month = Messages(s"template.header.date.month.${date.getMonthValue}")
+    val year = date.getYear
+    Messages("template.header.date", weekDay, day, month, year.toString)
+}
 
 <tr>
     <td valign="top" id="templateHeader" style="background: #ffffff none no-repeat center/cover;
@@ -23,7 +32,7 @@
             <span style="color: #696969">
                 <strong>
                 @{
-                    date.format(DateTimeFormatter.BASIC_ISO_DATE)
+                    dateStr(date)
                 }
                 </strong>
             </span>

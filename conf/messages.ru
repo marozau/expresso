@@ -75,28 +75,28 @@ password.changed = Your password has been changed.
 
 email.from = Expresso.today <admin@expresso.today>
 
-template.header.date.week.1 = Monday
-template.header.date.week.2 = Tuesday
-template.header.date.week.3 = Wednesday
-template.header.date.week.4 = Thursday
-template.header.date.week.5 = Friday
-template.header.date.week.6 = Saturday
-template.header.date.week.7 = Sunday
+template.header.date.week.1 = Понедельник
+template.header.date.week.2 = Вторник
+template.header.date.week.3 = Среда
+template.header.date.week.4 = Четверг
+template.header.date.week.5 = Пятница
+template.header.date.week.6 = Суббота
+template.header.date.week.7 = Воскресенье
 
-template.header.date.month.1 = January
-template.header.date.month.2 = February
-template.header.date.month.3 = March
-template.header.date.month.4 = April
-template.header.date.month.5 = May
-template.header.date.month.6 = June
-template.header.date.month.7 = July
-template.header.date.month.8 = August
-template.header.date.month.9 = September
-template.header.date.month.10 = October
-template.header.date.month.11 = November
-template.header.date.month.12 = December
+template.header.date.month.1 = Января
+template.header.date.month.2 = Февраля
+template.header.date.month.3 = Марта
+template.header.date.month.4 = Апреля
+template.header.date.month.5 = Мая
+template.header.date.month.6 = Июня
+template.header.date.month.7 = Июля
+template.header.date.month.8 = Августа
+template.header.date.month.9 = Сентября
+template.header.date.month.10 = Октября
+template.header.date.month.11 = Ноября
+template.header.date.month.12 = Декабря
 
-template.header.date = {0}, {2} {1} {3}
+template.header.date = {0}, {1} {2} {3}
 
 
 
