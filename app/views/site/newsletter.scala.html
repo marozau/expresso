@@ -58,6 +58,7 @@
                         </span>
                     </div>
                 }
+                @views.html.site.share(s"${edition.newsletter.name}: ${post.title}", controllers.site.routes.ArchiveController.post(edition.newsletter.nameUrl, edition.date.format(DateTimeFormatter.BASIC_ISO_DATE), post.titleUrl).absoluteURL())
             }
 
             @views.html.site.text {
