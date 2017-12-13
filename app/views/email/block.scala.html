@@ -1,8 +1,0 @@
-@(title: String, text: String, img: Option[String])
-
-@titleBlock(title)
-@dividerBlock()
-@if(img.nonEmpty) {
-    @imageBlock(img.get)
-}
-@textBlock(text)

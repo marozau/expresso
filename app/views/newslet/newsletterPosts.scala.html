@@ -21,10 +21,10 @@
     <html xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraph.org/schema/">
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("lib/bootstrap/css/bootstrap.min.css")">
 
-        @views.html.site.main(edition.title.getOrElse("Expresso.today")) {
-            @views.html.site.container {
+        @views.html.email.main(edition.title.getOrElse("Expresso.today")) {
+            @views.html.email.container {
 
-                @views.html.site.body {
+                @views.html.email.body {
 
                     @if(titleForm.isDefined) {
                         @views.html.newslet.title(titleForm.get)
@@ -34,12 +34,12 @@
                     @if(dateForm.isDefined) {
                         @views.html.newslet.date(dateForm.get)
                     } else {
-                        <a href="@controllers.newslet.routes.EditionController.getDateForm(edition.id.get)">@views.html.site.date(edition.date)</a>
+                        <a href="@controllers.newslet.routes.EditionController.getDateForm(edition.id.get)">@views.html.email.date(edition.date)</a>
                     }
                     @if(headerForm.isDefined) {
                         @views.html.newslet.header(headerForm.get)
                     } else {
-                        @views.html.site.text {
+                        @views.html.email.text {
                             <div style="text-align: center;">
                                 <em>
                                     <span style="font-size: 17px">
@@ -63,7 +63,7 @@
                         @if(postForm.isDefined && postForm.get.data.get("id").isDefined && postForm.get.data("id").toLong == post.id.get) {
                             @views.html.newslet.post(postForm.get)
                         } else {
-                            @views.html.site.text {
+                            @views.html.email.text {
                                 <font face="arial, helvetica neue, helvetica, sans-serif" size="5">
                                     <strong>@post.title</strong>
                                     <br>
@@ -77,8 +77,8 @@
                                 <a href="@controllers.newslet.routes.EditionController.moveDownPost(edition.id.get, post.id.get)">down</a>
                                     &nbsp;
                             }
-                            @views.html.site.divider()
-                            @views.html.site.text {
+                            @views.html.email.divider()
+                            @views.html.email.text {
                                 <div style="text-align: left;">
                                     <span style="font-family: georgia, times, times new roman, serif">
                                     @post.body(post.config)
@@ -91,7 +91,7 @@
                     @if(postForm.isDefined && postForm.get.data.get("id").isEmpty) {
                         @views.html.newslet.post(postForm.get)
                     } else {
-                        @views.html.site.text {
+                        @views.html.email.text {
                             <strong><a href="@controllers.newslet.routes.EditionController.getPostForm(None, edition.id.get)">+post</a>&nbsp;</strong>
                         }
                     }
@@ -99,7 +99,7 @@
                     @if(footerForm.isDefined) {
                         @views.html.newslet.footer(footerForm.get)
                     } else {
-                        @views.html.site.text {
+                        @views.html.email.text {
                             <div style="text-align: left;">
                                 <span style="font-size: 17px">
                                     <span style="font-family: georgia, times, times new roman, serif">
@@ -122,11 +122,11 @@
                     }
 
                     @if(urlForm.isDefined) {
-                        @views.html.site.text {
+                        @views.html.email.text {
                             @views.html.newslet.url(urlForm.get)
                         }
                     } else {
-                        @views.html.site.text {
+                        @views.html.email.text {
                             <div style="text-align: left;">
                                 <span style="font-size: 17px">
                                     <span style="font-family: georgia, times, times new roman, serif">

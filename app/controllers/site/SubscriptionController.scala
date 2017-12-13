@@ -29,7 +29,7 @@ class SubscriptionController @Inject()(
   import forms.site.SignUpForm._
 
   def signUpForm(newsletterId: Long) = Action { implicit request =>
-    Ok(views.html.site.subscribe(empty(newsletterId)))
+    Ok(views.html.email.subscribe(empty(newsletterId)))
   }
 
   // TODO: store cache with verified user id after first subscription verification and don't send double opt in after that

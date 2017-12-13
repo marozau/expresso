@@ -1,0 +1,27 @@
+@(text: String, bold: Boolean, italic: Boolean)
+
+@render(text: String) = {
+    @(bold, italic) match {
+        case (true, true) => {
+            <i><strong>@Html(text)</strong></i>
+        }
+
+        case (true, false) => {
+            <strong>@Html(text)</strong>
+        }
+
+        case (false, true) => {
+            <i>@Html(text)</i>
+        }
+
+        case (false, false) => {
+            @Html(text)
+        }
+    }
+}
+
+@if(!text.equals("\n")) {
+    @render(text.replaceAll("\n", "<br>"))
+} else {
+    <br>
+}

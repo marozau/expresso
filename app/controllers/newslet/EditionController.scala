@@ -55,7 +55,7 @@ class EditionController @Inject()(
 
   def create(newsletterId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
     editionService.create(newsletterId)
-      .flatMap(edition => ph.doEdition(edition, Target.SITE))
+      .flatMap(edition => ph.doEdition(edition, Target.DEV))
       .map { edition =>
         Ok(views.html.newslet.newsletterPosts(edition))
       }
@@ -76,7 +76,7 @@ class EditionController @Inject()(
           } yield edition
         } else Future.successful(edition)
       }
-      .flatMap(edition => ph.doEdition(edition, Target.SITE))
+      .flatMap(edition => ph.doEdition(edition, Target.DEV))
       .map { edition =>
         Ok(views.html.newslet.newsletterPosts(edition))
       }
@@ -106,7 +106,7 @@ class EditionController @Inject()(
   def getNewsletterFinal(campaignId: Long, editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     editionService.getById(editionId)
       .flatMap { edition =>
-        ph.doEdition(edition, Target.SITE)
+        ph.doEdition(edition, Target.DEV)
       }
       .map { edition =>
         Ok(views.html.newslet.newsletterFinal(edition, campaignId))
@@ -123,7 +123,7 @@ class EditionController @Inject()(
     }
 
     editionService.getById(editionId)
-      .flatMap(edition => ph.doEdition(edition, Target.SITE).map((edition, _)))
+      .flatMap(edition => ph.doEdition(edition, Target.DEV).map((edition, _)))
       .flatMap { case (edition, newsletter) => id.fold(create(editionId))(getExisting).map((edition, newsletter, _)) }
       .map { case (_, newsletter, postForm) =>
         Ok(views.html.newslet.newsletterPosts(newsletter, postForm = Some(postForm)))
@@ -132,7 +132,7 @@ class EditionController @Inject()(
 
   def getHeaderForm(editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     editionService.getById(editionId)
-      .flatMap(edition => ph.doEdition(edition, Target.SITE).map((edition, _)))
+      .flatMap(edition => ph.doEdition(edition, Target.DEV).map((edition, _)))
       .map { case (edition, newsletter) =>
         Ok(views.html.newslet.newsletterPosts(newsletter, headerForm = Some(headerForm.fill(HeaderData(edition.id.get, edition.header)))))
       }
@@ -156,7 +156,7 @@ class EditionController @Inject()(
 
   def getFooterForm(editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     editionService.getById(editionId)
-      .flatMap(edition => ph.doEdition(edition, Target.SITE).map((edition, _)))
+      .flatMap(edition => ph.doEdition(edition, Target.DEV).map((edition, _)))
       .map { case (edition, newsletter) =>
         Ok(views.html.newslet.newsletterPosts(newsletter, footerForm = Some(footerForm.fill(FooterData(edition.id.get, edition.footer)))))
       }
@@ -180,7 +180,7 @@ class EditionController @Inject()(
 
   def getTitleForm(editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     editionService.getById(editionId)
-      .flatMap(edition => ph.doEdition(edition, Target.SITE))
+      .flatMap(edition => ph.doEdition(edition, Target.DEV))
       .map { edition =>
         Ok(views.html.newslet.newsletterPosts(edition, titleForm = Some(titleForm.fill(TitleData(edition.id.get, edition.title)))))
       }
@@ -204,7 +204,7 @@ class EditionController @Inject()(
 
   def getDateForm(editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     editionService.getById(editionId)
-      .flatMap(edition => ph.doEdition(edition, Target.SITE))
+      .flatMap(edition => ph.doEdition(edition, Target.DEV))
       .map { edition =>
         Ok(views.html.newslet.newsletterPosts(edition, dateForm = Some(dateForm.fill(DateData(edition.id.get, edition.date)))))
       }
@@ -228,7 +228,7 @@ class EditionController @Inject()(
 
   def getUrlForm(editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     editionService.getById(editionId)
-      .flatMap(edition => ph.doEdition(edition, Target.SITE))
+      .flatMap(edition => ph.doEdition(edition, Target.DEV))
       .map { edition =>
         Ok(views.html.newslet.newsletterPosts(edition, urlForm = Some(urlForm.fill(UrlData(edition.id.get, edition.url)))))
       }
@@ -252,10 +252,10 @@ class EditionController @Inject()(
 
   def preview(id: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     editionService.getById(id)
-      .flatMap(edition => ph.doEdition(edition, Target.SITE))
+      .flatMap(edition => ph.doEdition(edition, Target.DEV))
       .map { edition =>
         implicit val messages: Messages = MessagesImpl(edition.newsletter.lang, messagesApi)
-        Ok(views.html.site.newsletter(edition)(request, messages, assets))
+        Ok(views.html.email.newsletter(edition)(request, messages, assets))
       }
   }
 

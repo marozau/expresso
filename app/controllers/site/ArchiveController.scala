@@ -60,7 +60,7 @@ class ArchiveController @Inject()(
             val lang = postView.edition.map(_.newsletter.lang).getOrElse(Lang.defaultLang)
             MessagesImpl(lang, messagesApi)
           }
-          Ok(views.html.site.post(postView)(request, messages, assets))
+          Ok(views.html.email.post(postView)(request, messages, assets))
         }
     }
 
@@ -77,7 +77,7 @@ class ArchiveController @Inject()(
           .flatMap(edition => ph.doEdition(edition, Target.SITE))
           .map{edition =>
             implicit val messages: Messages = MessagesImpl(edition.newsletter.lang, messagesApi)
-            Ok(views.html.site.newsletter(edition)(request, messages, assets))
+            Ok(views.html.email.newsletter(edition)(request, messages, assets))
           }
     }
 

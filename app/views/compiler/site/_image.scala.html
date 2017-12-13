@@ -1,0 +1,27 @@
+@(img: String, link: Option[String])
+
+@if(link.isDefined) {
+    <a href="@link.get" title="" class="" target="_blank" style="mso-line-height-rule: exactly;
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%;">
+        <img align="center" alt="" src="@img" width="564" style="max-width: 800px;
+            padding-bottom: 0;
+            display: inline !important;
+            vertical-align: bottom;
+            border: 0;
+            height: auto;
+            outline: none;
+            text-decoration: none;
+            -ms-interpolation-mode: bicubic;" class="mcnImage">
+    </a>
+} else {
+    <img align="center" alt="" src=@img width="564" style="max-width: 780px;
+        padding-bottom: 0;
+        display: inline !important;
+        vertical-align: bottom;
+        border: 0;
+        height: auto;
+        outline: none;
+        text-decoration: none;
+        -ms-interpolation-mode: bicubic;" class="mcnImage">
+}

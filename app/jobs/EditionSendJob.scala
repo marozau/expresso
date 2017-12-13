@@ -83,7 +83,7 @@ class EditionSendJob @Inject()(quartz: Quartz,
     val newsletterId = data.get("newsletterId").asInstanceOf[Long]
     logger.info(s"execute EditionSendJob: userId=$userId, campaignId=$campaignId, newsletterId=$newsletterId, editionId=$editionId")
     editionService.getById(editionId)
-      .flatMap(edition => ph.doEdition(edition, Target.SITE))
+      .flatMap(edition => ph.doEdition(edition, Target.EMAIL))
       .flatMap(edition => userService.retrieve(userId).map((_, edition)))
       .map { case (user, edition) =>
         if (user.isEmpty) {
@@ -92,7 +92,7 @@ class EditionSendJob @Inject()(quartz: Quartz,
         } else {
           implicit val requestHeader = urlUtils.mockRequestHeader
           implicit val messages: Messages = MessagesImpl(edition.newsletter.lang, messagesApi)
-          val newsletterBody = views.html.site.newsletter(edition).body
+          val newsletterBody = views.html.email.newsletter(edition).body
 
           val email = EmailHtml(
             campaignId,

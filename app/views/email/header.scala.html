@@ -27,7 +27,7 @@
         padding-top: 0px;
         padding-bottom: 0;">
 
-        @views.html.site.text {
+        @views.html.email.text {
 
             <span style="color: #696969">
                 <strong>
@@ -39,11 +39,7 @@
 
         }
 
-        @views.html.site.image {
-            @views.html.site.ex._image(
-                "https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png",
-                Some("https://www.expresso.today"))
-        }
+        @views.html.email.image("https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png", Some("https://www.expresso.today"))
 
     </td>
 </tr>

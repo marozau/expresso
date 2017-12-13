@@ -74,7 +74,7 @@ class PostController @Inject()(
 
   def showPost(id: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     posts.getById(id)
-      .flatMap(post => ph.doPostView(PostView(post), Target.SITE))
-      .map(post => Ok(views.html.site.post(post)))
+      .flatMap(post => ph.doPostView(PostView(post), Target.DEV))
+      .map(post => Ok(views.html.email.post(post)))
   }
 }

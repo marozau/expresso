@@ -2,7 +2,7 @@
 
 @(edition: Edition, prev: Option[PostTemplate] = None, next: Option[PostTemplate] = None)(implicit request: RequestHeader)
 
-    @views.html.site.text {
+    @views.html.email.text {
         <div style="text-align: center;">
             <em>
                 <span style="font-size: 17px">
@@ -20,7 +20,7 @@
     }
     <br>
 
-    @views.html.site.text {
+    @views.html.email.text {
         <div>
             <em>
                 @if(prev.isDefined) {

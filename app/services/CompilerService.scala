@@ -28,7 +28,7 @@ class CompilerCache(compiler: Compiler)(implicit ec: ExecutionContext) {
 
   def compile(tags: String, target: Target.Value): Future[HtmlTemplate] = memoize(ttl(target)) {
     val body = Compiler.header + tags
-    compiler.compile(body, Some("views.html." + target.toString.toLowerCase))
+    compiler.compile(body, Some("views.html.compiler." + target.toString.toLowerCase))
   }
 
   private def ttl(target: Target.Value) = target match {
