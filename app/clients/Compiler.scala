@@ -25,9 +25,9 @@ object Compiler {
   //TODO: add context for complex solutions like specific word counting, statistics etc
   val header: String =
     """
-        |@import _root_.services.TrackingService
+        |@import _root_.models.Application
         |@import _root_.play.api.Configuration
-        |@this(implicit track: TrackingService)
+        |@this(implicit app: Application)
         |@(implicit config: Configuration)
         """.stripMargin
   val headerLines = header.lines.size
