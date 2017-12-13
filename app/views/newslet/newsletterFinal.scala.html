@@ -1,6 +1,4 @@
-@import clients.PublishingHouse
-
-@(newsletter: PublishingHouse.ReadyEdition, campaignId: Long)(implicit request: RequestHeader, messages: Messages, assets: AssetsFinder)
+@(newsletter: EditionTemplate, campaignId: Long)(implicit request: RequestHeader, messages: Messages, assets: AssetsFinder)
 
 @views.html.site.newsletter(newsletter)
 

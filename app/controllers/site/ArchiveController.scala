@@ -4,13 +4,12 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Singleton}
 
-import clients.PublishingHouse
 import controllers.AssetsFinder
-import models.PostView
+import models.{PostView, Target}
 import play.api.cache.Cached
 import play.api.i18n.{I18nSupport, Lang, Messages, MessagesImpl}
 import play.api.mvc.{AbstractController, ControllerComponents}
-import services.{EditionService, NewsletterService}
+import services.{CompilerService, EditionService, NewsletterService}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -23,7 +22,7 @@ class ArchiveController @Inject()(
                                    cc: ControllerComponents,
                                    newsletterService: NewsletterService,
                                    editionService: EditionService,
-                                   ph: PublishingHouse,
+                                   ph: CompilerService,
                                    cached: Cached
                                  )(implicit
                                    ec: ExecutionContext,
@@ -54,7 +53,7 @@ class ArchiveController @Inject()(
         .flatMap(newsletter =>
           editionService.getByDate(newsletter.id.get, LocalDate.parse(date, DateTimeFormatter.BASIC_ISO_DATE)))
         .flatMap { edition =>
-          ph.doPostView(PostView(edition, title), PublishingHouse.Target.SITE)
+          ph.doPostView(PostView(edition, title), Target.SITE)
         }
         .map { postView =>
           implicit val messages: Messages = {
@@ -75,7 +74,7 @@ class ArchiveController @Inject()(
           .getByNameUrl(name)
           .flatMap(newsletter =>
             editionService.getByDate(newsletter.id.get, LocalDate.parse(date, DateTimeFormatter.BASIC_ISO_DATE)))
-          .flatMap(edition => ph.doEdition(edition, PublishingHouse.Target.SITE))
+          .flatMap(edition => ph.doEdition(edition, Target.SITE))
           .map{edition =>
             implicit val messages: Messages = MessagesImpl(edition.newsletter.lang, messagesApi)
             Ok(views.html.site.newsletter(edition)(request, messages, assets))

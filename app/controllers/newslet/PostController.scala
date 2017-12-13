@@ -2,18 +2,17 @@ package controllers.newslet
 
 import javax.inject.{Inject, Singleton}
 
-import clients.PublishingHouse
-import clients.PublishingHouse.Target
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.AssetsFinder
 import models.daos.PostDao
-import models.{Post, PostView, UserRole}
+import models.{Post, PostView, UserRole, Target}
 import modules.DefaultEnv
 import org.webjars.play.WebJarsUtil
 import play.api.Logger
 import play.api.cache._
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, ControllerComponents}
+import services.CompilerService
 import utils.{HtmlUtils, UrlUtils, WithRole}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,7 +27,7 @@ class PostController @Inject()(
                                 cache: AsyncCacheApi,
                                 cc: ControllerComponents,
                                 htmlUtils: HtmlUtils,
-                                ph: PublishingHouse,
+                                ph: CompilerService,
                                 posts: PostDao
                               )(implicit
                                 ec: ExecutionContext,

@@ -1,6 +1,5 @@
-@import clients.PublishingHouse.ReadyPostView
 @import java.time.format.DateTimeFormatter
-@(data: ReadyPostView)(implicit request: RequestHeader, messages: Messages, assets: AssetsFinder)
+@(data: EditionPostTemplate)(implicit request: RequestHeader, messages: Messages, assets: AssetsFinder)
 
 @url = @{
     if(data.edition.isDefined) {
@@ -17,7 +16,7 @@
         @views.html.site.body {
 
             @views.html.site.image {
-                @views.html.site.ex._image(assets.path("images/expresso_logo.png"), Some("https://www.expresso.today"))
+                @views.html.site.ex._image("https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png", Some("https://www.expresso.today"))
             }
 
             @views.html.site.title(data.post.title)

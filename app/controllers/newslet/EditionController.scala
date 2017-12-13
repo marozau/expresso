@@ -3,12 +3,10 @@ package controllers.newslet
 import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Singleton}
 
-import clients.PublishingHouse
-import clients.PublishingHouse.Target
 import com.mohiva.play.silhouette.api.Silhouette
 import controllers.AssetsFinder
 import forms.newslet.PostForm.{Data, form}
-import models.UserRole
+import models.{UserRole, Target}
 import models.daos.PostDao
 import modules.DefaultEnv
 import org.webjars.play.WebJarsUtil
@@ -16,7 +14,7 @@ import play.api.Logger
 import play.api.cache.AsyncCacheApi
 import play.api.i18n.{I18nSupport, Messages, MessagesImpl}
 import play.api.mvc.{AbstractController, ControllerComponents}
-import services.{EditionService, NewsletterService}
+import services.{CompilerService, EditionService, NewsletterService}
 import utils.{HtmlUtils, WithRole}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,7 +32,7 @@ class EditionController @Inject()(
                                    newsletterService: NewsletterService,
                                    posts: PostDao,
                                    htmlUtils: HtmlUtils,
-                                   ph: PublishingHouse
+                                   ph: CompilerService
                                  )(implicit
                                    ec: ExecutionContext,
                                    webJarsUtil: WebJarsUtil,
@@ -108,7 +106,7 @@ class EditionController @Inject()(
   def getNewsletterFinal(campaignId: Long, editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     editionService.getById(editionId)
       .flatMap { edition =>
-        ph.doEdition(edition, PublishingHouse.Target.SITE)
+        ph.doEdition(edition, Target.SITE)
       }
       .map { edition =>
         Ok(views.html.newslet.newsletterFinal(edition, campaignId))
@@ -254,7 +252,7 @@ class EditionController @Inject()(
 
   def preview(id: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     editionService.getById(id)
-      .flatMap(edition => ph.doEdition(edition, PublishingHouse.Target.SITE))
+      .flatMap(edition => ph.doEdition(edition, Target.SITE))
       .map { edition =>
         implicit val messages: Messages = MessagesImpl(edition.newsletter.lang, messagesApi)
         Ok(views.html.site.newsletter(edition)(request, messages, assets))

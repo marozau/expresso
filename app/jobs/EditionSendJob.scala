@@ -3,20 +3,19 @@ package jobs
 import java.lang.invoke.MethodHandles
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.{Date, Locale}
+import java.util.Date
 import javax.inject.Inject
 
 import clients.Mailer.EmailHtml
-import clients.PublishingHouse.{ReadyEdition, Target}
-import clients.{Mailer, PublishingHouse, Quartz}
+import clients.{Mailer, Quartz}
 import controllers.AssetsFinder
-import models.{Campaign, Edition}
-import org.quartz.{JobBuilder, JobDetail, Trigger, TriggerBuilder, JobExecutionContext}
+import models.{Campaign, Target}
 import org.quartz.core.jmx.JobDataMapSupport
+import org.quartz._
 import org.slf4j.LoggerFactory
 import play.api.i18n._
-import services.{EditionService, NewsletterService, UserService}
-import utils.UrlUtils
+import services.{CompilerService, EditionService, NewsletterService, UserService}
+import _root_.utils.UrlUtils
 
 import scala.concurrent.ExecutionContext
 
@@ -63,7 +62,7 @@ class EditionSendJob @Inject()(quartz: Quartz,
                                newsletterService: NewsletterService,
                                editionService: EditionService,
                                mailer: Mailer,
-                               ph: PublishingHouse,
+                               ph: CompilerService,
                                urlUtils: UrlUtils,
                                langs: Langs,
                                messagesApi: MessagesApi)

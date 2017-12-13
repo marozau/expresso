@@ -1,6 +1,6 @@
-@import clients.PublishingHouse
 @import java.time.format.DateTimeFormatter
-@(edition: Edition, prev: Option[PublishingHouse.ReadyPost] = None, next: Option[PublishingHouse.ReadyPost] = None)(implicit request: RequestHeader)
+
+@(edition: Edition, prev: Option[PostTemplate] = None, next: Option[PostTemplate] = None)(implicit request: RequestHeader)
 
     @views.html.site.text {
         <div style="text-align: center;">

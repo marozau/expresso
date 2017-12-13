@@ -1,9 +1,8 @@
 @import play.api.i18n.Messages
 @import controllers.AssetsFinder
-@import clients.PublishingHouse
 @import java.time.format.DateTimeFormatter
 
-@(edition: PublishingHouse.ReadyEdition)(implicit request: RequestHeader, messages: Messages, assets: AssetsFinder)
+@(edition: EditionTemplate)(implicit request: RequestHeader, messages: Messages, assets: AssetsFinder)
 
 @editionUrl = @{
     edition
@@ -20,7 +19,7 @@
 
     @views.html.site.container {
 
-        @if(edition.target == PublishingHouse.Target.EMAIL) {
+        @if(edition.target == Target.EMAIL) {
             @views.html.site.preheader(editionUrl)
         }
 
