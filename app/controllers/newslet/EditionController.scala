@@ -102,17 +102,6 @@ class EditionController @Inject()(
       .map(_ => Redirect(controllers.newslet.routes.EditionController.get(id, cleanCache = true)))
   }
 
-  //TODO: replace by ususal get newsletter
-  def getNewsletterFinal(campaignId: Long, editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
-    editionService.getById(editionId)
-      .flatMap { edition =>
-        ph.doEdition(edition, Target.DEV)
-      }
-      .map { edition =>
-        Ok(views.html.newslet.newsletterFinal(edition, campaignId))
-      }
-  }
-
   def getPostForm(id: Option[Long], editionId: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR, UserRole.WRITER)).async { implicit request =>
     def getExisting(id: Long) = {
       posts.getById(id).map(p => form.fill(p))

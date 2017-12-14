@@ -60,7 +60,7 @@ libraryDependencies += "org.reflections" % "reflections" % "0.9.11"
 libraryDependencies ++= Seq(
 //  "org.webjars" % "bootstrap" % "3.3.7-1" exclude("org.webjars", "jquery"),
   "org.webjars" % "bootstrap" % "3.3.7-1",
-  "org.webjars" %% "webjars-play" % "2.6.1",
+  "org.webjars" %% "webjars-play" % "2.6.2",
 //  "org.webjars" % "jquery" % "3.2.1",
   "com.adrianhurt" %% "play-bootstrap" % "1.2-P26-B3"
 )

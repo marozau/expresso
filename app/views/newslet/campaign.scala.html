@@ -24,7 +24,7 @@
                 @b3.textarea(campaignForm("editionId"), 'style -> "display: none")
                 @b3.textarea(campaignForm("preview"), '_label -> "preview", 'rows -> 1, 'cols -> 20)
 
-                @b3.date(campaignForm("schedule.date"),  'style -> "display: none")
+                @b3.date(campaignForm("schedule.date"))
                 @b3.number(campaignForm("schedule.zoneOffset"), 'style -> "display: none")
                 @b3.inputWrapped("time", campaignForm("schedule.time"), '_label -> "send time") { input =>
                     @input

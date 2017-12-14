@@ -78,26 +78,14 @@ class CampaignController @Inject()(
         val campaign = Campaign(form.id, form.newsletterId, form.editionId, form.preview, form.sendTime.toDateTime)
         Logger.info(s"submit campaign, campaign=$campaign")
         campaigns.save(campaign)
-          .map(c => Redirect(routes.EditionController.getNewsletterFinal(c.id.get, c.editionId)))
+          .flatMap { campaign =>
+            jobScheduler.scheduleCampaign(campaign)
+          }
+          .map { _ =>
+            Redirect(controllers.newslet.routes.EditionController.list(campaign.newsletterId))
+              .flashing("info" -> Messages("campaign was scheduled"))
+          }
       }
     )
   }
-
-  /**
-    * NOTE: only EDITOR can approve campaign scheduling
-    *
-    * @param id campaign id you want to schedule
-    * @return redirects to the newsletter list view
-    */
-  def scheduleCampaign(id: Long) = silhouette.SecuredAction(WithRole(UserRole.EDITOR)).async { implicit request =>
-    campaigns.getById(id)
-      .flatMap { campaign =>
-        jobScheduler.scheduleCampaign(campaign)
-      }
-      .map { date =>
-        Redirect(controllers.newslet.routes.NewsletterController.getList())
-          .flashing("info" -> Messages("campaign was scheduled"))
-      }
-  }
-
 }

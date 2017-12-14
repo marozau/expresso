@@ -26,6 +26,8 @@
 
                 @views.html.email.body {
 
+                    <a target="_blank" href="@controllers.newslet.routes.EditionController.preview(edition.id.get)">preview</a>
+
                     @if(titleForm.isDefined) {
                         @views.html.newslet.title(titleForm.get)
                     } else {
