@@ -25,8 +25,8 @@ libraryDependencies += "com.typesafe.play" %% "twirl-api" % "1.3.3"
 libraryDependencies += "com.typesafe.play" %% "twirl-parser" % "1.3.3"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play-slick" % "3.0.2",
-  "com.typesafe.play" %% "play-slick-evolutions" % "3.0.2",
+  "com.typesafe.play" %% "play-slick" % "3.0.3",
+  "com.typesafe.play" %% "play-slick-evolutions" % "3.0.3",
   "org.postgresql" % "postgresql" % "42.1.4",
   "com.github.tminglei" %% "slick-pg" % "0.15.4",
   "com.github.tminglei" %% "slick-pg_play-json" % "0.15.4",
@@ -75,7 +75,7 @@ libraryDependencies ++= Seq(
 //play.sbt.routes.RoutesKeys.routesImport += "clients.PublishingHouse._"
 
 //https://github.com/KarelCemus/play-redis
-libraryDependencies += "com.github.karelcemus" %% "play-redis" % "1.6.1"
+libraryDependencies += "com.github.karelcemus" %% "play-redis" % "2.0.1"
 //https://github.com/cb372/scalacache
 libraryDependencies += "com.github.cb372" %% "scalacache-caffeine" % "0.10.0"
 //https://github.com/mohiva/play-html-compressor/blob/master/README.md

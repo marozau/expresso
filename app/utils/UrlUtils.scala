@@ -1,6 +1,6 @@
 package utils
 
-import java.net.URL
+import java.net.{URL, URLEncoder}
 import javax.inject.{Inject, Singleton}
 
 import play.api.Configuration
@@ -115,14 +115,14 @@ object UrlUtils {
     "ю" -> "u",
     "я" -> "ya",
     " " -> "-",
-    "." -> "",
   ) //TODO: remove all not allowed symbols
 
   def toUrl(text: String): String = {
-    text.toList
+    val translate = text.toList
       .map(_.toString)
       .map(l => letters.getOrElse(l, l))
       .mkString("")
+    URLEncoder.encode(translate, "UTF-8")
   }
 
   class MockRequestTarget(_uriString: String) extends RequestTarget {
@@ -146,6 +146,7 @@ object UrlUtils {
   /**
     * The class is needed to mock request header in case of email generation whithout real user request
     * Call::absoluteURL(implicit requestHeader: RequestHeader) is called inside twirl template
+    *
     * @param mockConnection
     * @param mockRequestTarget
     */
@@ -162,4 +163,5 @@ object UrlUtils {
 
     override def attrs = ???
   }
+
 }
