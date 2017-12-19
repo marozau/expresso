@@ -6,7 +6,7 @@ metadata:
   labels:
     app: expresso
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: expresso
@@ -17,7 +17,10 @@ spec:
     spec:
       containers:
       - name: expresso
-        image: eu.gcr.io/expresso-today/expresso:23
+        image: eu.gcr.io/api-expresso-today/expresso:23
+        volumeMounts:
+        - mountPath: /tmp/expresso-compiler
+          name: cache-volume
         ports:
         - containerPort: 9000
         readinessProbe:
@@ -28,20 +31,17 @@ spec:
           timeoutSeconds: 5
           successThreshold: 2
           failureThreshold: 5
-        env:
-          - name: EXPRESSO_OPTS
-            valueFrom:
-              secretKeyRef:
-                name: expresso
-                key: options
         args: [
         "-Dplay.http.secret.key=QCY?tAnfk?aZ?iwrNwnxIlR6CTf:G3gf:90Latabg@5241AB`R5W:1uDFN];Ik@n",
         "-Dsilhouette.authenticator.signer.key=W_eo7JXc^2p:N?c;LXpLDpzxkugswuC73V7cR4buyvV=KRHE>Cfu7;TuzD]TsP",
         "-Dsilhouette.authenticator.crypter.key=NR/kMCW2NZr8ZM<sdrslO4`_@XsHgs@GcREY1a=GM?aD@mD5YJ[>O7?C<O@wVk`c",
         "-Dslick.dbs.default.db.properties.user=expresso",
-        "-Dslick.dbs.default.db.properties.password=Fqqtanrv92Je77WA",
-        "-Dslick.dbs.default.db.properties.url=jdbc:postgresql://google/expresso?socketFactory=com.google.cloud.sql.postgres.SocketFactory&socketFactoryArg=expresso-today:europe-west1:expresso",
+        "-Dslick.dbs.default.db.properties.password=PPAhGRTyu7yfueJpCufgYBMn",
+        "-Dslick.dbs.default.db.properties.url=jdbc:postgresql://google/expresso?socketFactory=com.google.cloud.sql.postgres.SocketFactory&socketFactoryArg=api-expresso-today:europe-west1:expresso",
         "-Dlogger.resource=logback.prod.xml",
         "-Dconfig.resource=application.prod.conf",
         "-Dsilhouette.authenticator.cookieDomain=.expresso.today",
         "-Dplay.mailer.password=uwpssVrZC6H29V8G"]
+      volumes:
+      - name: cache-volume
+        emptyDir: {}
