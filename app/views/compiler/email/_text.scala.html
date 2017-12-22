@@ -1,27 +1,14 @@
-@(text: String, bold: Boolean, italic: Boolean)
+@import models.Application
+@(text: String, bold: Boolean, italic: Boolean)(implicit app: Application)
 
-@render(text: String) = {
-    @(bold, italic) match {
-        case (true, true) => {
-            <i><strong>@Html(text)</strong></i>
-        }
-
-        case (true, false) => {
-            <strong>@Html(text)</strong>
-        }
-
-        case (false, true) => {
-            <i>@Html(text)</i>
-        }
-
-        case (false, false) => {
-            @Html(text)
-        }
+@*https://github.com/playframework/twirl/issues/77*@
+@*NOTE: don't auto format becase it can create extra newlines*@
+@render(text: Html) = {@(bold, italic) match {
+        case (true, true) => {<i><strong>@text</strong></i>}
+        case (true, false) => {<strong>text</strong>}
+        case (false, true) => {<i>@text</i>}
+        case (false, false) => {@text}
     }
 }
 
-@if(!text.equals("\n")) {
-    @render(text.replaceAll("\n", "<br>"))
-} else {
-    <br>
-}
+@render(Html(text.replaceAll("\n", "<br>")))

@@ -1,4 +1,5 @@
-@(img: String, link: Option[String])
+@import models.Application
+@(img: String, link: Option[String])(implicit app: Application)
 
 @if(link.isDefined) {
     <a href="@link.get" title="" class="" target="_blank" style="mso-line-height-rule: exactly;
