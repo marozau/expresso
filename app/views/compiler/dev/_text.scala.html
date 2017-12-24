@@ -5,7 +5,7 @@
 @*NOTE: don't auto format becase it can create extra newlines*@
 @render(text: Html) = {@(bold, italic) match {
         case (true, true) => {<i><strong>@text</strong></i>}
-        case (true, false) => {<strong>text</strong>}
+        case (true, false) => {<strong>@text</strong>}
         case (false, true) => {<i>@text</i>}
         case (false, false) => {@text}
     }

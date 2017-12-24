@@ -45,13 +45,10 @@
             }
 
             @for(post <- edition.posts) {
-                @views.html.email.text {
-                    <font face="arial, helvetica neue, helvetica, sans-serif" size="5">
-                        <a href="@controllers.site.routes.ArchiveController.post(edition.newsletter.nameUrl, edition.date.format(DateTimeFormatter.BASIC_ISO_DATE), post.titleUrl).absoluteURL()">
-                            <strong>@post.title</strong>
-                        </a>
-                    </font>
-                }
+                @views.html.email.title(
+                    post.title,
+                    Some(controllers.site.routes.ArchiveController.post(edition.newsletter.nameUrl, edition.date.format(DateTimeFormatter.BASIC_ISO_DATE), post.titleUrl).absoluteURL())
+                )
                 @views.html.email.divider()
                 @views.html.email.text {
                     <div style="text-align: left;">
@@ -61,7 +58,6 @@
                     </div>
                 }
                 @views.html.email.share(s"${edition.newsletter.name}: ${post.title}", controllers.site.routes.ArchiveController.post(edition.newsletter.nameUrl, edition.date.format(DateTimeFormatter.BASIC_ISO_DATE), post.titleUrl).absoluteURL())
-                <br>
                 <br>
             }
 

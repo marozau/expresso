@@ -1,7 +1,15 @@
-@(title: String)
+@(title: String, url: Option[String] = None)
 
 @views.html.email.text {
-    <font face="arial, helvetica neue, helvetica, sans-serif" size="5">
-        <strong>@title</strong>
-    </font>
+    <div class="mcnTitleContent">
+        <font face="arial, helvetica neue, helvetica, sans-serif" size="5">
+        @if(url.isDefined) {
+            <a href=@url>
+                <strong>@title</strong>
+            </a>
+        } else {
+            <strong>@title</strong>
+        }
+        </font>
+    </div>
 }
