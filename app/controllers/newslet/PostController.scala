@@ -43,7 +43,7 @@ class PostController @Inject()(
     }
 
     def create(newsletterId: Option[Long]) = {
-      Future(form.fill(Data(None, newsletterId, "", "", "", List.empty)))
+      Future(form.fill(Data(None, newsletterId, "", "", "")))
     }
 
     id.fold(create(newsletterId))(getExisting)
@@ -58,7 +58,7 @@ class PostController @Inject()(
         Future.successful(BadRequest(views.html.newslet.post(formWithErrors)))
       },
       form => {
-        val post = Post(form.id, userId, form.editionId, form.title, UrlUtils.toUrl(form.title), form.annotation, form.body, form.refs.map(_.toString))
+        val post = Post(form.id, userId, form.editionId, form.title, UrlUtils.toUrl(form.title), form.annotation, form.body)
         form.id.fold(posts.create(post).map(_.id))(id => posts.update(post).map(_ => Some(id)))
           .map { postId =>
             form.editionId

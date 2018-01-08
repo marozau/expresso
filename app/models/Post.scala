@@ -15,7 +15,6 @@ case class Post(id: Option[Long],
                 titleUrl: String,
                 annotation: String,
                 body: String,
-                refs: List[String],
                 options: Option[JsValue] = None,
                 createdTimestamp: Option[ZonedDateTime] = None,
                 modifiedTimestamp: Option[ZonedDateTime] = None)

@@ -13,6 +13,5 @@ case class PostTemplate(id: Option[Long],
                         titleUrl: String,
                         annotation: String,
                         body: HtmlTemplate,
-                        references: List[URL],
                         config: Configuration,
                         target: Target.Value)

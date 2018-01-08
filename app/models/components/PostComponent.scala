@@ -30,15 +30,13 @@ trait PostComponent {
 
     def body = column[String]("body")
 
-    def refs = column[List[String]]("refs")
-
     def options = column[Option[JsValue]]("options")
 
     def createdTimestamp = column[ZonedDateTime]("created_timestamp", SqlUtils.timestampTzNotNullType)
 
     def modifiedTimestamp = column[ZonedDateTime]("modified_timestamp", SqlUtils.timestampTzNotNullType)
 
-    def * = (id.?, userId, editionId, title, titleUrl, annotation, body, refs, options, createdTimestamp.?, modifiedTimestamp.?) <> ((Post.apply _).tupled, Post.unapply)
+    def * = (id.?, userId, editionId, title, titleUrl, annotation, body, options, createdTimestamp.?, modifiedTimestamp.?) <> ((Post.apply _).tupled, Post.unapply)
 
     def userIdSupplier = foreignKey("posts_user_id_fkey", userId, users)(_.id)
 

@@ -109,7 +109,7 @@ class EditionController @Inject()(
     }
 
     def create(newsletterId: Long) = {
-      Future(form.fill(Data(None, Some(newsletterId), "", "", "", List.empty)))
+      Future(form.fill(Data(None, Some(newsletterId), "", "", "")))
     }
 
     editionService.getById(editionId)

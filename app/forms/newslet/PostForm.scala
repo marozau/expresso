@@ -10,8 +10,6 @@ import play.api.data.Forms._
   * @author im.
   */
 object PostForm {
-  import implicits.PostImplicits._
-  import utils.UrlUtils._
 
   val form = Form(
     mapping(
@@ -19,8 +17,7 @@ object PostForm {
       "editionId" -> optional(longNumber),
       "title" -> nonEmptyText,
       "annotation" -> nonEmptyText,
-      "body" -> nonEmptyText,
-      "refs" -> list(of[URL])
+      "body" -> nonEmptyText
     )(Data.apply)(Data.unapply)
   )
 
@@ -28,8 +25,7 @@ object PostForm {
                   editionId: Option[Long],
                   title: String,
                   annotation: String,
-                  body: String,
-                  refs: List[URL])
+                  body: String)
 
-  implicit def postFormCast(p: Post): PostForm.Data = Data(p.id, p.editionId, p.title, p.annotation, p.body, p.refs)
+  implicit def postFormCast(p: Post): PostForm.Data = Data(p.id, p.editionId, p.title, p.annotation, p.body)
 }

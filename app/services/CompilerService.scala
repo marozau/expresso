@@ -56,7 +56,7 @@ class CompilerService @Inject()(
   def doPost(post: Post, target: Target.Value): Future[PostTemplate] = {
     logger.info(s"compiling post, id=${post.id}, userId=${post.userId}, title=${post.title}")
     compile(quill.toTagStr(post.body), target)
-      .map(html => PostTemplate(post.id, post.title, post.titleUrl, post.annotation, html, post.refs, Configuration.from(post.options), target))
+      .map(html => PostTemplate(post.id, post.title, post.titleUrl, post.annotation, html, Configuration.from(post.options), target))
   }
 
   def doPosts(posts: List[Post], target: Target.Value): Future[List[PostTemplate]] = {
