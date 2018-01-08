@@ -1,5 +1,4 @@
 @import forms.newslet.EditionForm.FooterData
-@import views.html.newslet._
 @(footerForm: Form[FooterData])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("stylesheets/quill/quill.snow.css")">
@@ -9,10 +8,8 @@
     b3.horizontal.fieldConstructor("col-md-2", "col-md-10")
 }
 
-@import helper._
-
 @b3.form(action = controllers.newslet.routes.EditionController.submitFooterForm()) {
-    @CSRF.formField
+    @helper.CSRF.formField
     @b3.text(footerForm("id"), 'style -> "display: none")
     @quillInput("text", "text", footerForm.data.getOrElse("text", "{}"))
 

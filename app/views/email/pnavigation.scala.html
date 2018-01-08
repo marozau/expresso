@@ -7,8 +7,9 @@
         <em>
             <span style="font-size: 17px">
                 <span style="font-family: georgia, times, times new roman, serif">
+                    Это пост из выпуска
                     <a href="@controllers.site.routes.ArchiveController.edition(edition.newsletter.nameUrl, edition.date.format(DateTimeFormatter.BASIC_ISO_DATE)).absoluteURL()">
-                        Это пост из выпуска Expresso за
+                        Expresso за
                         @{
                             edition.date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
                         }
@@ -18,7 +19,6 @@
         </em>
     </div>
 }
-<br>
 
 @views.html.email.text {
     <div>

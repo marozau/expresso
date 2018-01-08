@@ -1,6 +1,7 @@
 package models
 
 import exceptions.PostNotFoundException
+import play.api.Logger
 
 /**
   * @author im.
@@ -9,6 +10,7 @@ case class PostView(post: Post, edition: Option[Edition] = None, prev: Option[Po
 
 object PostView {
   def apply(edition: Edition, titleUrl: String): PostView = {
+    Logger.info(s"$edition")
     val postsx = None +: edition.posts.map(Some(_)) :+ None
     val slice = postsx.sliding(3).filter(slice => slice(1).get.titleUrl.equals(titleUrl)).toList.headOption
     if (slice.isEmpty) throw PostNotFoundException(0, s"postView failed, title=$titleUrl not found")

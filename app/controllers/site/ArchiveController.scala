@@ -45,8 +45,7 @@ class ArchiveController @Inject()(
         }
     }
 
-  //  cached(s"/archive/$name/$date/$title").includeStatus(OK) {
-  def post(name: String, date: String, title: String) =
+  def post(name: String, date: String, title: String) = cached(s"/archive/$name/$date/$title").includeStatus(OK) {
     Action.async { implicit request =>
       newsletterService
         .getByNameUrl(name)
@@ -64,10 +63,9 @@ class ArchiveController @Inject()(
         }
     }
 
-  //  }
+  }
 
-  //  cached(s"/archive/$name/$date").includeStatus(OK) {
-  def edition(name: String, date: String) =
+  def edition(name: String, date: String) = cached(s"/archive/$name/$date").includeStatus(OK) {
     Action.async {
       implicit request =>
         newsletterService
@@ -75,11 +73,10 @@ class ArchiveController @Inject()(
           .flatMap(newsletter =>
             editionService.getByDate(newsletter.id.get, LocalDate.parse(date, DateTimeFormatter.BASIC_ISO_DATE)))
           .flatMap(edition => ph.doEdition(edition, Target.SITE))
-          .map{edition =>
+          .map { edition =>
             implicit val messages: Messages = MessagesImpl(edition.newsletter.lang, messagesApi)
             Ok(views.html.email.newsletter(edition)(request, messages, assets))
           }
     }
-
-  //  }
+  }
 }

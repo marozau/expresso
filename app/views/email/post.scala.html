@@ -30,10 +30,12 @@
             }
 
             @if(data.edition.isDefined) {
-                @views.html.email.pnavigation(data.edition.get, data.prev, data.next)
-
                 @views.html.email.share(s"${data.edition.get.newsletter.name}: ${data.post.title}", Call(request.method, request.uri).absoluteURL())
+                @views.html.email.pnavigation(data.edition.get, data.prev, data.next)
             }
+
+            <br>
+            @views.html.email.subscribe("fb75c0e47f")
         }
     }
 }

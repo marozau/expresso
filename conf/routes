@@ -28,6 +28,7 @@ GET         /manifest                          controllers.ManifestController.ge
 #GET         /mandrill/send/:email/:template        controllers.MandrillController.send(email, template)
 GET         /healthz                           controllers.Application.healthz()
 
+
 GET         /admin/post                        controllers.newslet.PostController.getPostForm(id: Option[Long], newsletter: Option[Long])
 POST        /admin/post                        controllers.newslet.PostController.submitPostForm()
 GET         /admin/post/show                   controllers.newslet.PostController.showPost(id: Long)
@@ -72,7 +73,9 @@ GET         /archive/:name/:date/:title        controllers.site.ArchiveControlle
 #GET         /subscribe/:newsletterId           controllers.site.SubscriptionController.signUpForm(newsletterId: Long)
 #POST        /subscribe                         controllers.site.SubscriptionController.submitSignUpForm()
 
-GET         /mc/subscribe                      controllers.site.MailChimpController.subscribe(listId: String, email: String)
+POST        /mc/subscribe                      controllers.site.MailChimpController.subscribe()
+GET         /error                             controllers.site.Subscription.error(code: Int)
+GET         /thanks                            controllers.site.Subscription.thanks()
 
 GET         /assets/*file                      controllers.Assets.versioned(file)
 #GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)

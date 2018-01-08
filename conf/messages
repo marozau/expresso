@@ -98,5 +98,11 @@ template.header.date.month.12 = December
 
 template.header.date = {0}, {2} {1} {3}
 
+##########
+# MailChimp
+##########
+
+mc.subscribe.error=Something goes wrong.
+
 
 

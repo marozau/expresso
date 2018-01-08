@@ -2,6 +2,7 @@ package controllers
 
 import javax.inject.{Inject, Singleton}
 
+import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, ControllerComponents}
 import play.api.routing._
 
@@ -9,7 +10,8 @@ import play.api.routing._
   * @author im.
   */
 @Singleton
-class Application @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
+class Application @Inject()(cc: ControllerComponents) (implicit assets: AssetsFinder)
+  extends AbstractController(cc) with I18nSupport {
 
   def javascriptRoutes = Action { implicit request =>
     Ok(
@@ -22,5 +24,9 @@ class Application @Inject()(cc: ControllerComponents) extends AbstractController
 
   def healthz() = Action {
     Ok("ok")
+  }
+
+  def error(code: Int) = Action { implicit request =>
+    Ok(views.html.email.error(code))
   }
 }

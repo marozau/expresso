@@ -78,7 +78,8 @@ class EditionController @Inject()(
       }
       .flatMap(edition => ph.doEdition(edition, Target.DEV))
       .map { edition =>
-        Ok(views.html.newslet.newsletterPosts(edition))
+        implicit val messages: Messages = MessagesImpl(edition.newsletter.lang, messagesApi)
+        Ok(views.html.newslet.newsletterPosts(edition)(request, messages, assets))
       }
   }
 

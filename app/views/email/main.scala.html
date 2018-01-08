@@ -1,5 +1,9 @@
 @(title: String, description: Option[String] = None, url: Option[String] = None)(content: Html)(implicit messages: Messages, assets: AssetsFinder)
 
+@shareImage() = @{
+    "https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/2e2c0374-77fc-460d-9aa7-bf05d5b4c6ed.png"
+}
+
 <!doctype html>
 <html xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraph.org/schema/">
     <head>
@@ -9,14 +13,16 @@
 
         <meta property="fb:page_id" content="43929265776" />
 
-        <meta name="twitter:image:src" content="https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png">
+        <meta name="twitter:image:src" content="@shareImage()">
         <meta name="twitter:description" content="@description.getOrElse("")">
         <meta name="twitter:title" content="Expresso: @title">
         <meta name="twitter:card" content="summary_large_image">
         <meta property="og:type" content="article">
 
         <meta property="og:description" content="@description.getOrElse("")">
-        <meta property="og:image" content="https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png">
+        <meta property="og:image" content="@shareImage()">
+        <meta property="og:image:width" content="300">
+        <meta property="og:image:height" content="300">
         <meta property="og:title" content="Expresso: @title">
         <meta property="og:url" content="@url.getOrElse("https://expresso.today")">
             <!-- NAME: 1 COLUMN -->

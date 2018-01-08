@@ -8,10 +8,8 @@
     b3.horizontal.fieldConstructor("col-md-2", "col-md-10")
 }
 
-@import helper._
-
 @b3.form(action = controllers.newslet.routes.EditionController.submitHeaderForm()) {
-    @CSRF.formField
+    @helper.CSRF.formField
     @b3.text(headerForm("id"), 'style -> "display: none")
     @quillInput("text", "text", headerForm.data.getOrElse("text", "{}"))
 
