@@ -122,6 +122,7 @@ object UrlUtils {
       .map(_.toString)
       .map(l => letters.getOrElse(l, l))
       .mkString("")
+      .toLowerCase
     URLEncoder.encode(translate, "UTF-8")
   }
 
