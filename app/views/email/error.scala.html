@@ -1,7 +1,5 @@
 @(code: Int)(implicit request: RequestHeader, messages: Messages, assets: AssetsFinder)
 
-    @*https://nextdraft.com/thanks/*@
-
 @errorMsg(implicit request: RequestHeader) = @{
     //   использовать MessageAPi для получения дефолтного сообщения под ошибку
     request.flash.get("error").getOrElse("Упс! Что-то пошло не так.")

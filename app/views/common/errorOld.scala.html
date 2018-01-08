@@ -1,0 +1,17 @@
+@import exceptions.BaseException
+@(t: Throwable)
+
+@t match {
+    case e: BaseException => {
+        <h1>
+            <span style="color: red">Error: @e.code</span>
+        </h1>
+        <span style="color: red">@e.message</span>
+    }
+    case e: Throwable => {
+        <h1>
+            <span style="color: red">Something goes wrong</span>
+        </h1>
+        <span style="color: red">@e.getMessage</span>
+    }
+}
