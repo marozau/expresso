@@ -83,18 +83,18 @@ template.header.date.week.5 = Friday
 template.header.date.week.6 = Saturday
 template.header.date.week.7 = Sunday
 
-template.header.date.month.1 = January
-template.header.date.month.2 = February
-template.header.date.month.3 = March
-template.header.date.month.4 = April
-template.header.date.month.5 = May
-template.header.date.month.6 = June
-template.header.date.month.7 = July
-template.header.date.month.8 = August
-template.header.date.month.9 = September
-template.header.date.month.10 = October
-template.header.date.month.11 = November
-template.header.date.month.12 = December
+template.header.date.month.1 = january
+template.header.date.month.2 = february
+template.header.date.month.3 = march
+template.header.date.month.4 = april
+template.header.date.month.5 = may
+template.header.date.month.6 = june
+template.header.date.month.7 = july
+template.header.date.month.8 = august
+template.header.date.month.9 = september
+template.header.date.month.10 = october
+template.header.date.month.11 = november
+template.header.date.month.12 = december
 
 template.header.date = {0}, {2} {1} {3}
 

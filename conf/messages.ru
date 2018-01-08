@@ -83,18 +83,18 @@ template.header.date.week.5 = Пятница
 template.header.date.week.6 = Суббота
 template.header.date.week.7 = Воскресенье
 
-template.header.date.month.1 = Января
-template.header.date.month.2 = Февраля
-template.header.date.month.3 = Марта
-template.header.date.month.4 = Апреля
-template.header.date.month.5 = Мая
-template.header.date.month.6 = Июня
-template.header.date.month.7 = Июля
-template.header.date.month.8 = Августа
-template.header.date.month.9 = Сентября
-template.header.date.month.10 = Октября
-template.header.date.month.11 = Ноября
-template.header.date.month.12 = Декабря
+template.header.date.month.1 = января
+template.header.date.month.2 = февраля
+template.header.date.month.3 = марта
+template.header.date.month.4 = апреля
+template.header.date.month.5 = мая
+template.header.date.month.6 = июня
+template.header.date.month.7 = июля
+template.header.date.month.8 = августа
+template.header.date.month.9 = сентября
+template.header.date.month.10 = октября
+template.header.date.month.11 = ноября
+template.header.date.month.12 = декабря
 
 template.header.date = {0}, {1} {2} {3}
 
