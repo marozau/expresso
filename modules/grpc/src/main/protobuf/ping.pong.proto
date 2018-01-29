@@ -1,0 +1,15 @@
+syntax = "proto3";
+package today.expresso.grpc;
+
+message PingRequest {
+    int64 timestamp = 1;
+}
+
+message PongResponse {
+    int64 timestamp = 1;
+}
+
+service PingPongService {
+    rpc Ping (PingRequest) returns (PongResponse) {
+    }
+}

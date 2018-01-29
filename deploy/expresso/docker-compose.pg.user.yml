@@ -1,0 +1,16 @@
+version: '2'
+services:
+  postgres_user:
+    image: postgres:9.6
+    ports:
+      - 5437:5432
+    environment:
+      - POSTGRES_USER=expresso_user
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - pbdata_user:/var/lib/postgresql/data
+
+volumes:
+  pbdata_user:
+    driver: local
+

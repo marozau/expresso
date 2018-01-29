@@ -1,0 +1,49 @@
+syntax = "proto3";
+package today.expresso.grpc.user.dto;
+
+message UserDto {
+
+    enum Role {
+        USER = 0;
+        READER = 1;
+        MEMBER = 2;
+        WRITER = 3;
+        EDITOR = 4;
+        CHIEF_EDITOR = 5;
+        ADMIN = 6;
+    }
+
+    enum Status {
+        NEW = 0;
+        VERIFIED = 1;
+        BLOCKED = 2;
+    }
+
+    int64 id = 1;
+    string email = 2;
+    repeated Role roles = 3;
+    Status status = 4;
+    string locale = 5;
+    int32 timezone = 6;
+    string reason = 7;
+    int64 createdTimestamp = 8;
+}
+
+message LoginInfoDto {
+    string providerId = 1;
+    string providerKey = 2;
+}
+
+message UserIdentityDto {
+    LoginInfoDto loginInfo = 1;
+    int64 id = 2;
+    repeated UserDto.Role roles = 3;
+    UserDto.Status status = 4;
+    string locale = 5;
+}
+
+message PasswordInfoDto {
+    string hasher = 1;
+    string password = 2;
+    string salt = 3;
+}

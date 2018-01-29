@@ -1,0 +1,188 @@
+syntax = "proto3";
+package today.expresso.grpc.user.service;
+
+import "common.proto";
+import "user.dto.proto";
+
+message UserGetByLoginInfoRequest {
+    Header header = 1;
+    dto.LoginInfoDto loginInfo = 2;
+}
+message UserGetByLoginInfoResponse {
+    Header header = 1;
+    dto.UserIdentityDto user = 2;
+}
+
+service UserIdentityService {
+
+    rpc UserGetByLoginInfo (UserGetByLoginInfoRequest) returns (UserGetByLoginInfoResponse) {
+    }
+}
+
+//-----------------------------------
+
+message PasswordInfoFindRequest {
+    Header header = 1;
+    dto.LoginInfoDto loginInfo = 2;
+}
+message PasswordInfoFindResponse {
+    Header header = 1;
+    dto.PasswordInfoDto passwordInfo = 2;
+}
+message PasswordInfoAddRequest {
+    Header header = 1;
+    dto.LoginInfoDto loginInfo = 2;
+    dto.PasswordInfoDto passwordInfo = 3;
+}
+message PasswordInfoAddResponse {
+    Header header = 1;
+    dto.PasswordInfoDto passwordInfo = 2;
+}
+message PasswordInfoUpdateRequest {
+    Header header = 1;
+    dto.LoginInfoDto loginInfo = 2;
+    dto.PasswordInfoDto passwordInfo = 3;
+}
+message PasswordInfoUpdateResponse {
+    Header header = 1;
+    dto.PasswordInfoDto passwordInfo = 2;
+}
+message PasswordInfoSaveRequest {
+    Header header = 1;
+    dto.LoginInfoDto loginInfo = 2;
+    dto.PasswordInfoDto passwordInfo = 3;
+}
+message PasswordInfoSaveResponse {
+    Header header = 1;
+    dto.PasswordInfoDto passwordInfo = 2;
+}
+message PasswordInfoRemoveRequest {
+    Header header = 1;
+    dto.LoginInfoDto loginInfo = 2;
+}
+message PasswordInfoRemoveResponse {
+    Header header = 1;
+}
+
+service PasswordInfoService {
+    rpc PasswordInfoFind (PasswordInfoFindRequest) returns (PasswordInfoFindResponse) {
+    }
+    rpc PasswordInfoAdd (PasswordInfoAddRequest) returns (PasswordInfoAddResponse) {
+    }
+    rpc PasswordInfoUpdate (PasswordInfoUpdateRequest) returns (PasswordInfoUpdateResponse) {
+    }
+    rpc PasswordInfoSave (PasswordInfoSaveRequest) returns (PasswordInfoSaveResponse) {
+    }
+    rpc PasswordInfoRemove (PasswordInfoRemoveRequest) returns (PasswordInfoRemoveResponse) {
+    }
+}
+
+//-----------------------------------
+
+message UserGetByIdRequest {
+    Header header = 1;
+    int64 userId = 2;
+}
+message UserGetByIdResponse {
+    Header header = 1;
+    dto.UserDto user = 2;
+}
+
+message UserCreateRequest {
+    Header header = 1;
+
+    string email = 2;
+    string password = 3;
+    // used for verification email
+    string localse = 4;
+}
+message UserCreateResponse {
+    Header header = 1;
+    dto.UserDto user = 2;
+}
+
+message UserVerifyRequest {
+    Header header = 1;
+
+    string token = 2;
+}
+message UserVerifyResponse {
+    Header header = 1;
+}
+
+service UserService {
+
+    rpc UserGetById (UserGetByIdRequest) returns (UserGetByIdResponse) {
+    }
+    rpc UserCreate (UserCreateRequest) returns (UserCreateResponse) {
+    }
+    rpc UserVerify (UserVerifyRequest) returns (UserVerifyResponse) {
+    }
+}
+
+//-----------------------------------
+
+message ChangePasswordRequest {
+    Header header = 1;
+
+    string passwordCurrent = 2;
+    string passwordNew = 3;
+}
+message ChangePasswordResponse {
+    Header header = 1;
+}
+
+message ForgotPasswordRequest {
+    Header header = 1;
+
+    string email = 2;
+}
+message ForgotPasswordResponse {
+    Header header = 1;
+}
+
+message ResetPasswordRequest {
+    Header header = 1;
+
+    string token = 2;
+    string passwordNew = 3;
+}
+message ResetPasswordResponse {
+    Header header = 1;
+}
+
+service PasswordService {
+    rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse) {
+    }
+    rpc ForgotPassword (ForgotPasswordRequest) returns (ForgotPasswordResponse) {
+    }
+    rpc ResetPassword (ResetPasswordRequest) returns (ResetPasswordResponse) {
+    }
+}
+
+//-----------------------------------
+
+message SendActivationRequest {
+    Header header = 1;
+
+    string email = 2;
+}
+message SendActivationResponse {
+    Header header = 1;
+}
+
+message ActivationRequest {
+    Header header = 1;
+
+    string token = 2;
+}
+message ActivationResponse {
+    Header header = 1;
+}
+
+service ActivationService {
+    rpc SendActivation (SendActivationRequest) returns (SendActivationResponse) {
+    }
+    rpc Activation (ActivationRequest) returns (ActivationResponse) {
+    }
+}
