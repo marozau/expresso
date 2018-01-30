@@ -29,7 +29,7 @@ class UserService @Inject()(userDao: UserDao)(implicit ec: ExecutionContext) {
         userDao.save(user.copy(loginInfo = profile.loginInfo))
       case None =>
         if (profile.email.isDefined) throw EmailNotFoundException("CommonSocialProfile email is empty")
-        userDao.save(User(None, profile.loginInfo, profile.email.get, List(User.Role.READER), User.Status.NEW))
+        userDao.save(User(None, profile.loginInfo, profile.email.get, List(User.Role.USER), User.Status.NEW))
       //TODO: update personal info
     }
   }

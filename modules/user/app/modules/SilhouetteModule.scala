@@ -5,7 +5,7 @@ import javax.inject.Named
 import services.UserIdentityService
 import com.google.inject.{AbstractModule, Provides}
 import com.mohiva.play.silhouette.api._
-import com.mohiva.play.silhouette.api.actions.{SecuredErrorHandler, UnsecuredErrorHandler}
+import com.mohiva.play.silhouette.api.actions.{DefaultSecuredErrorHandler, DefaultUnsecuredErrorHandler, SecuredErrorHandler, UnsecuredErrorHandler}
 import com.mohiva.play.silhouette.api.crypto.{Crypter, CrypterAuthenticatorEncoder, Signer}
 import com.mohiva.play.silhouette.api.repositories.{AuthInfoRepository, AuthenticatorRepository}
 import com.mohiva.play.silhouette.api.util.{PasswordHasherRegistry, _}
@@ -17,7 +17,6 @@ import services.{AuthenticatorService, _}
 import com.mohiva.play.silhouette.password.BCryptPasswordHasher
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import com.mohiva.play.silhouette.persistence.repositories.{CacheAuthenticatorRepository, DelegableAuthInfoRepository}
-import filters.{CustomSecuredErrorHandler, CustomUnsecuredErrorHandler}
 import models.User
 import models.daos.PasswordInfoDao
 import net.ceedubs.ficus.Ficus._
@@ -45,8 +44,8 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     */
   override def configure() {
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]
-    bind[UnsecuredErrorHandler].to[CustomUnsecuredErrorHandler]
-    bind[SecuredErrorHandler].to[CustomSecuredErrorHandler]
+    bind[UnsecuredErrorHandler].to[DefaultUnsecuredErrorHandler]
+    bind[SecuredErrorHandler].to[DefaultSecuredErrorHandler]
     bind[IdentityService[User]].to[UserIdentityService]
     bind[DelegableAuthInfoDAO[PasswordInfo]].to[PasswordInfoDao]
     bind[CacheLayer].to[PlayCacheLayer]

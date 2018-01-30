@@ -11,8 +11,8 @@ import scala.util.Try
   * @author im.
   */
 @Singleton
-class JwtTokenMarshaller @Inject() (authenticatorEncoder: AuthenticatorEncoder,
-                                    settings: JWTAuthenticatorSettings) {
+class JwtTokenMarshaller @Inject()(authenticatorEncoder: AuthenticatorEncoder,
+                                   settings: JWTAuthenticatorSettings) {
 
   def serialize(authenticator: JWTAuthenticator): String = {
     JWTAuthenticator.serialize(authenticator, authenticatorEncoder, settings)

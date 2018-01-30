@@ -9,5 +9,6 @@ import com.google.common.hash.Hashing
   */
 object HashUtils {
 
-  def encode(string: String) = Hashing.sha256().hashString(string, Charset.forName("UTF-8"))
+  def encode(string: String): String =
+    Hashing.sha256().hashString(string, Charset.forName("UTF-8")).toString
 }

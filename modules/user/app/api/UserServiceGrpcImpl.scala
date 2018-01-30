@@ -7,15 +7,15 @@ import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.PasswordHasherRegistry
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import exceptions.{InvalidVerificationException, InvalidEmailException}
+import exceptions.{InvalidEmailException, InvalidVerificationException}
 import grpc.GrpcErrorHandler
 import models.User
 import org.slf4j.{Logger, LoggerFactory}
-import play.api.i18n.Messages
 import play.api.libs.mailer.{Email, MailerClient}
 import services.{AuthTokenService, UserService}
 import today.expresso.grpc.user.dto._
 import today.expresso.grpc.user.service._
+import utils.HashUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -47,19 +47,6 @@ class UserServiceGrpcImpl @Inject()(userService: UserService,
       }
   }
 
-  override def userGetByLoginInfo(request: UserGetByLoginInfoRequest) = GrpcErrorHandler {
-    log.info(s"userGetByLoginInfo - {}", request)
-    require(request.loginInfo.nonEmpty, "loginInfo is empty")
-
-    userService.retrieve(request.loginInfo.get)
-      .map { userOption: Option[models.User] =>
-        UserGetByLoginInfoResponse(
-          request.header.map(_.copy(token = "")),
-          userOption.map(userDtoCast)
-        )
-      }
-  }
-
   //TODO: validate email address
   //TODO: validate password
   override def userCreate(request: UserCreateRequest) = GrpcErrorHandler {
@@ -67,8 +54,8 @@ class UserServiceGrpcImpl @Inject()(userService: UserService,
     val domain = "expresso.today"
     if (!request.email.endsWith(domain)) throw InvalidEmailException("@expresso.today domain is allowed only")
 
-    val loginInfo = LoginInfo(CredentialsProvider.ID, request.email)
-    userService.retrieve(loginInfo).flatMap {
+    val loginInfo = LoginInfo(CredentialsProvider.ID, HashUtils.encode(request.email))
+    userService.getByLoginInfo(loginInfo).flatMap {
       case Some(_) =>
         Future.failed(InvalidEmailException("user already exists"))
       case None =>
@@ -77,7 +64,7 @@ class UserServiceGrpcImpl @Inject()(userService: UserService,
           id = None,
           loginInfo = loginInfo,
           email = request.email,
-          roles = List(User.Role.READER),
+          roles = List(User.Role.USER),
           status = User.Status.NEW
         )
         import scala.concurrent.duration._
@@ -89,14 +76,14 @@ class UserServiceGrpcImpl @Inject()(userService: UserService,
           //          val url = routes.ActivateAccountController.activate(authToken.id).absoluteURL()
           //TODO: replace by emailService request
           val url = s"http://localhost:9000/activate?token=${authToken.id}"
-          mailerClient.send(Email(
-            subject = "email.sign.up.subject",
-            from = "email.from",
-            to = Seq(request.email),
-            bodyText = Some(s"""Click <a href="$url">here</a> to send the activation email again.""")
-            //                bodyText = Some(views.txt.emails.signUp(user, url).body),
-            //                bodyHtml = Some(views.html.emails.signUp(user, url).body)
-          ))
+//          mailerClient.send(Email(
+//            subject = "email.sign.up.subject",
+//            from = "email.from",
+//            to = Seq(request.email),
+//            bodyText = Some(s"""Click <a href="$url">here</a> to send the activation email again.""")
+//            //                bodyText = Some(views.txt.emails.signUp(user, url).body),
+//            //                bodyHtml = Some(views.html.emails.signUp(user, url).body)
+//          ))
 
           UserCreateResponse(
             request.header,
@@ -126,6 +113,7 @@ class UserServiceGrpcImpl @Inject()(userService: UserService,
 object UserServiceGrpcImpl {
 
   implicit def userDtoRoleCast(role: User.Role.Value) = role match {
+    case User.Role.USER => UserDto.Role.USER
     case User.Role.READER => UserDto.Role.READER
     case User.Role.MEMBER => UserDto.Role.MEMBER
     case User.Role.WRITER => UserDto.Role.WRITER
@@ -152,7 +140,6 @@ object UserServiceGrpcImpl {
       user.timezone.getOrElse(0),
       user.reason.getOrElse(""),
       user.createdTimestamp.get.toEpochSecond,
-      loginInfo = Some(LoginInfoDto(user.loginInfo.providerID, user.loginInfo.providerKey))
     )
   }
 

@@ -97,7 +97,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
 
   @Provides @Named("authenticator-cache")
   def provideAuthenticatorRepository(cacheLayer: CacheLayer): AuthenticatorRepository[JWTAuthenticator] = {
-    new CacheAuthenticatorRepository(cacheLayer)
+    new CacheAuthenticatorRepository[JWTAuthenticator](cacheLayer)
   }
   /**
     * Provides the authenticator service.

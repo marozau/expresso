@@ -94,7 +94,7 @@ message UserCreateRequest {
     string email = 2;
     string password = 3;
     // used for verification email
-    string localse = 4;
+    string locale = 4;
 }
 message UserCreateResponse {
     Header header = 1;

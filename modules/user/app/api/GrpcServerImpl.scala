@@ -20,9 +20,11 @@ trait GrpcServer
 @Singleton
 class GrpcServerImpl @Inject()(appLifecycle: ApplicationLifecycle,
                                config: Configuration,
-                               userServiceGprc: UserServiceGrpcImpl,
-                               passwordInfoServiceGrpc: PasswordInfoServiceGrpcImpl)
+                               userIdentityServiceGrpc: UserIdentityServiceGrpcImpl,
+                               passwordInfoServiceGrpc: PasswordInfoServiceGrpcImpl,
+                               userServiceGprc: UserServiceGrpcImpl)
                               (implicit ec: ExecutionContext) extends GrpcServer {
+
   import GrpcServerImpl._
 
   private val log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
@@ -31,8 +33,9 @@ class GrpcServerImpl @Inject()(appLifecycle: ApplicationLifecycle,
 
   val server: Server = ServerBuilder.forPort(port)
     .addTransportFilter(filter)
-    .addService(UserServiceGrpc.bindService(userServiceGprc, ec))
+    .addService(UserIdentityServiceGrpc.bindService(userIdentityServiceGrpc, ec))
     .addService(PasswordInfoServiceGrpc.bindService(passwordInfoServiceGrpc, ec))
+    .addService(UserServiceGrpc.bindService(userServiceGprc, ec))
     .build
     .start
 
@@ -61,6 +64,7 @@ object GrpcServerImpl {
         log.info(s"connected, attributes=${transportAttrs.toString}")
         super.transportReady(transportAttrs)
       }
+
       override def transportTerminated(transportAttrs: Attributes) = {
         log.info(s"disconnected, attributes=${transportAttrs.toString}")
         super.transportTerminated(transportAttrs)

@@ -7,7 +7,8 @@ import io.grpc.ManagedChannelBuilder
 import play.api.Configuration
 import play.api.libs.concurrent.AkkaGuiceSupport
 import today.expresso.grpc.user.service.PasswordInfoServiceGrpc.PasswordInfoServiceStub
-import today.expresso.grpc.user.service.{PasswordInfoServiceGrpc, UserServiceGrpc}
+import today.expresso.grpc.user.service.UserIdentityServiceGrpc.UserIdentityServiceStub
+import today.expresso.grpc.user.service.{PasswordInfoServiceGrpc, UserIdentityServiceGrpc, UserServiceGrpc}
 import today.expresso.grpc.user.service.UserServiceGrpc.UserServiceStub
 
 /**
@@ -20,14 +21,22 @@ class ExpressoModule extends AbstractModule with AkkaGuiceSupport {
   }
 
   @Provides
-  def provideUserServiceStub(config: Configuration): UserServiceStub = {
+  def provideUserIdentityServiceStub(config: Configuration): UserIdentityServiceStub = {
     val channel = ManagedChannelBuilder.forTarget(config.get[String]("grpc.user.target")).usePlaintext(true).build
-    UserServiceGrpc.stub(channel).withWaitForReady()
+    UserIdentityServiceGrpc.stub(channel).withWaitForReady()
   }
+
 
   @Provides
   def providePasswordInfoServiceStub(config: Configuration): PasswordInfoServiceStub = {
     val channel = ManagedChannelBuilder.forTarget(config.get[String]("grpc.user.target")).usePlaintext(true).build
     PasswordInfoServiceGrpc.stub(channel).withWaitForReady()
   }
+
+  @Provides
+  def provideUserServiceStub(config: Configuration): UserServiceStub = {
+    val channel = ManagedChannelBuilder.forTarget(config.get[String]("grpc.user.target")).usePlaintext(true).build
+    UserServiceGrpc.stub(channel).withWaitForReady()
+  }
+
 }

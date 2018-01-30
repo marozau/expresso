@@ -33,7 +33,8 @@ lazy val api = (project in file("modules/api"))
     libraryDependencies += redisPlay,
     libraryDependencies ++= bootstrapAll,
     libraryDependencies ++= Seq(playMailer, playMailerGuice),
-    libraryDependencies += flyway
+    libraryDependencies += flyway,
+    libraryDependencies += akkaRemote
   )
 
 lazy val user = (project in file("modules/user"))

@@ -21,7 +21,7 @@ object Dependency {
     lazy val bootstrap = "3.3.7-1"
     lazy val bootstrapPlay = "1.2-P26-B3"
     lazy val webjars = "2.6.2"
-    lazy val redisPlay = "2.0.1"
+    lazy val redisPlay = "2.0.2"
     lazy val scalacache = "0.10.0"
     lazy val playHtmlCompressor = "0.7.1"
     lazy val scalaGuice = "4.1.0"
@@ -34,6 +34,7 @@ object Dependency {
     lazy val grpc = "1.1.2"
     lazy val scalapbGrpc = "0.6.0-pre2"
     lazy val flyway = "4.0.0"
+    lazy val akka = "2.5.8"
 
     // Tests
     lazy val scalatestplus = "3.0.0"
@@ -102,6 +103,8 @@ object Dependency {
   lazy val scalapbRuntimeGrpc: ModuleID = "com.trueaccord.scalapb" %% "scalapb-runtime-grpc" % v.scalapbGrpc
 
   lazy val flyway: ModuleID = "org.flywaydb" %% "flyway-play" % v.flyway
+
+  lazy val akkaRemote: ModuleID = "com.typesafe.akka" %% "akka-remote" % v.akka
 
   // Tests
   lazy val scalatestplus: ModuleID = "org.scalatestplus.play" %% "scalatestplus-play" % v.scalatestplus % Test
