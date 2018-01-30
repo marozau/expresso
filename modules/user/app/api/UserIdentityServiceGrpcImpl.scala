@@ -26,6 +26,7 @@ class UserIdentityServiceGrpcImpl @Inject()(userService: UserService)(implicit e
 
   override def userGetByLoginInfo(request: UserGetByLoginInfoRequest) = GrpcErrorHandler {
     log.info(s"userGetByLoginInfo - {}", request)
+
     require(request.loginInfo.nonEmpty, "loginInfo is empty")
 
     userService.getByLoginInfo(request.loginInfo.get)
@@ -43,7 +44,6 @@ object UserIdentityServiceGrpcImpl {
 
   implicit def userIdentityDtoCast(user: User): UserIdentityDto = {
     UserIdentityDto(
-      Some(LoginInfoDto(user.loginInfo.providerID, user.loginInfo.providerKey)),
       user.id.get,
       user.roles.map(userDtoRoleCast),
       user.status,

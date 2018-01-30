@@ -1,7 +1,10 @@
 syntax = "proto3";
 package today.expresso.grpc;
 
+import "user.dto.proto";
+
 message Header {
     int32 correlation = 1;
-    string token = 2; // required for authentification/authorisation
+    string token = 2; //TODO: remove, user CredentialsDto instead
+    user.dto.CredentialsDto credentials = 3;
 }

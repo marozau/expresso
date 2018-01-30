@@ -8,7 +8,7 @@ import com.mohiva.play.silhouette.api.{LoginEvent, Silhouette}
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.util.{Clock, Credentials}
 import com.mohiva.play.silhouette.impl.providers._
-import modules.DefaultEnv
+import modules.AuthEnv
 import net.ceedubs.ficus.Ficus._
 import org.webjars.play.WebJarsUtil
 import play.api.i18n.I18nSupport
@@ -40,7 +40,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class SignInController @Inject()(
                                   components: ControllerComponents,
-                                  silhouette: Silhouette[DefaultEnv],
+                                  silhouette: Silhouette[AuthEnv],
                                   userIdentityService: UserIdentityService,
                                   credentialsProvider: CredentialsProvider,
                                   configuration: Configuration,

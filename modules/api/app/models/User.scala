@@ -2,26 +2,33 @@ package models
 
 import com.mohiva.play.silhouette.api.{Identity, LoginInfo}
 import play.api.libs.json.{Json, Reads, Writes}
-import today.expresso.grpc.user.dto.UserDto
+import today.expresso.grpc.user.dto.{UserDto, UserIdentityDto}
 
 /**
   * @author im.
   */
-object User {
-//  implicit val userRoleReads = Reads.enumNameReads(UserDto.Role)
-//  implicit val userRoleFormat = Json.format[UserDto.Role]
-//  implicit val userSeqRoleFormat = Json.format[Seq[UserDto.Role]]
-//
-////  implicit val userStatusReads = Reads.enumNameReads(UserDto.Status)
-//  implicit val userStatusFormat = Json.format[UserDto.Status]
-//
-//  implicit val userFormat = Json.format[User]
-}
-
 case class User(
                  id: Long,
-                 loginInfo: LoginInfo,
                  roles: Seq[UserDto.Role],
                  status: UserDto.Status,
                  locale: Option[String] = None,
                ) extends Identity
+
+object User {
+
+  implicit def userCast(user: UserIdentityDto): User = {
+    User(
+      user.id,
+      user.roles,
+      user.status,
+      if (user.locale.isEmpty) None else Some(user.locale))
+  }
+
+  implicit def userIdentityDtoCast(user: User): UserIdentityDto = {
+    UserIdentityDto(
+      user.id,
+      user.roles,
+      user.status,
+      user.locale.getOrElse(""))
+  }
+}

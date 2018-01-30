@@ -35,15 +35,20 @@ message LoginInfoDto {
 }
 
 message UserIdentityDto {
-    LoginInfoDto loginInfo = 1;
-    int64 id = 2;
-    repeated UserDto.Role roles = 3;
-    UserDto.Status status = 4;
-    string locale = 5;
+    int64 id = 1;
+    repeated UserDto.Role roles = 2;
+    UserDto.Status status = 3;
+    string locale = 4;
 }
 
 message PasswordInfoDto {
     string hasher = 1;
     string password = 2;
     string salt = 3;
+}
+
+message CredentialsDto {
+    UserIdentityDto user = 1;
+    string remoteAddress = 2;
+    map<string, string> tags = 3;
 }
