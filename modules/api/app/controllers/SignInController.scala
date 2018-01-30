@@ -15,7 +15,7 @@ import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, ControllerComponents}
 import play.api.{Configuration, Logger}
-import services.UserIdentityService
+import services.auth.UserIdentityService
 import today.expresso.grpc.Header
 import today.expresso.grpc.user.dto.UserDto
 import today.expresso.grpc.user.service.UserCreateRequest

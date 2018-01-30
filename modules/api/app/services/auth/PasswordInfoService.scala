@@ -1,15 +1,15 @@
-package services
+package services.auth
 
 import java.util.concurrent.ThreadLocalRandom
 import javax.inject.Inject
 
-import com.mohiva.play.silhouette.api.{LoginInfo, util}
 import com.mohiva.play.silhouette.api.util.PasswordInfo
+import com.mohiva.play.silhouette.api.{LoginInfo, util}
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import today.expresso.grpc.Header
 import today.expresso.grpc.user.dto.{LoginInfoDto, PasswordInfoDto}
-import today.expresso.grpc.user.service._
 import today.expresso.grpc.user.service.PasswordInfoServiceGrpc.PasswordInfoServiceStub
+import today.expresso.grpc.user.service._
 
 import scala.concurrent.{ExecutionContext, Future}
 

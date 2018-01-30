@@ -27,7 +27,7 @@ lazy val api = (project in file("modules/api"))
     libraryDependencies ++= Seq(guice, filters, ws, cacheApi),
     libraryDependencies ++= silhouetteAll,
     libraryDependencies ++= slickAll,
-    libraryDependencies ++ sangriaAll,
+    libraryDependencies ++= sangriaAll,
     libraryDependencies += quartz,
     libraryDependencies += ficus,
     libraryDependencies += scalaGuice,

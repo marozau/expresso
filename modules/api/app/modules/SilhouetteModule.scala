@@ -2,7 +2,7 @@ package modules
 
 import javax.inject.Named
 
-import services.{PasswordInfoService, UserIdentityService}
+import services.auth.{UserIdentityService, PasswordInfoService}
 import com.google.inject.{AbstractModule, Provides}
 import com.mohiva.play.silhouette.api.{services, _}
 import com.mohiva.play.silhouette.api.actions.{SecuredErrorHandler, UnsecuredErrorHandler}

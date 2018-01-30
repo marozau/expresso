@@ -1,4 +1,4 @@
-package services
+package services.auth
 
 import java.util.concurrent.ThreadLocalRandom
 import javax.inject.{Inject, Singleton}
@@ -8,12 +8,12 @@ import com.mohiva.play.silhouette.api.services.IdentityService
 import models.User
 import play.api.cache.AsyncCacheApi
 import today.expresso.grpc.Header
-import today.expresso.grpc.user.dto.{CredentialsDto, LoginInfoDto, UserIdentityDto}
+import today.expresso.grpc.user.dto.LoginInfoDto
 import today.expresso.grpc.user.service.UserIdentityServiceGrpc.UserIdentityServiceStub
 import today.expresso.grpc.user.service._
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * @author im.
