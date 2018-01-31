@@ -27,6 +27,7 @@ class AccessLoggingFilter @Inject()(implicit val mat: Materializer) extends Filt
       //TODO: send all error responses to analytics
     })
 
+    //TODO: setup correlation id
     resultFuture
   }
 }

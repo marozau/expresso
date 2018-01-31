@@ -1,7 +1,6 @@
 package models
 
-import com.mohiva.play.silhouette.api.{Identity, LoginInfo}
-import play.api.libs.json.{Json, Reads, Writes}
+import com.mohiva.play.silhouette.api.Identity
 import today.expresso.grpc.user.dto.{UserDto, UserIdentityDto}
 
 /**

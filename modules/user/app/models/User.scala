@@ -11,7 +11,7 @@ import play.api.libs.json._
 
 object User {
   object Role extends Enumeration {
-    val USER, READER, MEMBER, WRITER, EDITOR, CHIEF_EDITOR, ADMIN = Value
+    val USER, READER, MEMBER, WRITER, EDITOR, CHIEF_EDITOR, ADMIN, API = Value
 
     implicit val userRoleReads = Reads.enumNameReads(User.Role)
   }

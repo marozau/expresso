@@ -14,10 +14,12 @@ import play.filters.headers.SecurityHeadersFilter
   * https://www.playframework.com/documentation/latest/SecurityHeaders
   */
 class Filters @Inject()(
+                         redirectHttpsFilter: RedirectHttpsFilter,
                          csrfFilter: CSRFFilter,
                          securityHeadersFilter: SecurityHeadersFilter,
                          accessLoggingFilter: AccessLoggingFilter,
                        ) extends DefaultHttpFilters(
+  redirectHttpsFilter,
   csrfFilter,
   securityHeadersFilter,
   accessLoggingFilter

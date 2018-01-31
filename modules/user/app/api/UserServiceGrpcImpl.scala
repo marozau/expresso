@@ -120,6 +120,7 @@ object UserServiceGrpcImpl {
     case User.Role.EDITOR => UserDto.Role.EDITOR
     case User.Role.CHIEF_EDITOR => UserDto.Role.CHIEF_EDITOR
     case User.Role.ADMIN => UserDto.Role.ADMIN
+    case User.Role.API => UserDto.Role.API
     case role => throw new UnsupportedOperationException("unknown role: " + role)
   }
 

@@ -1,0 +1,22 @@
+@import play.api.data.Form
+@import play.api.i18n.Messages
+@import play.api.mvc.RequestHeader
+@import org.webjars.play.WebJarsUtil
+@import controllers.AssetsFinder
+
+@(signInForm: Form[controllers.forms.SignInForm.Data], action: Call)(implicit request: RequestHeader, messages: Messages, webJarsUtil: WebJarsUtil, assets: AssetsFinder)
+
+<!DOCTYPE html>
+<html lang="en">
+        @helper.form(action) {
+            @helper.CSRF.formField
+            @helper.inputText(signInForm("email"), '_hiddenLabel -> messages("email"), 'placeholder -> messages("email"), 'class -> "form-control input-lg", 'autofocus -> true)
+            @helper.inputPassword(signInForm("password"), '_hiddenLabel -> messages("password"), 'placeholder -> messages("password"), 'class -> "form-control input-lg")
+            @helper.checkbox(signInForm("rememberMe"), '_text -> messages("remember.me"), 'checked -> true)
+            <div class="form-group">
+                <div>
+                    <button id="submit" type="submit" value="submit" class="btn btn-lg btn-primary btn-block">Sing In</button>
+                </div>
+            </div>
+        }
+</html>
