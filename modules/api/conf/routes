@@ -8,8 +8,9 @@ GET         /user/signUp        controllers.SignInController.signUp(email: Strin
 GET         /user/list          controllers.UserController.list
 
 POST        /graphql            controllers.GraphQLController.graphql()
+
 GET         /graphql/api        controllers.GraphQLApiController.view()
-POST        /graphql/api        controllers.GraphQLApiController.graphiql()
+POST        /graphql/api        controllers.GraphQLApiController.submit()
 
 #GET         /assets/*file                      controllers.user.Assets.versioned(file)
 #GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)

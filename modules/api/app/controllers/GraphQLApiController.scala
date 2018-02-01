@@ -27,12 +27,12 @@ class GraphQLApiController @Inject()(
   def view() = Action { implicit request =>
     Ok(views.html.signIn(
       forms.SignInForm.form,
-      routes.GraphQLApiController.graphiql()))
+      routes.GraphQLApiController.submit()))
   }
 
-  def graphiql() = Action.async { implicit request =>
+  def submit() = Action.async { implicit request =>
     forms.SignInForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest(views.html.signIn(form, routes.GraphQLApiController.graphiql()))),
+      form => Future.successful(BadRequest(views.html.signIn(form, routes.GraphQLApiController.submit()))),
       data => {
         signInService.signIn(data.email, data.password, data.rememberMe)
           .map { case (user, token) =>
