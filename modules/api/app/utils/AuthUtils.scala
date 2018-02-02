@@ -24,7 +24,7 @@ case class WithRole(anyOf: UserDto.Role*) extends Authorization[User, JWTAuthent
 
 object WithRole {
   def isAuthorized(user: User, anyOf: UserDto.Role*): Boolean = {
-    anyOf.intersect(user.roles).nonEmpty
+    anyOf.intersect(user.roles).nonEmpty && !user.status.isBlocked
   }
 }
 
@@ -41,7 +41,7 @@ case class WithRoles(allOf: UserDto.Role*) extends Authorization[User, JWTAuthen
 
 object WithRoles {
   def isAuthorized(user: User, allOf: UserDto.Role*): Boolean =
-    allOf.intersect(user.roles).size == allOf.size
+    allOf.intersect(user.roles).size == allOf.size && !user.status.isBlocked
 }
 
 

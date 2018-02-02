@@ -113,7 +113,7 @@ class UserDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: E
       loginInfo <- loginInfoAction
       _ <- userLoginInfos += DBUserLoginInfo(newUser.id.get, loginInfo.id.get)
     } yield user.copy(id = newUser.id, createdTimestamp = newUser.createdTimestamp, modifiedTimestamp = newUser.modifiedTimestamp)).transactionally
-    db.run(actions)
+    db.run(actions.transactionally.withPinnedSession)
   }
 
   /**

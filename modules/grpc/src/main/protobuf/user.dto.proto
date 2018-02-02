@@ -53,3 +53,28 @@ message CredentialsDto {
     string remoteAddress = 2;
     map<string, string> tags = 3;
 }
+
+message UserProfileDto {
+
+    enum Sex {
+        UNKNOWN = 0;
+        MALE = 1;
+        FEMALE = 2;
+    }
+
+    int64 user_id = 1;
+    string email = 2;
+
+    string first_name = 3;
+    string last_name = 4;
+
+    Sex sex = 5;
+
+    int64 date_of_birth = 6;
+
+    string country = 7;
+    string city = 8;
+    string postcode = 9;
+
+    float rating = 10;
+}

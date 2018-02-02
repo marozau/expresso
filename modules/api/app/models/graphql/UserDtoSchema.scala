@@ -1,9 +1,11 @@
 package models.graphql
 
+import models.graphql.GraphQLShema.Permission
+import play.api.Logger
 import sangria.schema._
 import sangria.macros.derive._
 import today.expresso.grpc.user.dto.UserDto
-
+import sangria.parser.QueryParser
 
 /**
   * @author im.
@@ -40,7 +42,11 @@ object UserDtoSchema {
       ),
       EnumValue(name = "ADMIN",
         value = UserDto.Role.ADMIN,
-        description = Some("administrative permissions")
+        description = Some("Administrative permissions")
+      ),
+      EnumValue(name = "API",
+        value = UserDto.Role.API,
+        description = Some("Allowed to open API documentation")
       )
     )
   )
@@ -64,13 +70,17 @@ object UserDtoSchema {
     )
   )
 
-  val UserDtoType = ObjectType("User", "A main entity that perform actions in the system", fields[GraphQLContext, UserDto](
+
+  val UserDtoType = ObjectType("User", "A main entity who performs actions in the system", fields[GraphQLContext, UserDto](
     Field("id", LongType, resolve = _.value.id),
-    Field("email", StringType, resolve = _.value.email, deprecationReason = Some("Will not be exposed in future")),
+    Field("email", StringType,
+      tags = Permission(UserDto.Role.ADMIN) :: Nil,
+      resolve = (ctx: Context[GraphQLContext, UserDto]) => ctx.value.email,
+      deprecationReason = Some("Will not be exposed in future")).copy(astDirectives = Vector.empty),
     Field("roles", ListType(UserDtoRoleEnum), resolve = _.value.roles.toList),
     Field("status", UserDtoStatusEnum, resolve = _.value.status),
     Field("locale", StringType, resolve = _.value.locale),
-    Field("timezone", IntType, resolve = _.value.timezone),
+    Field("timezone", IntType, resolve = _.value.timezone, deprecationReason = Some("Will not be exposed in future")),
     Field("reason", OptionType(StringType), resolve = a => if (a.value.reason.isEmpty) None else Some(a.value.reason))
   ))
 
@@ -85,6 +95,8 @@ object UserDtoSchema {
 
   val Query = ObjectType[GraphQLContext, Unit](
     "Query", fields[GraphQLContext, Unit](
+      Field("me", OptionType(UserDtoType),
+        resolve = ctx => ctx.ctx.services.userService.getById(ctx.ctx.creds.user.id)(ctx.ctx.creds)),
       Field("user", OptionType(UserDtoType),
         arguments = ID :: Nil,
         resolve = ctx => ctx.ctx.services.userService.getById(ctx.arg(ID))(ctx.ctx.creds))
