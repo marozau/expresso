@@ -4,13 +4,18 @@ import javax.inject.{Inject, Singleton}
 
 import com.mohiva.play.silhouette.api.LoginInfo
 import db.Repository
+import exceptions.UserAlreadyExistsException
 import models._
 import models.components.{SilhouetteComponent, UserComponent}
+import org.postgresql.util.PSQLException
+import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
-import slick.jdbc.JdbcProfile
+import slick.jdbc.{JdbcProfile, SetParameter}
+import utils.SqlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 /**
   * @author im.
@@ -136,5 +141,27 @@ class UserDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: E
       .filter(user => user.id === userId && user.status === User.Status.NEW)
       .map(_.status)
       .update(User.Status.VERIFIED)
+  }
+
+  def create(email: String, password: String, hasher: String, locale: Option[String], timezone: Option[Int]): Future[Long] = {
+    val query = sql"SELECT * FROM users_create_auth_password(${email}, ${password}, ${hasher}, ${locale}, ${timezone})".as[Long].head
+    db.run(query.asTry).map {
+      case Success(res) => res
+      case Failure(e: PSQLException) =>
+        SqlUtils.parseException(e, UserAlreadyExistsException.throwException)
+        throw e
+      case Failure(e: Throwable) => throw e
+    }
+  }
+
+  implicit val setUserRole: SetParameter[User.Role.Value] = SetParameter { (t, pp) => userRoleTypeMapper.setValue(t, pp.ps, pp.pos + 1)}
+  implicit val setUserRoles: SetParameter[List[User.Role.Value]] = SetParameter { (t, pp) => userRoleListTypeMapper.setValue(t, pp.ps, pp.pos + 1)}
+  implicit val setUserRoles2: SetParameter[List[Long]] = SetParameter { (t, pp) => simpleLongListTypeMapper.setValue(t, pp.ps, pp.pos + 1)}
+
+//  implicit val userRoleTypeMapper1 = createEnumJdbcType("user_role", User.Role)
+//  userRoleTypeMapper.
+
+  def test(roles: List[Long]): Future[Boolean] = {
+    db.run(sql"SELECT * FROM test_enum(${roles})".as[Boolean].head)
   }
 }

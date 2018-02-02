@@ -33,8 +33,12 @@ object BaseException {
 }
 
 trait BaseException extends Exception {
-  def code: BaseException.ErrorCode.Value
-  def message: String
+  val code: BaseException.ErrorCode.Value
+  val message: String
 
   override def getMessage: String = message
+}
+
+trait BaseExceptionReflection {
+  def throwException(code: String, message: () => String): Unit
 }

@@ -2,6 +2,7 @@ CREATE TYPE user_sex AS ENUM ('MALE', 'FEMALE', 'UNKNOWN');
 
 CREATE TABLE user_profiles (
   user_id            BIGINT PRIMARY KEY REFERENCES users (id),
+  email              TEXT NOT NULL UNIQUE,
 
   first_name         TEXT,
   last_name          TEXT,
@@ -18,6 +19,9 @@ CREATE TABLE user_profiles (
 
 CREATE INDEX user_profiles_modified_timestamp_idx
   ON user_profiles (modified_timestamp);
+
+CREATE INDEX users_email_idx
+  ON user_profiles (email);
 
 DROP TRIGGER IF EXISTS user_profiles_modified
 ON user_profiles;

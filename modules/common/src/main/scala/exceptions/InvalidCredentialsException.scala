@@ -4,5 +4,5 @@ package exceptions
   * @author im.
   */
 case class InvalidCredentialsException(message: String) extends BaseException {
-  override def code: _root_.exceptions.BaseException.ErrorCode.Value = BaseException.ErrorCode.INVALID_CREDENTIALS
+  override val code: _root_.exceptions.BaseException.ErrorCode.Value = BaseException.ErrorCode.INVALID_CREDENTIALS
 }
