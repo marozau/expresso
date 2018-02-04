@@ -6,8 +6,15 @@ import services.ServiceRegistry
 /**
   * @author im.
   */
+
 case class GraphQLContext(
                            app: ApplicationContext,
                            services: ServiceRegistry,
                            creds: Credentials
                          )
+
+case class GraphQLAnonymousContext(
+                                    app: ApplicationContext,
+                                    services: ServiceRegistry
+                                  )
+

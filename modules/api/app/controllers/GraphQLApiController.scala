@@ -2,6 +2,7 @@ package controllers
 
 import javax.inject.{Inject, Singleton}
 
+import models.User
 import org.webjars.play.WebJarsUtil
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, ControllerComponents}
@@ -24,21 +25,23 @@ class GraphQLApiController @Inject()(
                                       ex: ExecutionContext
                                     ) extends AbstractController(components) with I18nSupport {
 
-  def view() = Action { implicit request =>
+  def view(role: String) = Action { implicit request =>
     Ok(views.html.signIn(
       forms.SignInForm.form,
-      routes.GraphQLApiController.submit()))
+      routes.GraphQLApiController.submit(role)))
   }
 
-  def submit() = Action.async { implicit request =>
+  def submit(role: String) = Action.async { implicit request =>
     forms.SignInForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest(views.html.signIn(form, routes.GraphQLApiController.submit()))),
+      form => Future.successful(BadRequest(views.html.signIn(form, routes.GraphQLApiController.submit(role)))),
       data => {
         signInService.signIn(data.email, data.password, data.rememberMe)
           .map { case (user, token) =>
-            if (user.roles.contains(UserDto.Role.API)) {
-              Ok(views.html.graphiql(token)).withNewSession
-            } else Unauthorized
+            if (role.nonEmpty && !user.roles.contains(User.strToRoleMapper(role.toUpperCase))) {
+              Unauthorized
+            } else {
+              Ok(views.html.graphiql(token, role)).withNewSession
+            }
           }
       }
     )

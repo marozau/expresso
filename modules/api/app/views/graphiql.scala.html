@@ -1,5 +1,8 @@
-@(token: String)
+@(token: String, role: String)
 
+@rote = @{
+    if (role.isEmpty) "" else s"/$role"
+}
 <!--
  LICENSE AGREEMENT For GraphiQL software
 
@@ -113,7 +116,7 @@ Copyright (c) 2015, Facebook, Inc. All rights reserved.
       function graphQLFetcher(graphQLParams) {
           // This example expects a GraphQL server at the path /graphql.
           // Change this to point wherever you host your GraphQL server.
-          return fetch('/graphql', {
+          return fetch('/graphql@rote', {
               method: 'post',
               headers: {
                   'Accept': 'application/json',

@@ -1,13 +1,13 @@
-package models.graphql
+package models.graphql.api
 
 import sangria.execution.FieldTag
-import sangria.schema.{Argument, AstSchemaBuilder, Directive, DirectiveLocation, DirectiveResolver, ListInputType, StringType}
+import sangria.schema.{Argument, Directive, DirectiveLocation, ListInputType, StringType}
 import today.expresso.grpc.user.dto.UserDto
 
 /**
   * @author im.
   */
-object GraphQLShema {
+object GraphQLSchema {
 
   case object Authorised extends FieldTag
 

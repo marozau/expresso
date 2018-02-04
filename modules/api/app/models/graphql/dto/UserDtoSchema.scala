@@ -1,11 +1,8 @@
-package models.graphql
+package models.graphql.dto
 
-import models.graphql.GraphQLShema.Permission
-import play.api.Logger
+import models.graphql.GraphQLContext
 import sangria.schema._
-import sangria.macros.derive._
 import today.expresso.grpc.user.dto.UserDto
-import sangria.parser.QueryParser
 
 /**
   * @author im.
@@ -77,7 +74,8 @@ object UserDtoSchema {
     Field("status", UserDtoStatusEnum, resolve = _.value.status),
     Field("locale", StringType, resolve = _.value.locale),
     Field("timezone", IntType, resolve = _.value.timezone, deprecationReason = Some("Will not be exposed in future")),
-    Field("reason", OptionType(StringType), resolve = a => if (a.value.reason.isEmpty) None else Some(a.value.reason))
+    Field("reason", OptionType(StringType), resolve = a => if (a.value.reason.isEmpty) None else Some(a.value.reason)),
+    Field("createdTimestamp", LongType, resolve = _.value.createdTimestamp)
   ))
 
 //  implicit val userDtoPrimaryKey: HasId[UserDto, Long] = HasId[UserDto, Long](_.id)

@@ -45,3 +45,15 @@ object WithRoles {
 }
 
 
+case class WithStringRole(role: String) extends Authorization[User, JWTAuthenticator] {
+  override def isAuthorized[B](user: User, authenticator: JWTAuthenticator)(implicit request: Request[B]) = Future.successful {
+    WithStringRole.isAuthorized(user, role)
+  }
+}
+
+object WithStringRole {
+  def isAuthorized(user: User, roleStr: String): Boolean = {
+    val role = User.strToRoleMapper.get(roleStr.toUpperCase)
+    role.exists { r => user.roles.contains(r) && !user.status.isBlocked }
+  }
+}

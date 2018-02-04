@@ -38,6 +38,6 @@ object SqlUtils {
   def parseException(e: PSQLException,
                      throwException: (String, () => String) => Unit): Unit = {
     val properties = parseProperties(e)
-    throwException(properties.get("code"), () => properties.get("message"))
+    throwException(properties.getOrDefault("code", ""), () => properties.getOrDefault("message", e.getMessage))
   }
 }

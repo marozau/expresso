@@ -38,6 +38,7 @@ class UserServiceGrpcImpl @Inject()(userService: UserService,
     log.info(s"userGetById - {}", request)
     userService.getById(request.userId)
       .map { userOption =>
+        log.info(s"userGetById - {}", userOption)
         UserGetByIdResponse(
           request.header.map(_.copy(token = "")),
           userOption.map(userDtoCast)

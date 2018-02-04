@@ -3,17 +3,21 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-POST        /user/signIn        controllers.SignInController.signIn()
-GET         /user/signUp        controllers.SignInController.signUp(email: String, password: String)
-GET         /user/list          controllers.UserController.list
+POST        /user/signIn               controllers.SignInController.signIn()
+GET         /user/signUp               controllers.SignInController.signUp(email: String, password: String)
+GET         /user/list                 controllers.UserController.list
 
-POST        /graphql            controllers.GraphQLController.graphql()
+POST        /graphql                   controllers.GraphQLController.graphql()
+POST        /graphql/:role             controllers.GraphQLController.graphqlWithRole(role: String)
 
-GET         /graphql/api        controllers.GraphQLApiController.view()
-POST        /graphql/api        controllers.GraphQLApiController.submit()
+GET         /graphql/docs              controllers.GraphQLApiController.view(role = "")
+GET         /graphql/docs/:role        controllers.GraphQLApiController.view(role: String)
+
+POST        /graphql/docs/             controllers.GraphQLApiController.submit(role = "")
+POST        /graphql/docs/:role        controllers.GraphQLApiController.submit(role: String)
 
 #GET         /assets/*file                      controllers.user.Assets.versioned(file)
 #GET         /assets/*file                          controllers.Assets.versioned(path="/public", file: Asset)
-->          /webjars            webjars.Routes
+->          /webjars                   webjars.Routes
 
 
