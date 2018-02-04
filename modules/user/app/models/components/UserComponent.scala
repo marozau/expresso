@@ -1,10 +1,10 @@
 package models.components
 
-import java.time.ZonedDateTime
+import java.util.UUID
 
 import db.Repository
 import models._
-import utils.SqlUtils
+import slick.jdbc.{GetResult, SetParameter}
 
 /**
   * @author im.
@@ -21,40 +21,19 @@ trait UserComponent {
   implicit val userStatusListTypeMapper = createEnumListJdbcType("user_status", User.Status)
   implicit val userStatusColumnExtensionMethodsBuilder = createEnumColumnExtensionMethodsBuilder(User.Status)
 
-  case class DBUser(
-                   id: Option[Long],
-                   email: String,
-                   roles: List[User.Role.Value],
-                   status: User.Status.Value,
-                   locale: Option[String] = None,
-                   timezone: Option[Int] = None,
-                   reason: Option[String] = None,
-                   createdTimestamp: Option[ZonedDateTime] = None,
-                   modifiedTimestamp: Option[ZonedDateTime] = None
-                 )
+  implicit val setUserRole: SetParameter[User.Role.Value] = SetParameter { (t, pp) => userRoleTypeMapper.setValue(t, pp.ps, pp.pos + 1) }
+  implicit val setUserRoles: SetParameter[List[User.Role.Value]] = SetParameter { (t, pp) => userRoleListTypeMapper.setValue(t, pp.ps, pp.pos + 1) }
+  implicit val setUserRoles2: SetParameter[List[Long]] = SetParameter { (t, pp) => simpleLongListTypeMapper.setValue(t, pp.ps, pp.pos + 1) }
+  implicit val setUUID: SetParameter[UUID] = SetParameter { (t, pp) => uuidColumnType.setValue(t, pp.ps, pp.pos + 1) }
 
-  protected class Users(tag: Tag) extends Table[DBUser](tag, "users") {
-    def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
-
-    def email = column[String]("email", O.Unique)
-
-    def roles = column[List[User.Role.Value]]("roles")
-
-    def status = column[User.Status.Value]("status")
-
-    def locale = column[Option[String]]("locale")
-
-    def timezone = column[Option[Int]]("timezone")
-
-    def reason = column[Option[String]]("reason")
-
-    def createdTimestamp = column[ZonedDateTime]("created_timestamp", SqlUtils.timestampTzNotNullType)
-
-    def modifiedTimestamp = column[ZonedDateTime]("modified_timestamp", SqlUtils.timestampTzNotNullType)
-
-    def * = (id.?, email, roles, status, locale, timezone, reason, createdTimestamp.?, modifiedTimestamp.?) <> ((DBUser.apply _).tupled, DBUser.unapply)
-
+  implicit val getResultUser: GetResult[User] = GetResult { r =>
+    User(
+      r.nextLong(),
+      userStatusTypeMapper.getValue(r.rs, r.skip.currentPos),
+      userRoleListTypeMapper.getValue(r.rs, r.skip.currentPos),
+      r.nextStringOption(),
+      r.nextIntOption(),
+      r.nextStringOption(),
+      r.nextTimestamp().toInstant)
   }
-
-  protected val users = TableQuery[Users]
 }

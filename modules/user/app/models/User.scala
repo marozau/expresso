@@ -1,8 +1,8 @@
 package models
 
-import java.time.ZonedDateTime
+import java.time.Instant
 
-import com.mohiva.play.silhouette.api.{Identity, LoginInfo}
+import com.mohiva.play.silhouette.api.Identity
 import play.api.libs.json._
 
 /**
@@ -26,15 +26,12 @@ object User {
 }
 
 case class User(
-                 id: Option[Long],
-                 loginInfo: LoginInfo,
-                 email: String,
-                 roles: List[User.Role.Value],
+                 id: Long,
                  status: User.Status.Value,
-                 locale: Option[String] = None,
-                 timezone: Option[Int] = None,
-                 reason: Option[String] = None,
-                 createdTimestamp: Option[ZonedDateTime] = None,
-                 modifiedTimestamp: Option[ZonedDateTime] = None
+                 roles: List[User.Role.Value],
+                 locale: Option[String],
+                 timezone: Option[Int],
+                 reason: Option[String],
+                 createdTimestamp: Instant
                ) extends Identity
 

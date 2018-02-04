@@ -44,9 +44,9 @@ object UserIdentityServiceGrpcImpl {
 
   implicit def userIdentityDtoCast(user: User): UserIdentityDto = {
     UserIdentityDto(
-      user.id.get,
-      user.roles.map(userDtoRoleCast),
+      user.id,
       user.status,
+      user.roles.map(userDtoRoleCast),
       user.locale.getOrElse("")
     )
   }

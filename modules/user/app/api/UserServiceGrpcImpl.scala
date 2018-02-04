@@ -6,18 +6,17 @@ import javax.inject.{Inject, Singleton}
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.PasswordHasherRegistry
-import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import exceptions.{InvalidEmailException, InvalidVerificationException}
+import exceptions.InvalidEmailException
 import grpc.GrpcErrorHandler
 import models.User
 import org.slf4j.{Logger, LoggerFactory}
-import play.api.libs.mailer.{Email, MailerClient}
+import play.api.libs.mailer.MailerClient
 import services.{AuthTokenService, UserService}
 import today.expresso.grpc.user.dto._
 import today.expresso.grpc.user.service._
-import utils.HashUtils
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
 
 /**
   * @author im.
@@ -25,7 +24,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class UserServiceGrpcImpl @Inject()(userService: UserService,
-                                    passwordHasherRegistry: PasswordHasherRegistry,
                                     authInfoRepository: AuthInfoRepository,
                                     authTokenService: AuthTokenService,
                                     mailerClient: MailerClient)
@@ -54,58 +52,34 @@ class UserServiceGrpcImpl @Inject()(userService: UserService,
     val domain = "expresso.today"
     if (!request.email.endsWith(domain)) throw InvalidEmailException("@expresso.today domain is allowed only")
 
-    val loginInfo = LoginInfo(CredentialsProvider.ID, HashUtils.encode(request.email))
-    userService.getByLoginInfo(loginInfo).flatMap {
-      case Some(_) =>
-        Future.failed(InvalidEmailException("user already exists"))
-      case None =>
-        val authInfo = passwordHasherRegistry.current.hash(request.password)
-        val user = User(
-          id = None,
-          loginInfo = loginInfo,
-          email = request.email,
-          roles = List(User.Role.USER),
-          status = User.Status.NEW
-        )
-        import scala.concurrent.duration._
-        for {
-          user <- userService.save(user)
-          _ <- authInfoRepository.add(loginInfo, authInfo)
-          authToken <- authTokenService.create(user.id.get, 1.day)
-        } yield {
-          //          val url = routes.ActivateAccountController.activate(authToken.id).absoluteURL()
-          //TODO: replace by emailService request
-          val url = s"http://localhost:9000/activate?token=${authToken.id}"
-//          mailerClient.send(Email(
-//            subject = "email.sign.up.subject",
-//            from = "email.from",
-//            to = Seq(request.email),
-//            bodyText = Some(s"""Click <a href="$url">here</a> to send the activation email again.""")
-//            //                bodyText = Some(views.txt.emails.signUp(user, url).body),
-//            //                bodyHtml = Some(views.html.emails.signUp(user, url).body)
-//          ))
+    userService.save(request.email, request.password, None, None).flatMap { user => //TODO: locale and timezone
 
-          UserCreateResponse(
-            request.header,
-            Some(user)
-          )
-        }
+      authTokenService.create(user.id, 1.day).map { token =>
+        //          val url = routes.ActivateAccountController.activate(authToken.id).absoluteURL()
+        //TODO: replace by emailService request
+        val url = s"http://localhost:9000/activate?token=${token.id}"
+        //          mailerClient.send(Email(
+        //            subject = "email.sign.up.subject",
+        //            from = "email.from",
+        //            to = Seq(request.email),
+        //            bodyText = Some(s"""Click <a href="$url">here</a> to send the activation email again.""")
+        //            //                bodyText = Some(views.txt.emails.signUp(user, url).body),
+        //            //                bodyHtml = Some(views.html.emails.signUp(user, url).body)
+        //          ))
+
+        UserCreateResponse(
+          request.header,
+          Some(user)
+        )
+      }
     }
   }
 
   override def userVerify(request: UserVerifyRequest) = GrpcErrorHandler {
     log.info(s"{}", request)
-
     val token = UUID.fromString(request.token)
-    authTokenService.validate(token).flatMap {
-      case Some(authToken) => userService.getById(authToken.userId).flatMap {
-        case Some(user) if user.loginInfo.providerID == CredentialsProvider.ID =>
-          userService.verify(user.id.get).map { _ =>
-            UserVerifyResponse(request.header)
-          }
-        case _ => Future.failed(InvalidVerificationException("user not found"))
-      }
-      case None => Future.failed(InvalidVerificationException("token not found"))
+    userService.verify(1L, token).map { user =>
+      UserVerifyResponse(request.header)
     }
   }
 }
@@ -133,14 +107,13 @@ object UserServiceGrpcImpl {
 
   implicit def userDtoCast(user: models.User): UserDto = {
     UserDto(
-      user.id.get,
-      user.email,
-      user.roles.map(userDtoRoleCast),
+      user.id,
       user.status,
+      user.roles.map(userDtoRoleCast),
       user.locale.getOrElse(""),
       user.timezone.getOrElse(0),
       user.reason.getOrElse(""),
-      user.createdTimestamp.get.toEpochSecond,
+      user.createdTimestamp.toEpochMilli,
     )
   }
 

@@ -25,7 +25,7 @@ class UserController @Inject()(cc: ControllerComponents,
   }
 
   def test() = Action.async{ implicit request =>
-    userDao.create("admin@expresso.today", "test", "bcrypt", None, None)
+    userDao.save("admin@expresso.today", "test", "bcrypt", None, None)
       .map(id => Ok(id.toString))
 //    userDao.test(List(1, 2))
 //      .map(id => Ok(id.toString))

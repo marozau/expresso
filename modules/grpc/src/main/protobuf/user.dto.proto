@@ -21,13 +21,12 @@ message UserDto {
     }
 
     int64 id = 1;
-    string email = 2;
+    Status status = 2;
     repeated Role roles = 3;
-    Status status = 4;
-    string locale = 5;
-    int32 timezone = 6;
-    string reason = 7;
-    int64 createdTimestamp = 8;
+    string locale = 4;
+    int32 timezone = 5;
+    string reason = 6;
+    int64 createdTimestamp = 7;
 }
 
 message LoginInfoDto {
@@ -37,8 +36,8 @@ message LoginInfoDto {
 
 message UserIdentityDto {
     int64 id = 1;
-    repeated UserDto.Role roles = 2;
-    UserDto.Status status = 3;
+    UserDto.Status status = 2;
+    repeated UserDto.Role roles = 3;
     string locale = 4;
 }
 

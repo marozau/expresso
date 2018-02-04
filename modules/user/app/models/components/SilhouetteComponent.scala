@@ -42,9 +42,6 @@ trait SilhouetteComponent {
 
     def * = (userId, loginInfoId) <> (DBUserLoginInfo.tupled, DBUserLoginInfo.unapply)
 
-    def userIdSupplier = foreignKey("user_login_info_user_id_fkey", userId, users)(_.id)
-
-    def loginInfoIdSupplier = foreignKey("user_login_info_login_info_id_fkey", loginInfoId, loginInfos)(_.id)
   }
 
   case class DBPasswordInfo(
@@ -65,7 +62,6 @@ trait SilhouetteComponent {
 
     def * = (hasher, password, salt, loginInfoId) <> (DBPasswordInfo.tupled, DBPasswordInfo.unapply)
 
-    def loginInfoIdSupplier = foreignKey("password_info_login_info_id_fkey", loginInfoId, loginInfos)(_.id)
   }
 
   case class DBAuthToken(
@@ -83,7 +79,6 @@ trait SilhouetteComponent {
 
     def * = (id, userId, expiry) <> (DBAuthToken.tupled, DBAuthToken.unapply)
 
-    def loginInfoIdSupplier = foreignKey("auth_token_user_id_fkey", userId, users)(_.id)
   }
 
 

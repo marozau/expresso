@@ -29,6 +29,8 @@ object BaseException {
     val INVALID_CREDENTIALS = Value
     val INVALID_VERIFICATION = Value
     val INVALID_EMAIL = Value
+
+    val INVALID_AUTH_TOKEN = Value
   }
 }
 

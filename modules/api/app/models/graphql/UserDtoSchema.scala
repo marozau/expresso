@@ -73,10 +73,6 @@ object UserDtoSchema {
 
   val UserDtoType = ObjectType("User", "A main entity who performs actions in the system", fields[GraphQLContext, UserDto](
     Field("id", LongType, resolve = _.value.id),
-    Field("email", StringType,
-      tags = Permission(UserDto.Role.ADMIN) :: Nil,
-      resolve = (ctx: Context[GraphQLContext, UserDto]) => ctx.value.email,
-      deprecationReason = Some("Will not be exposed in future")).copy(astDirectives = Vector.empty),
     Field("roles", ListType(UserDtoRoleEnum), resolve = _.value.roles.toList),
     Field("status", UserDtoStatusEnum, resolve = _.value.status),
     Field("locale", StringType, resolve = _.value.locale),

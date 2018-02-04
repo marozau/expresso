@@ -8,8 +8,8 @@ import today.expresso.grpc.user.dto.{UserDto, UserIdentityDto}
   */
 case class User(
                  id: Long,
-                 roles: Seq[UserDto.Role],
                  status: UserDto.Status,
+                 roles: Seq[UserDto.Role],
                  locale: Option[String] = None,
                ) extends Identity
 
@@ -18,16 +18,16 @@ object User {
   implicit def userCast(user: UserIdentityDto): User = {
     User(
       user.id,
-      user.roles,
       user.status,
+      user.roles,
       if (user.locale.isEmpty) None else Some(user.locale))
   }
 
   implicit def userIdentityDtoCast(user: User): UserIdentityDto = {
     UserIdentityDto(
       user.id,
-      user.roles,
       user.status,
+      user.roles,
       user.locale.getOrElse(""))
   }
 }

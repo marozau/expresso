@@ -4,6 +4,10 @@ CREATE TABLE login_info (
   provider_key TEXT      NOT NULL
 );
 
+CREATE UNIQUE INDEX login_info_provider_id_provider_key_idx
+  ON login_info (provider_id, provider_key);
+
+
 CREATE TABLE user_login_info (
   user_id       BIGINT NOT NULL REFERENCES users (id),
   login_info_id BIGINT NOT NULL REFERENCES login_info (id)
