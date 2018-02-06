@@ -38,6 +38,7 @@ object Dependency {
 
     // Tests
     lazy val scalatestplus = "3.1.2"
+    lazy val mokito = "2.13.0"
   }
 
   lazy val twirlCompiler: ModuleID = "com.typesafe.play" %% "twirl-compiler" % v.twirl
@@ -108,6 +109,7 @@ object Dependency {
 
   // Tests
   lazy val scalatestplus: ModuleID = "org.scalatestplus.play" %% "scalatestplus-play" % v.scalatestplus % Test
+  lazy val mokito: ModuleID = "org.mockito" % "mockito-core" % v.mokito % Test
 
 
   lazy val slickAll = Seq(postgresql, slickPlay, slickPlayEvolutions, slickPg, slickPgPlayJson, gcpPostgresSocketFactory)
@@ -117,4 +119,6 @@ object Dependency {
   lazy val sangriaAll = Seq(sangria, sangriaRelay, snagriaPlayJson, sangriaSlowlog)
   lazy val bootstrapAll = Seq(bootstrap, bootstrapPlay, webjars)
   lazy val grcpAll = Seq(grpcNetty, grpcProtobuf, grpcStub, scalapbRuntime, scalapbRuntimeGrpc)
+
+  lazy val testAll = Seq(scalatestplus, mokito)
 }
