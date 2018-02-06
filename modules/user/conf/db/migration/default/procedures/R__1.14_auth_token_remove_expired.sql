@@ -1,0 +1,8 @@
+CREATE OR REPLACE FUNCTION auth_token_remove_expired()
+  RETURNS VOID AS $$
+DECLARE
+BEGIN
+  DELETE FROM auth_token
+  WHERE expiry > CURRENT_TIMESTAMP;
+END;
+$$ LANGUAGE plpgsql;

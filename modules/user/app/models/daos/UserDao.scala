@@ -7,7 +7,7 @@ import com.mohiva.play.silhouette.api.LoginInfo
 import db.Repository
 import exceptions.{InvalidAuthTokenException, UserAlreadyExistsException, UserNotFoundException}
 import models._
-import models.components.{SilhouetteComponent, UserComponent}
+import models.components.{CommonComponent, SilhouetteComponent, UserComponent}
 import org.postgresql.util.PSQLException
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider
@@ -23,7 +23,7 @@ import scala.util.{Failure, Success}
   */
 @Singleton
 class UserDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
-  extends Repository with UserComponent with SilhouetteComponent {
+  extends Repository with UserComponent with CommonComponent {
 
   protected val dbConfig: DatabaseConfig[JdbcProfile] = dbConfigProvider.get[JdbcProfile]
 
@@ -54,7 +54,6 @@ class UserDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: E
     * @return The found user or None if no user for the given login info could be found
     */
   def getByLoginInfo(loginInfo: LoginInfo): Future[Option[User]] = {
-    Logger.info(loginInfo.toString)
     val query = sql"SELECT * FROM users_get_by_login_info(${loginInfo.providerID}, ${loginInfo.providerKey})".as[User].headOption
     db.run(query.asTry).map {
       case Success(res) => res

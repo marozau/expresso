@@ -1,7 +1,5 @@
 package models.components
 
-import java.util.UUID
-
 import db.Repository
 import models._
 import slick.jdbc.{GetResult, SetParameter}
@@ -12,8 +10,6 @@ import slick.jdbc.{GetResult, SetParameter}
 trait UserComponent {
   this: Repository =>
 
-  import api._
-
   implicit val userRoleTypeMapper = createEnumJdbcType("user_role", User.Role)
   implicit val userRoleListTypeMapper = createEnumListJdbcType("user_role", User.Role)
   implicit val userRoleColumnExtensionMethodsBuilder = createEnumColumnExtensionMethodsBuilder(User.Role)
@@ -22,9 +18,7 @@ trait UserComponent {
   implicit val userStatusColumnExtensionMethodsBuilder = createEnumColumnExtensionMethodsBuilder(User.Status)
 
   implicit val setUserRole: SetParameter[User.Role.Value] = SetParameter { (t, pp) => userRoleTypeMapper.setValue(t, pp.ps, pp.pos + 1) }
-  implicit val setUserRoles: SetParameter[List[User.Role.Value]] = SetParameter { (t, pp) => userRoleListTypeMapper.setValue(t, pp.ps, pp.pos + 1) }
-  implicit val setUserRoles2: SetParameter[List[Long]] = SetParameter { (t, pp) => simpleLongListTypeMapper.setValue(t, pp.ps, pp.pos + 1) }
-  implicit val setUUID: SetParameter[UUID] = SetParameter { (t, pp) => uuidColumnType.setValue(t, pp.ps, pp.pos + 1) }
+  implicit val setUserRoleList: SetParameter[List[User.Role.Value]] = SetParameter { (t, pp) => userRoleListTypeMapper.setValue(t, pp.ps, pp.pos + 1) }
 
   implicit val getResultUser: GetResult[User] = GetResult { r =>
     User(

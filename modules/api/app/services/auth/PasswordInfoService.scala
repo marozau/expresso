@@ -8,7 +8,6 @@ import com.mohiva.play.silhouette.api.{LoginInfo, util}
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import today.expresso.grpc.Header
 import today.expresso.grpc.user.dto.{LoginInfoDto, PasswordInfoDto}
-import today.expresso.grpc.user.service.PasswordInfoServiceGrpc.PasswordInfoServiceStub
 import today.expresso.grpc.user.service._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,7 +34,7 @@ object PasswordInfoService {
     LoginInfoDto(loginInfo.providerID, loginInfo.providerKey)
 }
 
-class PasswordInfoService @Inject()(passwordInfoService: PasswordInfoServiceStub)(implicit ec: ExecutionContext)
+class PasswordInfoService @Inject()(passwordInfoService: PasswordInfoServiceGrpc.PasswordInfoService)(implicit ec: ExecutionContext)
   extends DelegableAuthInfoDAO[PasswordInfo] {
 
   import PasswordInfoService._

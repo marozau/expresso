@@ -11,8 +11,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, ControllerComponents}
 import services.auth.SignInService
 import today.expresso.grpc.Header
-import today.expresso.grpc.user.service.UserCreateRequest
-import today.expresso.grpc.user.service.UserServiceGrpc.UserServiceStub
+import today.expresso.grpc.user.service.{UserCreateRequest, UserServiceGrpc}
 
 import scala.concurrent.ExecutionContext
 
@@ -27,7 +26,7 @@ import scala.concurrent.ExecutionContext
 class SignInController @Inject()(
                                   app: ApplicationContext,
                                   components: ControllerComponents,
-                                  userServiceStub: UserServiceStub,
+                                  userServiceStub: UserServiceGrpc.UserService,
                                   signInService: SignInService,
                                 )(
                                   implicit

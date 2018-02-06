@@ -9,7 +9,6 @@ import models.User
 import play.api.cache.AsyncCacheApi
 import today.expresso.grpc.Header
 import today.expresso.grpc.user.dto.LoginInfoDto
-import today.expresso.grpc.user.service.UserIdentityServiceGrpc.UserIdentityServiceStub
 import today.expresso.grpc.user.service._
 
 import scala.concurrent.duration._
@@ -20,7 +19,7 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 @Singleton
 class UserIdentityService @Inject()(
-                                     userService: UserIdentityServiceStub,
+                                     userService: UserIdentityServiceGrpc.UserIdentityService,
                                      cache: AsyncCacheApi
                                    )(implicit ec: ExecutionContext)
   extends IdentityService[User] {

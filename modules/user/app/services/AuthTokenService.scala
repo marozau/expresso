@@ -33,8 +33,7 @@ class AuthTokenService @Inject()(
    * @return The saved auth token.
    */
   def create(userId: Long, expiry: FiniteDuration = 5 minutes): Future[AuthToken] = {
-    val token = AuthToken(UUID.randomUUID(), userId, Instant.now().plusSeconds(expiry.toSeconds.toInt))
-    authTokenDAO.save(token)
+    authTokenDAO.create(userId, Instant.now().plusSeconds(expiry.toSeconds.toInt))
   }
 
   /**
@@ -50,5 +49,5 @@ class AuthTokenService @Inject()(
    *
    * @return The list of deleted tokens.
    */
-  def clean: Future[Int] = authTokenDAO.removeExpired(Instant.now())
+  def clean: Future[Unit] = authTokenDAO.removeExpired(Instant.now())
 }

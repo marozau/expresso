@@ -5,8 +5,7 @@ import javax.inject.{Inject, Singleton}
 
 import models.Credentials
 import today.expresso.grpc.Header
-import today.expresso.grpc.user.service.UserGetByIdRequest
-import today.expresso.grpc.user.service.UserServiceGrpc.UserServiceStub
+import today.expresso.grpc.user.service.{UserGetByIdRequest, UserServiceGrpc}
 
 import scala.concurrent.ExecutionContext
 
@@ -14,10 +13,10 @@ import scala.concurrent.ExecutionContext
   * @author im.
   */
 @Singleton
-class UserService @Inject() (userServiceStub: UserServiceStub)(implicit ec: ExecutionContext) {
+class UserService @Inject() (userService: UserServiceGrpc.UserService)(implicit ec: ExecutionContext) {
 
   def getById(userId: Long)(implicit credentials: Credentials) = {
-    userServiceStub.userGetById(
+    userService.userGetById(
       UserGetByIdRequest(
         Some(Header(ThreadLocalRandom.current().nextInt(), "", Some(credentials))),
         userId

@@ -31,13 +31,13 @@ object Dependency {
     lazy val sangria = "1.3.3"
     lazy val sangriaPlayJson = "1.0.4"
     lazy val sangriaSlowlog = "0.1.4"
-    lazy val grpc = "1.1.2"
-    lazy val scalapbGrpc = "0.6.0-pre2"
+    lazy val grpc = "1.8.0"
+    lazy val scalapbGrpc = "0.6.7"
     lazy val flyway = "4.0.0"
     lazy val akka = "2.5.8"
 
     // Tests
-    lazy val scalatestplus = "3.0.0"
+    lazy val scalatestplus = "3.1.2"
   }
 
   lazy val twirlCompiler: ModuleID = "com.typesafe.play" %% "twirl-compiler" % v.twirl
