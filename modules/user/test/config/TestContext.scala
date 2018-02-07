@@ -1,9 +1,10 @@
 package config
 
 import api.GrpcServer
-import org.scalactic.source.Position
-import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
+import org.scalatest.time.{Millis, Span}
+import org.scalatest.{BeforeAndAfterEach, WordSpecLike}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.db.slick.DatabaseConfigProvider
@@ -18,7 +19,11 @@ import play.api.inject.guice.GuiceApplicationBuilder
 trait TestContext extends PlaySpec
   with GuiceOneAppPerSuite
   with BeforeAndAfterEach
-  with MockitoSugar {
+  with MockitoSugar
+  with ScalaFutures
+  with WordSpecLike {
+
+  override implicit val patienceConfig: PatienceConfig = PatienceConfig(scaled(Span(1000, Millis)), scaled(Span(100, Millis)))
 
   override def fakeApplication() = {
     val mockGrpcServer = mock[GrpcServer]

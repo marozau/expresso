@@ -10,7 +10,8 @@ DECLARE
   _password_info password_info;
 BEGIN
   SELECT *
-  FROM _login_info
+  INTO _login_info
+  FROM login_info
   WHERE provider_id = _provider_id AND provider_key = _provider_key;
 
   IF NOT FOUND
@@ -23,6 +24,7 @@ BEGIN
     password = _password,
     hasher   = _hasher,
     salt     = _salt
+  WHERE login_info_id = _login_info.id
   RETURNING *
     INTO _password_info;
 

@@ -1,9 +1,9 @@
 package utils
 
 import java.util
-import java.util.Map
+import java.util.Collections
 
-import com.google.common.base.{Joiner, Splitter}
+import com.google.common.base.Splitter
 import exceptions.BaseException
 import org.postgresql.util.PSQLException
 import slick.sql.SqlProfile.ColumnOption.SqlType
@@ -18,7 +18,6 @@ object SqlUtils {
 
 
   private val propertiesSplitter: Splitter.MapSplitter = Splitter.on(',').withKeyValueSeparator('=')
-  private val arrayJoiner: Joiner = Joiner.on(',')
 
   private val MESSAGE_START_INDEX: Int = 7
   private val ERROR_TAG: String = "<ERROR>"
@@ -29,9 +28,10 @@ object SqlUtils {
     if (message.startsWith(ERROR_TAG)) {
       val beginIndex: Int = message.indexOf(ERROR_TAG) + ERROR_TAG.length
       val error: String = message.substring(beginIndex, message.indexOf(ERROR_TAG, beginIndex))
-      properties = propertiesSplitter.split(error)
+      propertiesSplitter.split(error)
+    } else {
+      Collections.emptyMap[String, String]
     }
-    properties
   }
 
   @throws[BaseException]

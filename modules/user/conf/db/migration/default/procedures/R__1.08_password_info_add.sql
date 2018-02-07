@@ -10,7 +10,8 @@ DECLARE
   _password_info password_info;
 BEGIN
   SELECT *
-  FROM _login_info
+  INTO _login_info
+  FROM login_info
   WHERE provider_id = _provider_id AND provider_key = _provider_key;
 
   IF NOT FOUND
@@ -18,7 +19,8 @@ BEGIN
     RAISE '<ERROR>code=USER_NOT_FOUND,message=invalid login info<ERROR>';
   END IF;
 
-  INSERT INTO password_info (password, hasher, salt) VALUES (_password, _hasher, _salt)
+  INSERT INTO password_info (login_info_id, password, hasher, salt)
+  VALUES (_login_info.id, _password, _hasher, _salt)
   RETURNING *
     INTO _password_info;
 

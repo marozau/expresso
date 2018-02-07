@@ -26,6 +26,9 @@ BEGIN
   RETURNING *
     INTO _user;
 
+  DELETE FROM auth_token
+  WHERE id = _token;
+
   RETURN _user;
 
 END;

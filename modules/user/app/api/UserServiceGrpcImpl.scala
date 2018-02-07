@@ -49,29 +49,11 @@ class UserServiceGrpcImpl @Inject()(userService: UserService,
   //TODO: validate password
   override def userCreate(request: UserCreateRequest) = GrpcErrorHandler {
     log.info(s"userCreate - {}", request)
-    val domain = "expresso.today"
-    if (!request.email.endsWith(domain)) throw InvalidEmailException("@expresso.today domain is allowed only")
-
-    userService.save(request.email, request.password, None, None).flatMap { user => //TODO: locale and timezone
-
-      authTokenService.create(user.id, 1.day).map { token =>
-        //          val url = routes.ActivateAccountController.activate(authToken.id).absoluteURL()
-        //TODO: replace by emailService request
-        val url = s"http://localhost:9000/activate?token=${token.id}"
-        //          mailerClient.send(Email(
-        //            subject = "email.sign.up.subject",
-        //            from = "email.from",
-        //            to = Seq(request.email),
-        //            bodyText = Some(s"""Click <a href="$url">here</a> to send the activation email again.""")
-        //            //                bodyText = Some(views.txt.emails.signUp(user, url).body),
-        //            //                bodyHtml = Some(views.html.emails.signUp(user, url).body)
-        //          ))
-
-        UserCreateResponse(
-          request.header,
-          Some(user)
-        )
-      }
+    userService.save(request.email, request.password, None, None).map { user => //TODO: locale and timezone
+      UserCreateResponse(
+        request.header,
+        Some(user)
+      )
     }
   }
 

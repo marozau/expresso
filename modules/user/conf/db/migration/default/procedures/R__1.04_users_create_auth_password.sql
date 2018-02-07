@@ -1,6 +1,7 @@
 CREATE OR REPLACE FUNCTION users_create_auth_password(_email    TEXT,
                                                       _password TEXT,
                                                       _hasher   TEXT,
+                                                      _salt     TEXT,
                                                       _locale   TEXT,
                                                       _timezone INT)
   RETURNS users AS $$
@@ -17,7 +18,7 @@ BEGIN
 
   INSERT INTO user_login_info (user_id, login_info_id) VALUES (_user.id, _login_info_id);
 
-  INSERT INTO password_info (login_info_id, hasher, password) VALUES (_login_info_id, _hasher, _password);
+  INSERT INTO password_info (login_info_id, hasher, password, salt) VALUES (_login_info_id, _hasher, _password, _salt);
   RETURN _user;
 
   EXCEPTION WHEN unique_violation

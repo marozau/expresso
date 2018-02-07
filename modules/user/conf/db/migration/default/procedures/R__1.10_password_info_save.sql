@@ -17,9 +17,9 @@ BEGIN
 
   IF NOT FOUND
   THEN
-    _password_info = password_info_add(_provider_id, _provider_key, _password, _hasher, _salt);
+    RETURN password_info_add(_provider_id, _provider_key, _password, _hasher, _salt);
   ELSE
-    _password_info = password_info_update(_provider_id, _provider_key, _password, _hasher, _salt);
+    RETURN password_info_update(_provider_id, _provider_key, _password, _hasher, _salt);
   END IF;
 END;
 $$ LANGUAGE plpgsql;

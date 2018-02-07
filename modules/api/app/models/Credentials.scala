@@ -3,7 +3,7 @@ package models
 import java.util.UUID
 
 import com.mohiva.play.silhouette.api.actions.SecuredRequest
-import modules.AuthEnv
+import modules.ApiAuthEnv
 import play.api.Logger
 import today.expresso.grpc.user.dto.CredentialsDto
 
@@ -16,7 +16,7 @@ case class Credentials(user: User, remoteAddress: String, correlationId: UUID, t
 object Credentials {
   val CORRELATION_ID_HEADER = "correlation-id"
 
-  implicit def fromRequest(request: SecuredRequest[AuthEnv, _]): Credentials = {
+  implicit def fromRequest(request: SecuredRequest[ApiAuthEnv, _]): Credentials = {
     val correlationId = request.headers.get(CORRELATION_ID_HEADER).map(UUID.fromString)
       .getOrElse {
         Logger.warn(s"no correlation id for request=$request")

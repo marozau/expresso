@@ -32,7 +32,7 @@ import scala.concurrent.ExecutionContext
 /**
   * @author im.
   */
-trait AuthEnv extends Env {
+trait ApiAuthEnv extends Env {
   override type I = User
   override type A = JWTAuthenticator
 }
@@ -43,7 +43,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     * Configures the module.
     */
   override def configure() {
-    bind[Silhouette[AuthEnv]].to[SilhouetteProvider[AuthEnv]]
+    bind[Silhouette[ApiAuthEnv]].to[SilhouetteProvider[ApiAuthEnv]]
     bind[UnsecuredErrorHandler].to[CustomUnsecuredErrorHandler]
     bind[SecuredErrorHandler].to[CustomSecuredErrorHandler]
     bind[IdentityService[User]].to[UserIdentityService]
@@ -67,9 +67,9 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
   def provideEnvironment(
                           userService: UserIdentityService,
                           authenticatorService: AuthenticatorService[JWTAuthenticator],
-                          eventBus: EventBus)(implicit ec: ExecutionContext): Environment[AuthEnv] = {
+                          eventBus: EventBus)(implicit ec: ExecutionContext): Environment[ApiAuthEnv] = {
 
-    Environment[AuthEnv](
+    Environment[ApiAuthEnv](
       userService,
       authenticatorService,
       Seq(),

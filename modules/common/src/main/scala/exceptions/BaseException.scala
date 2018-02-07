@@ -27,7 +27,6 @@ object BaseException {
     val USER_ALREADY_EXISTS = Value
     val USER_UNVERIFIED = Value
     val INVALID_CREDENTIALS = Value
-    val INVALID_VERIFICATION = Value
     val INVALID_EMAIL = Value
 
     val INVALID_AUTH_TOKEN = Value

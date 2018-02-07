@@ -1,5 +1,6 @@
 package grpc
 
+import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import exceptions.BaseException
 import io.grpc.Status
 
@@ -17,6 +18,12 @@ object GrpcErrorHandler {
       case e: BaseException =>
         throw Status.INTERNAL
           .withDescription(e.code.toString)
+          .augmentDescription(e.getMessage)
+          .withCause(e) // This can be attached to the Status locally, but NOT transmitted to the client!
+          .asRuntimeException()
+      case e: ProviderException =>
+        throw Status.INTERNAL
+          .withDescription(BaseException.ErrorCode.INVALID_CREDENTIALS.toString)
           .augmentDescription(e.getMessage)
           .withCause(e) // This can be attached to the Status locally, but NOT transmitted to the client!
           .asRuntimeException()
