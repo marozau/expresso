@@ -5,7 +5,6 @@ import com.mohiva.play.silhouette.api.util.{Credentials, PasswordHasherRegistry,
 import com.mohiva.play.silhouette.impl.exceptions.{IdentityNotFoundException, InvalidPasswordException}
 import config.TestContext
 import exceptions.UserNotFoundException
-import models.daos.PasswordInfoDao
 import models.{ApplicationContext, User}
 import utils.HashUtils
 

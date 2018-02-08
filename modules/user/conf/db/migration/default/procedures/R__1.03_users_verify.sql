@@ -5,19 +5,11 @@ DECLARE
   _user       users;
 BEGIN
 
-  SELECT *
-  INTO _auth_token
-  FROM auth_token
-  WHERE id = _token AND user_id = _user_id;
+  _auth_token = auth_token_find_valid(_token);
 
-  IF NOT FOUND
+  IF _auth_token.user_id <> _user_id
   THEN
-    RAISE '<ERROR>code=INVALID_AUTH_TOKEN,message=auth_token not found<ERROR>';
-  END IF;
-
-  IF _auth_token.expiry < CURRENT_TIMESTAMP
-  THEN
-    RAISE '<ERROR>code=INVALID_AUTH_TOKEN,message=auth_token expired at ''%''<ERROR>', _auth_token.expiry;
+    RAISE '<ERROR>code=INVALID_AUTH_TOKEN,message=invalid user_id<ERROR>';
   END IF;
 
   UPDATE users
@@ -26,8 +18,7 @@ BEGIN
   RETURNING *
     INTO _user;
 
-  DELETE FROM auth_token
-  WHERE id = _token;
+  PERFORM auth_token_remove(_token);
 
   RETURN _user;
 
