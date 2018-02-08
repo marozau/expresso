@@ -5,7 +5,7 @@ DECLARE
   _user       users;
 BEGIN
 
-  _auth_token = auth_token_find_valid(_token);
+  _auth_token = auth_token_validate(_token);
 
   IF _auth_token.user_id <> _user_id
   THEN
@@ -17,8 +17,6 @@ BEGIN
   WHERE id = _auth_token.user_id
   RETURNING *
     INTO _user;
-
-  PERFORM auth_token_remove(_token);
 
   RETURN _user;
 

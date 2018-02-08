@@ -28,8 +28,11 @@ trait PostgresDriver extends ExPostgresProfile
   override val api = MyAPI
 
   object MyAPI extends API
+    with ImplicitColumnTypes
     with ArrayImplicits
+    with SimpleArrayPlainImplicits
     with DateTimeImplicits
+    with Date2DateTimePlainImplicits
     with JsonImplicits
     with NetImplicits
     with LTreeImplicits

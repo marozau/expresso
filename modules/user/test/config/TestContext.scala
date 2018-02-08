@@ -1,7 +1,7 @@
 package config
 
 import api.GrpcServer
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Span}
 import org.scalatest.{BeforeAndAfterEach, WordSpecLike}
@@ -21,13 +21,15 @@ trait TestContext extends PlaySpec
   with BeforeAndAfterEach
   with MockitoSugar
   with ScalaFutures
-  with WordSpecLike {
+  with WordSpecLike
+  with Eventually {
 
   override implicit val patienceConfig: PatienceConfig = PatienceConfig(scaled(Span(1000, Millis)), scaled(Span(100, Millis)))
 
   override def fakeApplication() = {
     val mockGrpcServer = mock[GrpcServer]
     new GuiceApplicationBuilder()
+      .disable(classOf[play.api.cache.redis.RedisCacheModule])
       .overrides(bind[GrpcServer].toInstance(mockGrpcServer))
       .build()
   }

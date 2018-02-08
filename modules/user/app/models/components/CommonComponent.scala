@@ -4,8 +4,11 @@ import java.sql.Timestamp
 import java.time.Instant
 import java.util.UUID
 
+import com.github.tminglei.slickpg.utils.PlainSQLUtils
 import db.Repository
 import slick.jdbc.{GetResult, SetParameter}
+
+import scala.concurrent.duration.FiniteDuration
 
 /**
   * @author im.
@@ -17,9 +20,8 @@ trait CommonComponent {
 
   // PARAMETERS
 
-  implicit val setParameterLongList: SetParameter[List[Long]] = SetParameter { (t, pp) => simpleLongListTypeMapper.setValue(t, pp.ps, pp.pos + 1) }
-  implicit val setParameterUUID: SetParameter[UUID] = SetParameter { (t, pp) => uuidColumnType.setValue(t, pp.ps, pp.pos + 1) }
-  implicit val setParameterInstant: SetParameter[Instant] = SetParameter { (t, pp) => pp.setTimestamp(Timestamp.from(t)) }
+  implicit val setParameterUUID: SetParameter[UUID] = PlainSQLUtils.mkSetParameter[UUID]("uuid")
+  implicit val setParameterFiniteDuration: SetParameter[FiniteDuration] = SetParameter { (t, pp) => pp.setLong(t.toMillis) }
 
 
   // RESULTS

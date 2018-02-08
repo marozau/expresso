@@ -1,5 +1,6 @@
 package models.components
 
+import com.github.tminglei.slickpg.utils.PlainSQLUtils
 import db.Repository
 import models._
 import slick.jdbc.{GetResult, SetParameter}
@@ -17,8 +18,8 @@ trait UserComponent {
   implicit val userStatusListTypeMapper = createEnumListJdbcType("user_status", User.Status)
   implicit val userStatusColumnExtensionMethodsBuilder = createEnumColumnExtensionMethodsBuilder(User.Status)
 
-  implicit val setUserRole: SetParameter[User.Role.Value] = SetParameter { (t, pp) => userRoleTypeMapper.setValue(t, pp.ps, pp.pos + 1) }
-  implicit val setUserRoleList: SetParameter[List[User.Role.Value]] = SetParameter { (t, pp) => userRoleListTypeMapper.setValue(t, pp.ps, pp.pos + 1) }
+  implicit val setUserRole = PlainSQLUtils.mkSetParameter[User.Role.Value]("user_role")
+  implicit val setUserRoleList = PlainSQLUtils.mkArraySetParameter[User.Role.Value]("user_role")
 
   implicit val getResultUser: GetResult[User] = GetResult { r =>
     User(

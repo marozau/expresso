@@ -135,7 +135,7 @@ class SilhouetteSpec extends TestContext {
     "get password info" in {
       import scala.reflect._
       whenReady(ctx.auth.authInfoRepository.find(loginInfo)(classTag[PasswordInfo])) { res =>
-        res mustBe a [Some[PasswordInfo]]
+        res.get mustBe a [PasswordInfo]
       }
     }
   }

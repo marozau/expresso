@@ -55,7 +55,8 @@ lazy val user = (project in file("modules/user"))
     libraryDependencies ++= Seq(playMailer, playMailerGuice),
     libraryDependencies += flyway,
 
-    libraryDependencies ++= testAll
+    libraryDependencies ++= testAll,
+    libraryDependencies += ehcache % Test
   )
 
 lazy val newsletter = (project in file("modules/newsletter"))

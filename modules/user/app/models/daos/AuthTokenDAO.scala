@@ -5,13 +5,18 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import db.Repository
+import exceptions.InvalidAuthTokenException
 import models.AuthToken
 import models.components.{AuthTokenComponent, CommonComponent, UserComponent}
+import org.postgresql.util.PSQLException
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
+import utils.SqlUtils
 
+import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 /**
   * @author im.
@@ -26,33 +31,42 @@ class AuthTokenDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
   import dbConfig._
 
   /**
-    * Finds a token by its ID.
-    *
-    * @param id The unique token ID.
-    * @return The found token or None if no token for the given ID could be found.
-    */
-  def find(id: UUID): Future[Option[AuthToken]] = db.run {
-    sql"SELECT * FROM auth_token_find(${id})".as[AuthToken].headOption
-  }
-
-  def findValid(id: UUID): Future[Option[AuthToken]] = db.run {
-    sql"SELECT * FROM auth_token_find_valid(${id})".as[AuthToken].headOption
-  }
-
-
-  def removeExpired(timestamp: Instant): Future[Unit] = db.run {
-    sql"SELECT * FROM auth_token_remove_expired()".as[Unit].head
-  }
-
-  /**
     * Saves a token.
     *
     * @param userId The ID of the user who uses token
     * @param expiry Token is valid till expiry timestamp
     * @return The saved token.
     */
-  def create(userId: Long, expiry: Instant): Future[AuthToken] = db.run {
-    sql"SELECT * FROM auth_token_save(${userId}, ${expiry})".as[AuthToken].head
+  def create(userId: Long, expiry: FiniteDuration): Future[AuthToken] = db.run {
+    sql"SELECT * FROM auth_token_create(${userId}, ${expiry})".as[AuthToken].head
+  }
+
+  /**
+    * Finds a token by its ID.
+    *
+    * @param id The unique token ID.
+    * @return The found token or None if no token for the given ID could be found.
+    */
+  def find(id: UUID): Future[Option[AuthToken]] = {
+    val query = sql"SELECT * FROM auth_token_find(${id})".as[AuthToken].headOption
+    db.run(query.asTry).map {
+      case Success(res) => res
+      case Failure(e: PSQLException) =>
+        SqlUtils.parseException(e, InvalidAuthTokenException.throwException)
+        throw e
+      case Failure(e: Throwable) => throw e
+    }
+  }
+
+  def validate(id: UUID): Future[Option[AuthToken]] = {
+    val query = sql"SELECT * FROM auth_token_validate(${id})".as[AuthToken].headOption
+    db.run(query.transactionally.asTry).map {
+      case Success(res) => res
+      case Failure(e: PSQLException) =>
+        SqlUtils.parseException(e, InvalidAuthTokenException.throwException)
+        throw e
+      case Failure(e: Throwable) => throw e
+    }
   }
 
   /**
@@ -62,6 +76,15 @@ class AuthTokenDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
     * @return A future to wait for the process to be completed.
     */
   def remove(id: UUID): Future[Unit] = db.run {
-    sql"SELECT * FROM auth_token_remove(${id})".as[Unit].head
+    sql"SELECT * FROM auth_token_remove(${id})".as[Unit].head.transactionally
   }
+
+  /**
+    * Remove all tokens that has expiry >= CURRENT_TIMESTAMP
+    * @return
+    */
+  def clean(): Future[Unit] = db.run {
+    sql"SELECT * FROM auth_token_remove_expired()".as[Unit].head.transactionally
+  }
+
 }
