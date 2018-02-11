@@ -20,6 +20,8 @@ class UserService @Inject()(userDao: UserDao,
 
   def getById(userId: Long): Future[Option[User]] = userDao.getById(userId)
 
+  //TODO: validate email address
+  //TODO: validate password
   def save(email: String, password: String, locale: Option[String], timezone: Option[Int]): Future[User] = {
     val domain = "expresso.today"
     if (!email.endsWith(domain))

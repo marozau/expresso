@@ -23,11 +23,7 @@ import scala.concurrent.duration._
   */
 
 @Singleton
-class UserServiceGrpcImpl @Inject()(userService: UserService,
-                                    authInfoRepository: AuthInfoRepository,
-                                    authTokenService: AuthTokenService,
-                                    mailerClient: MailerClient)
-                                   (implicit ec: ExecutionContext)
+class UserServiceGrpcImpl @Inject()(userService: UserService)(implicit ec: ExecutionContext)
   extends UserServiceGrpc.UserService {
 
   import UserServiceGrpcImpl._
@@ -45,8 +41,6 @@ class UserServiceGrpcImpl @Inject()(userService: UserService,
       }
   }
 
-  //TODO: validate email address
-  //TODO: validate password
   override def userCreate(request: UserCreateRequest) = GrpcErrorHandler {
     log.info(s"userCreate - {}", request)
     userService.save(request.email, request.password, None, None).map { user => //TODO: locale and timezone
