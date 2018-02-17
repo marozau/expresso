@@ -80,7 +80,11 @@ lazy val newsletter = (project in file("modules/newsletter"))
     libraryDependencies += avro4sCore,
     libraryDependencies += quartz,
     libraryDependencies += telegrambot4s,
-    libraryDependencies += viber
+    libraryDependencies += viber,
+    libraryDependencies += flyway,
+
+    libraryDependencies ++= testAll,
+    libraryDependencies += ehcache % Test
   )
 
 lazy val expresso = (project in file("."))

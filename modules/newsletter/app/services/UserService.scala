@@ -12,12 +12,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * @author im.
   */
 @Singleton
-class UserService @Inject()()(implicit ec: ExecutionContext)
-  extends IdentityService[User] {
+class UserService @Inject()()(implicit ec: ExecutionContext) {
 
-  override def retrieve(loginInfo: LoginInfo): Future[Option[User]] = ???
-
-  def retrieve(userId: Long): Future[Option[User]] = ???
-
-  def getOrCreate(loginInfo: LoginInfo): Future[Option[User]] = ???
+  def getOrCreateByEmail(email: String): Future[User] = ???
 }

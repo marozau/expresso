@@ -1,0 +1,16 @@
+version: '2'
+services:
+  postgres_newsletter:
+    image: postgres:9.6
+    ports:
+      - 5438:5432
+    environment:
+      - POSTGRES_USER=expresso_newsletter
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - pbdata_newsletter:/var/lib/postgresql/data
+
+volumes:
+  pbdata_newsletter:
+    driver: local
+

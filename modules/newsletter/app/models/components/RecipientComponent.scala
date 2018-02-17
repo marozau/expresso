@@ -1,11 +1,8 @@
 package models.components
 
-import java.time.ZonedDateTime
-import java.util.UUID
-
 import db.Repository
 import models.Recipient
-import utils.SqlUtils
+import slick.jdbc.GetResult
 
 /**
   * @author im.
@@ -17,30 +14,13 @@ trait RecipientComponent {
 
   implicit val recipientStatusTypeMapper = createEnumJdbcType("recipient_status", Recipient.Status)
 
-  case class DBRecipient(id: Option[UUID],
-                         newsletterId: Long,
-                         userId: Long,
-                         status: Recipient.Status.Value,
-                         createdTimestamp: Option[ZonedDateTime] = None,
-                         modifiedTimestamp: Option[ZonedDateTime] = None)
-
-  protected class Recipients(tag: Tag) extends Table[DBRecipient](tag, "recipients") {
-
-    def uuid = column[UUID]("id", O.PrimaryKey, O.AutoInc)
-
-    def newsletterId = column[Long]("newsletter_id")
-
-    def userId = column[Long]("user_id")
-
-    def status = column[Recipient.Status.Value]("status")
-
-    def createdTimestamp = column[ZonedDateTime]("created_timestamp", SqlUtils.timestampTzNotNullType)
-
-    def modifiedTimestamp = column[ZonedDateTime]("modified_timestamp", SqlUtils.timestampTzNotNullType)
-
-    def * = (uuid.?, newsletterId, userId, status, createdTimestamp.?, modifiedTimestamp.?) <> ((DBRecipient.apply _).tupled, DBRecipient.unapply)
+  implicit val recipientGetResult: GetResult[Recipient] = GetResult { r =>
+    Recipient(
+      uuidColumnType.getValue(r.rs, r.skip.currentPos),
+      r.nextLong(),
+      r.nextLong(),
+      recipientStatusTypeMapper.getValue(r.rs, r.skip.currentPos),
+      r.nextTimestamp().toInstant
+    )
   }
-
-  protected val recipients = TableQuery[Recipients]
-
 }

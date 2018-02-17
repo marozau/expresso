@@ -9,8 +9,8 @@ CREATE TABLE users (
   locale             TEXT,
   timezone           INT,
   reason             TEXT,
-  created_timestamp  TIMESTAMPTZ DEFAULT timezone('UTC', now()),
-  modified_timestamp TIMESTAMPTZ DEFAULT timezone('UTC', now())
+  created_timestamp  TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  modified_timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 DROP TRIGGER IF EXISTS trigger_user_modified

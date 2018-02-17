@@ -1,3 +1,5 @@
+--TODO: encrypt this table
+
 CREATE TYPE user_sex AS ENUM ('MALE', 'FEMALE', 'UNKNOWN');
 
 CREATE TABLE user_profiles (
@@ -14,7 +16,7 @@ CREATE TABLE user_profiles (
 
   rating             DECIMAL,
 
-  modified_timestamp TIMESTAMPTZ DEFAULT timezone('UTC', now())
+  modified_timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX user_profiles_modified_timestamp_idx

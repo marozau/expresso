@@ -1,11 +1,11 @@
 package services
 
-import java.time.LocalDate
+import java.net.URL
+import java.util.Date
 import javax.inject.{Inject, Singleton}
 
-import exceptions.PostNotFoundException
-import models.{Edition, Post}
 import models.daos.{CampaignDao, EditionDao}
+import play.api.libs.json.JsValue
 
 import scala.concurrent.ExecutionContext
 
@@ -15,35 +15,24 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class EditionService @Inject()(editionDao: EditionDao, campaignDao: CampaignDao)(implicit ec: ExecutionContext) {
 
-  def list(newsletterId: Long) = editionDao.listSpec(newsletterId)
-
-  def create(newsletterId: Long) = editionDao.create(newsletterId)
-
-  def getCurrent(newsletterId: Long) = {
-    campaignDao.getLastSent()
-      .flatMap { campaign =>
-        editionDao.getById(campaign.editionId)
-      }
+  def create(userId: Long, newsletterId: Long, date: Date) = {
+    editionDao.create(userId, newsletterId, date) //TODO: NewsletterCreated event
   }
 
-  /**
-    * Get newsletter edition post for the specified date or throw exception if none
-    *
-    * @param newsletterId The newsletter id of interested edition
-    * @param date         The date when edition was published
-    * @return The edition object
-    */
-  def getByDate(newsletterId: Long, date: LocalDate) = editionDao.getByDate(newsletterId, date)
+  //TODO: EditionUpdate command
+  //TODO: EditionUpdateDto(proto-gRPC)(command) -> EditionUpdate(scala) -> EditionUpdated(avro)(eventg[)
+  def update(userId: Long,
+             editionId: Long,
+             date: Option[Date],
+             url: Option[URL] = None,
+             title: Option[String],
+             header: Option[JsValue],
+             footer: Option[JsValue],
+             options: Option[JsValue]) = {
+    editionDao.update(userId, editionId, date, url, title, header, footer, options) //TODO: NewsletterUpdated event
+  }
 
-  def getById(id: Long) = editionDao.getById(id)
+  def getById(userId: Long, id: Long) = editionDao.getById(userId, id)
 
-  def update(edition: Edition) = editionDao.update(edition)
-
-  def addPost(editionId: Long, postIds: List[Long]) = editionDao.addPost(editionId, postIds)
-
-  def removePost(editionId: Long, postId: Long) = editionDao.removePost(editionId, postId)
-
-  def moveUpPost(editionId: Long, postId: Long) = editionDao.moveUpPost(editionId, postId)
-
-  def moveDownPost(editionId: Long, postId: Long) = editionDao.moveDownPost(editionId, postId)
+  def getByNewsletterId(userId: Long, newsletterId: Long) = editionDao.getByNewsletterId(userId, newsletterId)
 }

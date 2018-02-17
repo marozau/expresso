@@ -53,7 +53,7 @@ class JobSchedulerService @Inject()(quartz: Quartz, campaigns: CampaignService, 
     campaigns
       .setSendingStatus(campaign.id.get)
       .flatMap { _ =>
-        recipientService.getNewsletterRecipients(campaign.newsletterId)
+        recipientService.getByNewsletterId(campaign.newsletterId)
           .flatMap { recipients =>
             Future.sequence(recipients
               .map { recipient =>

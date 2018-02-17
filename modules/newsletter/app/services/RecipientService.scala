@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import models.{Recipient, UserRole}
+import models.{Recipient, UserRole, UserStatus}
 import models.daos.RecipientDao
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -13,27 +13,32 @@ import scala.concurrent.{ExecutionContext, Future}
   * @author im.
   */
 @Singleton
-class RecipientService @Inject()(recipientsDao: RecipientDao, userService: UserService, mailService: MailService)(implicit ec: ExecutionContext) {
+class RecipientService @Inject()(recipientsDao: RecipientDao, userService: UserService)(implicit ec: ExecutionContext) {
 
-  def getNewsletterRecipients(newsletterId: Long) = {
-    recipientsDao.getByNewsletterId(newsletterId)
+  def getByNewsletterId(newsletterId: Long, status: Recipient.Status.Value) = {
+    recipientsDao.getByNewsletterId(newsletterId, None, Some(status))
   }
 
-  def getEditionRecipients(editionId: Long) = recipientsDao.getByEditionId(editionId)
+  def getByNewsletterId(userId: Long, newsletterId: Long, status: Option[Recipient.Status.Value]) = {
+    recipientsDao.getByNewsletterId(newsletterId, Some(userId), status)
+  }
 
   /**
-    * Method is only for future API calls. Allows user to subsribe on newsletter without subscription verification
+    * Method is only for future API calls. Allows user to subscribe on newsletter without subscription verification
     *
-    * @param newsletterId The newsletter user wants to subscribe
     * @param userId       THe user id
+    * @param newsletterId The newsletter user wants to subscribe
     * @return The recipient information
     */
-  //FIXME: Recipient status must be SUBSCRIBED instead of PENDING
-  def addUser(newsletterId: Long, userId: Long) = {
-    recipientsDao.add(newsletterId, userId, Recipient.Status.SUBSCRIBED)
+  def subscribeUser(userId: Long, newsletterId: Long) = {
+    recipientsDao.add(userId, newsletterId, Some(Recipient.Status.SUBSCRIBED))
   }
 
-  def subscribe(newsletterId: Long, email: String) = {
+  def subscribeEmail(email: String, newsletterId: Long) = {
+    userService.getOrCreateByEmail(email)
+      .flatMap{ user =>
+
+      }
 //    val loginInfo = LoginInfo(CredentialsProvider.ID, email)
 //    userService.getOrCreate(loginInfo)
 //      .flatMap { user =>
@@ -54,5 +59,13 @@ class RecipientService @Inject()(recipientsDao: RecipientDao, userService: UserS
 
   def unsubscribe(newsletterId: Long, userId: Long) = {
     recipientsDao.updateStatus(newsletterId, userId, Recipient.Status.UNSUBSCRIBED)
+  }
+
+  private def getStatus(userStatus: UserStatus.Value, recipientStatus: Recipient.Status.Value): Recipient.Status.Value = {
+    userStatus match {
+      case UserStatus.NEW => recipientStatus
+      case UserStatus.VERIFIED => recipientStatus
+      case UserStatus.BLOCKED => Recipient.Status.REMOVED // don't subscribe blocked users
+    }
   }
 }

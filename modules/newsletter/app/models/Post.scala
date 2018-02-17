@@ -1,6 +1,6 @@
 package models
 
-import java.time.ZonedDateTime
+import java.time.Instant
 
 import play.api.libs.json.JsValue
 
@@ -8,14 +8,13 @@ import play.api.libs.json.JsValue
   * @author im.
   */
 // TODO: https://github.com/typesafehub/lightbend-emoji twirl method template
-case class Post(id: Option[Long],
+case class Post(id: Long,
                 userId: Long,
-                editionId: Option[Long],
+                editionId: Long,
+                editionOrder: Int,
                 title: String,
-                titleUrl: String,
                 annotation: String,
-                body: String,
-                options: Option[JsValue] = None,
-                createdTimestamp: Option[ZonedDateTime] = None,
-                modifiedTimestamp: Option[ZonedDateTime] = None)
+                body: JsValue,
+                options: Option[JsValue],
+                createdTimestamp: Instant)
 

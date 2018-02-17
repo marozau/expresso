@@ -10,14 +10,19 @@ object BaseException {
     val INTERNAL_SERVER_ERROR = Value
     val TIMEOUT = Value
     val VALIDATION_ERROR = Value
+    val AUTHORIZATION = Value
+
     val POST_NOT_FOUND = Value
-    val EDITION_NOT_FOUND = Value
+    val POST_TITLE_DUPLICATION = Value
+
+    val RECIPIENT_NOT_FOUND = Value
+
     val NEWSLETTER_NOT_FOUND = Value
     val NEWSLETTER_ALREADY_EXIST = Value
     val NEWSLETTER_NAME_URL_ALREADY_EXIST = Value
     val ARCHIVE_NOT_FOUND = Value
     val CAMPAIGN_NOT_FOUND = Value
-    val RECIPIENT_LIST_NOT_FOUND = Value
+
     val EMAIL_NOT_FOUND = Value
     val INVALID_CAMPAIGN_STATUS = Value
     val INVALID_CAMPAIGN_SCHEDULE = Value
@@ -30,6 +35,9 @@ object BaseException {
     val INVALID_EMAIL = Value
 
     val INVALID_AUTH_TOKEN = Value
+
+    val EDITION_NOT_FOUND = Value
+    val EDITION_ALREADY_EXISTS = Value
   }
 }
 

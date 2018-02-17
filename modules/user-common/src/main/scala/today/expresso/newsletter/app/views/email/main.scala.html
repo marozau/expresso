@@ -1,0 +1,88 @@
+@(title: String, description: Option[String] = None, url: Option[String] = None)(content: Html)(implicit messages: Messages, assets: AssetsFinder)
+
+@shareImage() = @{
+    "https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/2e2c0374-77fc-460d-9aa7-bf05d5b4c6ed.png"
+}
+
+<!doctype html>
+<html xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraph.org/schema/">
+    <head>
+        <link rel="shortcut icon" type="image/png" href="https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/68de544e-9e28-4f78-b11d-7774c61fa518.jpg">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+        <meta property="fb:page_id" content="43929265776" />
+
+        <meta name="twitter:image:src" content="@shareImage()">
+        <meta name="twitter:image:width" content="300">
+        <meta name="twitter:image:height" content="300">
+        <meta name="twitter:description" content="@description.getOrElse("")">
+        <meta name="twitter:title" content="Expresso: @title">
+        @*<meta name="twitter:card" content="summary_large_image">*@
+        <meta property="og:type" content="article">
+
+        <meta property="og:description" content="@description.getOrElse("")">
+        <meta property="og:image" content="@shareImage()">
+        <meta property="og:image:width" content="300">
+        <meta property="og:image:height" content="300">
+        <meta property="og:title" content="Expresso: @title">
+        <meta property="og:url" content="@url.getOrElse("https://expresso.today")">
+            <!-- NAME: 1 COLUMN -->
+            <!--[if gte mso 15]>
+		<xml>
+			<o:OfficeDocumentSettings>
+			<o:AllowPNG/>
+			<o:PixelsPerInch>96</o:PixelsPerInch>
+			</o:OfficeDocumentSettings>
+		</xml>
+		<![endif]-->
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>@title</title>
+
+        <link rel="stylesheet" type="text/css" href="@assets.path("stylesheets/email.css")">
+    </head>
+
+    <body style="height: 100%;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%;
+        background-color: #ffffff;">
+        <div itemprop="publisher" itemscope="" itemtype="https://schema.org/Organization">
+            <meta itemprop="name" content="Expresso">
+            <link itemprop="url" content="https://expresso.today">
+        </div>
+            <!---->
+        <center>
+            <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable" style="border-collapse: collapse;
+                mso-table-lspace: 0pt;
+                mso-table-rspace: 0pt;
+                -ms-text-size-adjust: 100%;
+                -webkit-text-size-adjust: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                background-color: #ffffff;">
+                <tr>
+                    <td align="center" valign="top" id="bodyCell" style="mso-line-height-rule: exactly;
+                        -ms-text-size-adjust: 100%;
+                        -webkit-text-size-adjust: 100%;
+                        height: 100%;
+                        margin: 0;
+                        padding: 10px;
+                        width: 100%;
+                        border-top: 0;">
+
+                    @content
+
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </body>
+
+</html>

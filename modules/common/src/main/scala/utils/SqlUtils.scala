@@ -8,6 +8,8 @@ import exceptions.BaseException
 import org.postgresql.util.PSQLException
 import slick.sql.SqlProfile.ColumnOption.SqlType
 
+import scala.util.{Failure, Success, Try}
+
 /**
   * @author im.
   */
@@ -23,7 +25,6 @@ object SqlUtils {
   private val ERROR_TAG: String = "<ERROR>"
 
   def parseProperties(e: PSQLException): util.Map[String, String] = {
-    var properties: util.Map[String, String] = null
     val message: String = e.getMessage.substring(MESSAGE_START_INDEX)
     if (message.startsWith(ERROR_TAG)) {
       val beginIndex: Int = message.indexOf(ERROR_TAG) + ERROR_TAG.length
@@ -39,5 +40,13 @@ object SqlUtils {
                      throwException: (String, () => String) => Unit): Unit = {
     val properties = parseProperties(e)
     throwException(properties.getOrDefault("code", ""), () => properties.getOrDefault("message", e.getMessage))
+  }
+
+  def tryException[T](throwExceptions: ((String, () => String) => Unit)*): Try[T] => T = {
+    case Success(res) => res
+    case Failure(e: PSQLException) =>
+      throwExceptions.foreach(SqlUtils.parseException(e, _))
+      throw e
+    case Failure(e: Throwable) => throw e
   }
 }

@@ -1,15 +1,16 @@
 package models.daos
 
+import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import db.Repository
-import exceptions.{InvalidUserStatusException, UserUnverifiedException}
-import models.components.{EditionComponent, NewsletterComponent, RecipientComponent}
-import models.{Recipient, UserStatus}
-import play.api.Logger
+import exceptions._
+import models.Recipient
+import models.components.RecipientComponent
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
+import utils.SqlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -18,68 +19,74 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 @Singleton
 class RecipientDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
-  extends Repository with RecipientComponent  with EditionComponent with NewsletterComponent {
+  extends Repository with RecipientComponent {
 
   protected val dbConfig: DatabaseConfig[JdbcProfile] = databaseConfigProvider.get[JdbcProfile]
 
   import api._
   import dbConfig._
 
-  implicit def recipientCast(r: DBRecipient) = Recipient(r.id, r.newsletterId, r.userId, r.status)
-
   /**
     *
     * @param newsletterId
     * @return newsletter recipients with SUBSCRIBED status
     */
-  def getByNewsletterId(newsletterId: Long) = db.run {
-    recipients.filter(r => r.newsletterId === newsletterId && r.status === Recipient.Status.SUBSCRIBED).result
-      .map(_.map(recipientCast))
+  def getByNewsletterId(newsletterId: Long, userId: Option[Long] = None, status: Option[Recipient.Status.Value] = None): Future[List[Recipient]] = {
+    val query = sql"SELECT * FROM recipients_get_by_newsletter_id(${userId}, ${newsletterId}, ${status})".as[Recipient]
+    db.run(query.asTry).map {
+      SqlUtils.tryException {
+        AuthorizationException.throwException
+      }
+    }.map(_.toList)
   }
 
-  /**
-    *
-    * @param newsletterId
-    * @return all newsletter recipients despite of recipient status
-    */
-  def getAllByNewsletterId(newsletterId: Long) = db.run {
-    recipients.filter(_.newsletterId === newsletterId).result
-      .map(_.map(recipientCast))
+  def add(userId: Long, newsletterId: Long, status: Option[Recipient.Status.Value]): Future[Recipient] = {
+    val query = sql"SELECT * FROM recipients_add(${userId}, ${newsletterId}, ${status})".as[Recipient].head
+    db.run(query.transactionally)
   }
 
-  def getByEditionId(editionId: Long) = {
-    val recipientsQuery = for {
-      edition <- editions.filter(_.id === editionId)
-      newsletter <- newsletters.filter(_.id === edition.newsletterId)
-      recipients <- recipients.filter(_.newsletterId === newsletter.id)
-    } yield recipients
-
-    db.run(recipientsQuery.result).map(_.map(recipientCast))
-  }
-
-  //TODO: process case of unsubscribed user who wants to subcsribe again
-  def add(newsletterId: Long, userId: Long, status: Recipient.Status.Value) = {
-//    val recipientAdd = for {
-//      userOption <- users.filter(_.id === userId).result.headOption
-//      status <- if (userOption.isDefined) DBIO.successful(getStatus(userOption.get.status, status))
-//      else DBIO.failed(UserNotFoundException(Some(userId), None, s"failed to add user to the newsletter list, newsletterId=$newsletterId, userId=$userId"))
-//      recipient <- (recipients returning recipients) += DBRecipient(None, newsletterId, userId, status)
-//    } yield recipientCast(recipient)
-//    db.run(recipientAdd.transactionally)
-  }
-
-  private def getStatus(userStatus: UserStatus.Value, recipientStatus: Recipient.Status.Value): Recipient.Status.Value = {
-    userStatus match {
-      case UserStatus.NEW => recipientStatus
-      case UserStatus.VERIFIED => recipientStatus
-      case UserStatus.BLOCKED => Recipient.Status.REMOVED // don't subscribe blocked users
+  def subscribe(recipientId: UUID): Future[Recipient] = {
+    val query = sql"SELECT * FROM recipients_update_status(${recipientId}, ${Recipient.Status.SUBSCRIBED})".as[Recipient].head
+    db.run(query.transactionally.asTry).map {
+      SqlUtils.tryException {
+        RecipientNotFoundException.throwException
+      }
     }
   }
 
-  def updateStatus(newsletterId: Long, userId: Long, status: Recipient.Status.Value) = db.run {
-    recipients
-      .filter(r => r.newsletterId === newsletterId && r.userId === userId)
-      .map(_.status)
-      .update(status)
+  def unsubscribe(recipientId: UUID): Future[Recipient] = {
+    val query = sql"SELECT * FROM recipients_update_status(${recipientId}, ${Recipient.Status.UNSUBSCRIBED})".as[Recipient].head
+    db.run(query.transactionally.asTry).map {
+      SqlUtils.tryException {
+        RecipientNotFoundException.throwException
+      }
+    }
+  }
+
+  def remove(recipientId: UUID): Future[Recipient] = {
+    val query = sql"SELECT * FROM recipients_update_status(${recipientId}, ${Recipient.Status.REMOVED})".as[Recipient].head
+    db.run(query.transactionally.asTry).map {
+      SqlUtils.tryException {
+        RecipientNotFoundException.throwException
+      }
+    }
+  }
+
+  def clean(recipientId: UUID): Future[Recipient] = {
+    val query = sql"SELECT * FROM recipients_update_status(${recipientId}, ${Recipient.Status.CLEANED})".as[Recipient].head
+    db.run(query.transactionally.asTry).map {
+      SqlUtils.tryException {
+        RecipientNotFoundException.throwException
+      }
+    }
+  }
+
+  def spam(recipientId: UUID): Future[Recipient] = {
+    val query = sql"SELECT * FROM recipients_update_status(${recipientId}, ${Recipient.Status.SPAM})".as[Recipient].head
+    db.run(query.transactionally.asTry).map {
+      SqlUtils.tryException {
+        RecipientNotFoundException.throwException
+      }
+    }
   }
 }

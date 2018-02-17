@@ -1,6 +1,6 @@
 package models
 
-import exceptions.PostNotFoundException
+import exceptions.PostTitleDuplicationException
 import play.api.Logger
 
 /**
@@ -13,7 +13,7 @@ object PostView {
     Logger.info(s"$edition")
     val postsx = None +: edition.posts.map(Some(_)) :+ None
     val slice = postsx.sliding(3).filter(slice => slice(1).get.titleUrl.equals(titleUrl)).toList.headOption
-    if (slice.isEmpty) throw PostNotFoundException(0, s"postView failed, title=$titleUrl not found")
+    if (slice.isEmpty) throw PostTitleDuplicationException(0, s"postView failed, title=$titleUrl not found")
     PostView(slice.get(1).get, Some(edition), slice.get.head, slice.get.last)
   }
 }

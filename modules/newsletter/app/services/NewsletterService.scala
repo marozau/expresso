@@ -1,48 +1,38 @@
 package services
 
+import java.net.URL
 import javax.inject.{Inject, Singleton}
 
-import exceptions.NewsletterNotFoundException
-import models.{Campaign, Edition, Newsletter, User}
-import models.daos.{CampaignDao, EditionDao, NewsletterDao}
+import models.daos.NewsletterDao
+import play.api.i18n.Lang
+import play.api.libs.json.JsValue
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 /**
   * @author im.
   */
 @Singleton
-class NewsletterService @Inject()(newsletterDao: NewsletterDao, editionDao: EditionDao, campaignDao: CampaignDao)(implicit ec: ExecutionContext) {
+class NewsletterService @Inject()(newsletterDao: NewsletterDao)(implicit ec: ExecutionContext) {
+
+  def create(userId: Long, name: String, locale: Lang) = {
+    newsletterDao.create(userId, name, locale) //TODO: NewsletterCreated event
+  }
+
+  def update(userId: Long,
+             newsletterId: Long,
+             locale: Option[Lang],
+             logoUrl: Option[URL],
+             avatarUrl: Option[URL],
+             options: Option[JsValue]) = {
+    newsletterDao.update(userId, newsletterId, locale, logoUrl, avatarUrl, options) //TODO: NewsletterUpdated event
+  }
 
   def getById(newsletterId: Long) = {
     newsletterDao.getById(newsletterId)
-      .map { result =>
-        if (result.isEmpty) throw NewsletterNotFoundException(s"getById failed, '$newsletterId' not found" )
-        result.get
-      }
   }
 
-  def getByNameUrl(nameUrl: String) = {
-    newsletterDao.getByNameUrl(nameUrl)
-      .map { result =>
-        if (result.isEmpty) throw NewsletterNotFoundException(s"getByNameUrl failed, '$nameUrl' not found")
-        result.get
-      }
+  def getByUserId(userId: Long) = {
+    newsletterDao.getByUserId(userId)
   }
-
-  def list(): Future[Seq[(Newsletter, Option[Edition], Option[Campaign])]] = {
-    newsletterDao.list()
-      .flatMap { list =>
-        Future.sequence(
-          list.map(newsletter => editionDao.getUnpublished(newsletter.id.get)
-            .flatMap { editionOption =>
-              if (editionOption.isDefined) campaignDao.getByEditionId(editionOption.get.id.get).map((newsletter, editionOption, _))
-              else Future.successful((newsletter, None, None))
-            }
-          )
-        )
-      }
-  }
-
-  def create(newsletter: Newsletter) = newsletterDao.create(newsletter)
 }

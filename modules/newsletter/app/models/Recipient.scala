@@ -1,5 +1,6 @@
 package models
 
+import java.time.Instant
 import java.util.UUID
 
 import play.api.libs.json.Reads
@@ -18,9 +19,10 @@ object Recipient {
 
 }
 
-case class Recipient(id: Option[UUID],
-                     newsletterId: Long,
+case class Recipient(id: UUID,
                      userId: Long,
-                     status: Recipient.Status.Value)
+                     newsletterId: Long,
+                     status: Recipient.Status.Value,
+                     createdTimestamp: Instant)
 
 
