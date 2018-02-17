@@ -3,7 +3,7 @@ package models.components
 import com.github.tminglei.slickpg.utils.PlainSQLUtils
 import db.Repository
 import models._
-import slick.jdbc.{GetResult, SetParameter}
+import slick.jdbc.GetResult
 
 /**
   * @author im.

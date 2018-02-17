@@ -1,10 +1,10 @@
 syntax = "proto3";
 package today.expresso.grpc;
 
-import "user.dto.proto";
+import "user.domain.proto";
 
 message Header {
     int32 correlation = 1;
     string token = 2; //TODO: remove, user CredentialsDto instead
-    user.dto.CredentialsDto credentials = 3;
+    user.domain.Credentials credentials = 3; //TODO: don't use user credentials, replace by Context with custom fields
 }

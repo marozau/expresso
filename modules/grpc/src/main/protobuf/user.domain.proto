@@ -1,7 +1,7 @@
 syntax = "proto3";
-package today.expresso.grpc.user.dto;
+package today.expresso.grpc.user.domain;
 
-message UserDto {
+message User {
 
     enum Role {
         USER = 0;
@@ -29,31 +29,31 @@ message UserDto {
     int64 createdTimestamp = 7;
 }
 
-message LoginInfoDto {
+message LoginInfo {
     string providerId = 1;
     string providerKey = 2;
 }
 
-message UserIdentityDto {
+message UserIdentity {
     int64 id = 1;
-    UserDto.Status status = 2;
-    repeated UserDto.Role roles = 3;
+    User.Status status = 2;
+    repeated User.Role roles = 3;
     string locale = 4;
 }
 
-message PasswordInfoDto {
+message PasswordInfo {
     string hasher = 1;
     string password = 2;
     string salt = 3;
 }
 
-message CredentialsDto {
-    UserIdentityDto user = 1;
+message Credentials {
+    UserIdentity user = 1;
     string remoteAddress = 2;
     map<string, string> tags = 3;
 }
 
-message UserProfileDto {
+message UserProfile {
 
     enum Sex {
         UNKNOWN = 0;

@@ -7,7 +7,7 @@ import com.mohiva.play.silhouette.api.{LoginInfo, util}
 import grpc.GrpcErrorHandler
 import models.daos.PasswordInfoDao
 import org.slf4j.{Logger, LoggerFactory}
-import today.expresso.grpc.user.dto._
+import today.expresso.grpc.user._
 import today.expresso.grpc.user.service._
 
 import scala.concurrent.ExecutionContext
@@ -96,16 +96,16 @@ class PasswordInfoServiceGrpcImpl @Inject()(passwordInfoDao: PasswordInfoDao)(im
 
 object PasswordInfoServiceGrpcImpl {
 
-  implicit def passwordInfoCast(passwordInfo: util.PasswordInfo): PasswordInfoDto =
-    PasswordInfoDto(passwordInfo.hasher, passwordInfo.password, passwordInfo.salt.getOrElse(""))
+  implicit def passwordInfoCast(passwordInfo: util.PasswordInfo): domain.PasswordInfo =
+    domain.PasswordInfo(passwordInfo.hasher, passwordInfo.password, passwordInfo.salt.getOrElse(""))
 
-  implicit def passwordInfoDtoCast(passwordInfo: PasswordInfoDto): PasswordInfo =
+  implicit def passwordInfoDtoCast(passwordInfo: domain.PasswordInfo): PasswordInfo =
     PasswordInfo(
       passwordInfo.hasher,
       passwordInfo.password,
       if (passwordInfo.salt.isEmpty) None else Some(passwordInfo.salt),
     )
 
-  implicit def loginInfoDtoCast(loginInfo: LoginInfoDto): LoginInfo =
+  implicit def loginInfoDtoCast(loginInfo: domain.LoginInfo): LoginInfo =
     LoginInfo(loginInfo.providerId, loginInfo.providerKey)
 }

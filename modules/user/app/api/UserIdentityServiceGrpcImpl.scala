@@ -6,7 +6,7 @@ import grpc.GrpcErrorHandler
 import models.User
 import org.slf4j.{Logger, LoggerFactory}
 import services.UserIdentityService
-import today.expresso.grpc.user.dto.UserIdentityDto
+import today.expresso.grpc.user._
 import today.expresso.grpc.user.service.{UserGetByLoginInfoRequest, UserGetByLoginInfoResponse, UserIdentityServiceGrpc}
 
 import scala.concurrent.ExecutionContext
@@ -41,8 +41,8 @@ class UserIdentityServiceGrpcImpl @Inject()(userIdentityService: UserIdentitySer
 object UserIdentityServiceGrpcImpl {
   import UserServiceGrpcImpl._
 
-  implicit def userIdentityDtoCast(user: User): UserIdentityDto = {
-    UserIdentityDto(
+  implicit def userIdentityDtoCast(user: User): domain.UserIdentity = {
+    domain.UserIdentity(
       user.id,
       user.status,
       user.roles.map(userDtoRoleCast),

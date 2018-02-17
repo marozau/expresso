@@ -1,7 +1,5 @@
 package models.components
 
-import java.sql.Timestamp
-import java.time.Instant
 import java.util.UUID
 
 import com.github.tminglei.slickpg.utils.PlainSQLUtils
@@ -15,8 +13,6 @@ import scala.concurrent.duration.FiniteDuration
   */
 trait CommonComponent {
   this: Repository =>
-
-  import api._
 
   // PARAMETERS
 

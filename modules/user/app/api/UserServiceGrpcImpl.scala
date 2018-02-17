@@ -4,19 +4,14 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import com.mohiva.play.silhouette.api.LoginInfo
-import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
-import com.mohiva.play.silhouette.api.util.PasswordHasherRegistry
-import exceptions.InvalidEmailException
 import grpc.GrpcErrorHandler
 import models.User
 import org.slf4j.{Logger, LoggerFactory}
-import play.api.libs.mailer.MailerClient
-import services.{AuthTokenService, UserService}
-import today.expresso.grpc.user.dto._
+import services.UserService
+import today.expresso.grpc.user._
 import today.expresso.grpc.user.service._
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.duration._
 
 /**
   * @author im.
@@ -63,26 +58,26 @@ class UserServiceGrpcImpl @Inject()(userService: UserService)(implicit ec: Execu
 object UserServiceGrpcImpl {
 
   implicit def userDtoRoleCast(role: User.Role.Value) = role match {
-    case User.Role.USER => UserDto.Role.USER
-    case User.Role.READER => UserDto.Role.READER
-    case User.Role.MEMBER => UserDto.Role.MEMBER
-    case User.Role.WRITER => UserDto.Role.WRITER
-    case User.Role.EDITOR => UserDto.Role.EDITOR
-    case User.Role.CHIEF_EDITOR => UserDto.Role.CHIEF_EDITOR
-    case User.Role.ADMIN => UserDto.Role.ADMIN
-    case User.Role.API => UserDto.Role.API
+    case User.Role.USER => domain.User.Role.USER
+    case User.Role.READER => domain.User.Role.READER
+    case User.Role.MEMBER => domain.User.Role.MEMBER
+    case User.Role.WRITER => domain.User.Role.WRITER
+    case User.Role.EDITOR => domain.User.Role.EDITOR
+    case User.Role.CHIEF_EDITOR => domain.User.Role.CHIEF_EDITOR
+    case User.Role.ADMIN => domain.User.Role.ADMIN
+    case User.Role.API => domain.User.Role.API
     case role => throw new UnsupportedOperationException("unknown role: " + role)
   }
 
   implicit def userDtoStatusCast(status: User.Status.Value) = status match {
-    case User.Status.NEW => UserDto.Status.NEW
-    case User.Status.VERIFIED => UserDto.Status.VERIFIED
-    case User.Status.BLOCKED => UserDto.Status.BLOCKED
+    case User.Status.NEW => domain.User.Status.NEW
+    case User.Status.VERIFIED => domain.User.Status.VERIFIED
+    case User.Status.BLOCKED => domain.User.Status.BLOCKED
     case status => throw new UnsupportedOperationException("unknown status: " + status)
   }
 
-  implicit def userDtoCast(user: models.User): UserDto = {
-    UserDto(
+  implicit def userDtoCast(user: models.User): domain.User = {
+    domain.User(
       user.id,
       user.status,
       user.roles.map(userDtoRoleCast),
@@ -93,6 +88,6 @@ object UserServiceGrpcImpl {
     )
   }
 
-  implicit def loginInfoDtoCast(loginInfo: LoginInfoDto): LoginInfo =
+  implicit def loginInfoDtoCast(loginInfo: domain.LoginInfo): LoginInfo =
     LoginInfo(loginInfo.providerId, loginInfo.providerKey)
 }

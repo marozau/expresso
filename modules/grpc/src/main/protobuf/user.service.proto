@@ -2,15 +2,15 @@ syntax = "proto3";
 package today.expresso.grpc.user.service;
 
 import "common.proto";
-import "user.dto.proto";
+import "user.domain.proto";
 
 message UserGetByLoginInfoRequest {
     Header header = 1;
-    dto.LoginInfoDto loginInfo = 2;
+    domain.LoginInfo loginInfo = 2;
 }
 message UserGetByLoginInfoResponse {
     Header header = 1;
-    dto.UserIdentityDto user = 2;
+    domain.UserIdentity user = 2;
 }
 
 service UserIdentityService {
@@ -23,42 +23,42 @@ service UserIdentityService {
 
 message PasswordInfoFindRequest {
     Header header = 1;
-    dto.LoginInfoDto loginInfo = 2;
+    domain.LoginInfo loginInfo = 2;
 }
 message PasswordInfoFindResponse {
     Header header = 1;
-    dto.PasswordInfoDto passwordInfo = 2;
+    domain.PasswordInfo passwordInfo = 2;
 }
 message PasswordInfoAddRequest {
     Header header = 1;
-    dto.LoginInfoDto loginInfo = 2;
-    dto.PasswordInfoDto passwordInfo = 3;
+    domain.LoginInfo loginInfo = 2;
+    domain.PasswordInfo passwordInfo = 3;
 }
 message PasswordInfoAddResponse {
     Header header = 1;
-    dto.PasswordInfoDto passwordInfo = 2;
+    domain.PasswordInfo passwordInfo = 2;
 }
 message PasswordInfoUpdateRequest {
     Header header = 1;
-    dto.LoginInfoDto loginInfo = 2;
-    dto.PasswordInfoDto passwordInfo = 3;
+    domain.LoginInfo loginInfo = 2;
+    domain.PasswordInfo passwordInfo = 3;
 }
 message PasswordInfoUpdateResponse {
     Header header = 1;
-    dto.PasswordInfoDto passwordInfo = 2;
+    domain.PasswordInfo passwordInfo = 2;
 }
 message PasswordInfoSaveRequest {
     Header header = 1;
-    dto.LoginInfoDto loginInfo = 2;
-    dto.PasswordInfoDto passwordInfo = 3;
+    domain.LoginInfo loginInfo = 2;
+    domain.PasswordInfo passwordInfo = 3;
 }
 message PasswordInfoSaveResponse {
     Header header = 1;
-    dto.PasswordInfoDto passwordInfo = 2;
+    domain.PasswordInfo passwordInfo = 2;
 }
 message PasswordInfoRemoveRequest {
     Header header = 1;
-    dto.LoginInfoDto loginInfo = 2;
+    domain.LoginInfo loginInfo = 2;
 }
 message PasswordInfoRemoveResponse {
     Header header = 1;
@@ -85,7 +85,7 @@ message UserGetByIdRequest {
 }
 message UserGetByIdResponse {
     Header header = 1;
-    dto.UserDto user = 2;
+    domain.User user = 2;
 }
 
 message UserCreateRequest {
@@ -98,7 +98,7 @@ message UserCreateRequest {
 }
 message UserCreateResponse {
     Header header = 1;
-    dto.UserDto user = 2;
+    domain.User user = 2;
 }
 
 message UserVerifyRequest {
