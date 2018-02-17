@@ -1,14 +1,12 @@
 package models.daos
 
-import java.time.Instant
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import db.Repository
 import exceptions.InvalidAuthTokenException
 import models.AuthToken
-import models.components.{AuthTokenComponent, CommonComponent, UserComponent}
-import org.postgresql.util.PSQLException
+import models.components.{AuthTokenComponent, CommonComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -16,7 +14,6 @@ import utils.SqlUtils
 
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 /**
   * @author im.
@@ -50,22 +47,14 @@ class AuthTokenDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
   def find(id: UUID): Future[Option[AuthToken]] = {
     val query = sql"SELECT * FROM auth_token_find(${id})".as[AuthToken].headOption
     db.run(query.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, InvalidAuthTokenException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+      SqlUtils.tryException(InvalidAuthTokenException.throwException)
     }
   }
 
   def validate(id: UUID): Future[Option[AuthToken]] = {
     val query = sql"SELECT * FROM auth_token_validate(${id})".as[AuthToken].headOption
     db.run(query.transactionally.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, InvalidAuthTokenException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+      SqlUtils.tryException(InvalidAuthTokenException.throwException)
     }
   }
 
@@ -81,6 +70,7 @@ class AuthTokenDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
 
   /**
     * Remove all tokens that has expiry >= CURRENT_TIMESTAMP
+    *
     * @return
     */
   def clean(): Future[Unit] = db.run {

@@ -8,14 +8,12 @@ import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import db.Repository
 import exceptions.UserNotFoundException
 import models.components.{CommonComponent, PasswordInfoComponent}
-import org.postgresql.util.PSQLException
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import utils.SqlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 /**
   * @author im.
@@ -49,11 +47,7 @@ class PasswordInfoDao @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   def add(loginInfo: LoginInfo, authInfo: PasswordInfo): Future[PasswordInfo] = {
     val query = sql"SELECT * FROM password_info_add(${loginInfo.providerID}, ${loginInfo.providerKey}, ${authInfo.password}, ${authInfo.hasher}, ${authInfo.salt})".as[PasswordInfo].head
     db.run(query.transactionally.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, UserNotFoundException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+      SqlUtils.tryException(UserNotFoundException.throwException)
     }
   }
 
@@ -67,11 +61,7 @@ class PasswordInfoDao @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   def update(loginInfo: LoginInfo, authInfo: PasswordInfo): Future[PasswordInfo] = {
     val query = sql"SELECT * FROM password_info_update(${loginInfo.providerID}, ${loginInfo.providerKey}, ${authInfo.password}, ${authInfo.hasher}, ${authInfo.salt})".as[PasswordInfo].head
     db.run(query.transactionally.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, UserNotFoundException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+      SqlUtils.tryException(UserNotFoundException.throwException)
     }
   }
 
@@ -88,11 +78,7 @@ class PasswordInfoDao @Inject()(protected val dbConfigProvider: DatabaseConfigPr
   def save(loginInfo: LoginInfo, authInfo: PasswordInfo): Future[PasswordInfo] = {
     val query = sql"SELECT * FROM password_info_save(${loginInfo.providerID}, ${loginInfo.providerKey}, ${authInfo.password}, ${authInfo.hasher}, ${authInfo.salt})".as[PasswordInfo].head
     db.run(query.transactionally.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, UserNotFoundException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+      SqlUtils.tryException(UserNotFoundException.throwException)
     }
   }
 

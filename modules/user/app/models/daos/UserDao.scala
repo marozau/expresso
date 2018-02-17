@@ -7,16 +7,13 @@ import com.mohiva.play.silhouette.api.LoginInfo
 import db.Repository
 import exceptions.{InvalidAuthTokenException, UserAlreadyExistsException, UserNotFoundException}
 import models._
-import models.components.{CommonComponent, SilhouetteComponent, UserComponent}
-import org.postgresql.util.PSQLException
-import play.api.Logger
+import models.components.{CommonComponent, UserComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import utils.SqlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 /**
   * @author im.
@@ -39,11 +36,7 @@ class UserDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: E
   def getById(userId: Long): Future[Option[User]] = {
     val query = sql"SELECT * FROM users_get_by_id(${userId})".as[User].headOption
     db.run(query.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, UserNotFoundException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+      SqlUtils.tryException(UserNotFoundException.throwException)
     }
   }
 
@@ -56,37 +49,21 @@ class UserDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: E
   def getByLoginInfo(loginInfo: LoginInfo): Future[Option[User]] = {
     val query = sql"SELECT * FROM users_get_by_login_info(${loginInfo.providerID}, ${loginInfo.providerKey})".as[User].headOption
     db.run(query.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, UserNotFoundException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+      SqlUtils.tryException(UserNotFoundException.throwException)
     }
   }
 
-  def save(email: String, password: String, hasher: String, locale: Option[String], timezone: Option[Int]): Future[User] = {
-    val query = sql"SELECT * FROM users_create_auth_password(${email}, ${password}, ${hasher}, ${locale}, ${timezone})".as[User].head
+  def save(email: String, password: String, hasher: String, salt: Option[String], locale: Option[String], timezone: Option[Int]): Future[User] = {
+    val query = sql"SELECT * FROM users_create_auth_password(${email}, ${password}, ${hasher}, ${salt}, ${locale}, ${timezone})".as[User].head
     db.run(query.transactionally.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, UserAlreadyExistsException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+      SqlUtils.tryException(UserAlreadyExistsException.throwException)
     }
   }
 
   def verify(userId: Long, token: UUID) = {
     val query = sql"SELECT * FROM users_verify(${userId}, ${token})".as[User].head
     db.run(query.transactionally.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, InvalidAuthTokenException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+      SqlUtils.tryException(InvalidAuthTokenException.throwException)
     }
-  }
-
-  def test(roles: List[Long]): Future[Boolean] = {
-    db.run(sql"SELECT * FROM test_enum(${roles})".as[Boolean].head)
   }
 }

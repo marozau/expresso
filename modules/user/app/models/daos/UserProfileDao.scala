@@ -6,14 +6,12 @@ import db.Repository
 import exceptions.UserNotFoundException
 import models.UserProfile
 import models.components.{CommonComponent, UserProfileComponent}
-import org.postgresql.util.PSQLException
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import utils.SqlUtils
 
 import scala.concurrent.ExecutionContext
-import scala.util.{Failure, Success}
 
 /**
   * @author im.
@@ -30,11 +28,7 @@ class UserProfileDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(i
   def getByUserId(userId: Long) = {
     val query = sql"SELECT * FROM user_profiles_get_by_user_id(${userId})".as[UserProfile].head
     db.run(query.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, UserNotFoundException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+        SqlUtils.tryException(UserNotFoundException.throwException)
     }
   }
 
