@@ -27,7 +27,6 @@ class UserProfileServiceSpec extends TestContext {
     "get user profile by id" in {
       whenReady(userProfileService.getByUserId(userId)){ res =>
         res.userId mustBe userId
-        res.email mustBe email
       }
 
       whenReady(userProfileService.getByUserId(0).failed){ res =>

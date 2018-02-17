@@ -36,7 +36,7 @@ class RecipientService @Inject()(recipientsDao: RecipientDao, userService: UserS
 
   // TODO: in case of failure - retry, all services should be idempotent
   def subscribeEmail(email: String, newsletterId: Long) = {
-    userService.getSubscriber(email)
+    userService.createReader(email)
       .flatMap{ user =>
         if (user.status == User.Status.BLOCKED) throw InvalidUserStatusException("failed to subscribe, user is blocked")
         else recipientsDao.add(user.id, newsletterId).map((user, _))

@@ -24,6 +24,7 @@ trait UserComponent {
   implicit val getResultUser: GetResult[User] = GetResult { r =>
     User(
       r.nextLong(),
+      r.nextString(),
       userStatusTypeMapper.getValue(r.rs, r.skip.currentPos),
       userRoleListTypeMapper.getValue(r.rs, r.skip.currentPos),
       r.nextStringOption(),

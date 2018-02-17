@@ -27,6 +27,7 @@ object User {
 
 case class User(
                  id: Long,
+                 email: String,
                  status: User.Status.Value,
                  roles: List[User.Role.Value],
                  locale: Option[String],

@@ -19,7 +19,6 @@ trait UserProfileComponent {
   implicit val getResultUser: GetResult[UserProfile] = GetResult { r =>
     UserProfile(
       r.nextLong(),
-      r.nextString(),
       r.nextStringOption(),
       r.nextStringOption(),
       Option(userSexTypeMapper.getValue(r.rs, r.skip.currentPos)),

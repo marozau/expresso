@@ -79,6 +79,7 @@ object UserServiceGrpcImpl {
   implicit def userDtoCast(user: models.User): domain.User = {
     domain.User(
       user.id,
+      user.email,
       user.status,
       user.roles.map(userDtoRoleCast),
       user.locale.getOrElse(""),

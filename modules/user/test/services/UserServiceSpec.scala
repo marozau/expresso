@@ -21,6 +21,7 @@ class UserServiceSpec extends TestContext {
 
     "create user" in {
       whenReady(userService.save(email, password, Some("en"), Some(1))) { res =>
+        res.email mustBe email
         res.status mustBe User.Status.NEW
         res.roles mustBe List(User.Role.USER)
         res.locale mustBe Some("en")

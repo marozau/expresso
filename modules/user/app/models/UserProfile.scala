@@ -15,7 +15,6 @@ object UserSex extends Enumeration {
 
 case class UserProfile(
                         userId: Long,
-                        email: String,
                         firstName: Option[String],
                         lastName: Option[String],
                         sex: Option[UserSex.Value],

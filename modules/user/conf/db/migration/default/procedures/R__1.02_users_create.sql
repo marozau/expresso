@@ -6,11 +6,11 @@ DECLARE
   _user users;
 BEGIN
 
-  INSERT INTO users (status, roles, locale, timezone) VALUES ('NEW', '{USER}', _locale, _timezone)
+  INSERT INTO users (email, status, roles, locale, timezone) VALUES (_email, 'NEW', '{USER}', _locale, _timezone)
   RETURNING *
     INTO _user;
 
-  INSERT INTO user_profiles (user_id, email) VALUES (_user.id, _email);
+  INSERT INTO user_profiles (user_id) VALUES (_user.id);
 
   RETURN _user;
 
@@ -19,9 +19,7 @@ BEGIN
     SELECT *
     INTO _user
     FROM users
-    WHERE id = (SELECT user_id
-                FROM user_profiles
-                WHERE email = _email);
+    WHERE email = _email;
 
     RETURN _user;
 END;

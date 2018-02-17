@@ -40,8 +40,8 @@ CREATE INDEX auth_token_expiry_idx
   ON auth_token (expiry);
 
 
-INSERT INTO users (id, status, roles, timezone) VALUES (0, 'VERIFIED', '{USER, READER, MEMBER, WRITER, EDITOR, CHIEF_EDITOR, ADMIN, API}', 3);
-INSERT INTO user_profiles (user_id, email) VALUES (0, 'admin@expresso.today');
+INSERT INTO users (id, email, status, roles, timezone) VALUES (0, 'admin@expresso.today', 'VERIFIED', '{USER, READER, MEMBER, WRITER, EDITOR, CHIEF_EDITOR, ADMIN, API}', 3);
+INSERT INTO user_profiles (user_id) VALUES (0);
 INSERT INTO login_info (id, provider_id, provider_key) VALUES (0, 'credentials', '919e1bc4370bd99e874a538970836e4b0f6fc88240c71fb2f8e3e7b98f448f40');
 INSERT INTO user_login_info (user_id, login_info_id) VALUES (0, 0);
 INSERT INTO password_info (login_info_id, hasher, password) VALUES (0, 'bcrypt', '$2a$10$XHcP1eiVrVpGTfpXQUGSJ.F9VnF.adwQ75fRPep0D4ObpoM408lp6');

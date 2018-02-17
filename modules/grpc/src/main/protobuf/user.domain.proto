@@ -21,12 +21,13 @@ message User {
     }
 
     int64 id = 1;
-    Status status = 2;
-    repeated Role roles = 3;
-    string locale = 4;
-    int32 timezone = 5;
-    string reason = 6;
-    int64 createdTimestamp = 7;
+    string email = 2;
+    Status status = 3;
+    repeated Role roles = 4;
+    string locale = 5;
+    int32 timezone = 6;
+    string reason = 7;
+    int64 createdTimestamp = 8;
 }
 
 message LoginInfo {
