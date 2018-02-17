@@ -103,11 +103,21 @@ message UserCreateResponse {
 
 message UserVerifyRequest {
     Header header = 1;
-
     string token = 2;
 }
 message UserVerifyResponse {
     Header header = 1;
+}
+
+message ReaderCreateRequest {
+    Header header = 1;
+    string eamil = 2;
+    string locale = 3;
+}
+
+message ReaderCreateResponse {
+    Header header = 1;
+    domain.User user = 2;
 }
 
 service UserService {
@@ -117,6 +127,8 @@ service UserService {
     rpc UserCreate (UserCreateRequest) returns (UserCreateResponse) {
     }
     rpc UserVerify (UserVerifyRequest) returns (UserVerifyResponse) {
+    }
+    rpc ReaderCreate (ReaderCreateRequest) returns (ReaderCreateResponse) {
     }
 }
 

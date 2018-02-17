@@ -10,7 +10,7 @@ DECLARE
   _login_info_id BIGINT;
   _provider_key  TEXT = encode(digest(_email, 'sha256'), 'hex');
 BEGIN
-  _user = users_create(_email, _locale, _timezone);
+  _user = users_create(_email, _locale, _timezone, '{USER}');
 
   INSERT INTO login_info (provider_id, provider_key) VALUES ('credentials', _provider_key)
   RETURNING id

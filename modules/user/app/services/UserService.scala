@@ -28,7 +28,7 @@ class UserService @Inject()(userDao: UserDao,
       return Future.failed(InvalidEmailException(s"$email is invalid, @expresso.today domain is allowed only"))
 
     val authInfo = passwordHasherRegistry.current.hash(password)
-    userDao.save(email, authInfo.password, authInfo.hasher, authInfo.salt, locale, timezone)
+    userDao.create(email, authInfo.password, authInfo.hasher, authInfo.salt, locale, timezone)
       .flatMap { user =>
         import scala.concurrent.duration._
         authTokenService.create(user.id, 1.day).map { token =>
@@ -52,5 +52,9 @@ class UserService @Inject()(userDao: UserDao,
 
   def verify(userId: Long, token: UUID): Future[User] = {
     userDao.verify(userId, token)
+  }
+
+  def createReader(email: String, locale: Option[String]) = {
+    userDao.createReader(email, locale)
   }
 }

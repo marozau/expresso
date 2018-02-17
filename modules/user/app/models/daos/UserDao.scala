@@ -53,7 +53,7 @@ class UserDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: E
     }
   }
 
-  def save(email: String, password: String, hasher: String, salt: Option[String], locale: Option[String], timezone: Option[Int]): Future[User] = {
+  def create(email: String, password: String, hasher: String, salt: Option[String], locale: Option[String], timezone: Option[Int]): Future[User] = {
     val query = sql"SELECT * FROM users_create_auth_password(${email}, ${password}, ${hasher}, ${salt}, ${locale}, ${timezone})".as[User].head
     db.run(query.transactionally.asTry).map {
       SqlUtils.tryException(UserAlreadyExistsException.throwException)
@@ -64,6 +64,13 @@ class UserDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: E
     val query = sql"SELECT * FROM users_verify(${userId}, ${token})".as[User].head
     db.run(query.transactionally.asTry).map {
       SqlUtils.tryException(InvalidAuthTokenException.throwException)
+    }
+  }
+
+  def createReader(email: String, locale: Option[String]) = {
+    val query = sql"SELECT * FROM users_create(${email}, ${locale}, ${Option.empty[Int]}, ${List(User.Role.READER)})".as[User].head
+    db.run(query.transactionally.asTry).map{
+      SqlUtils.tryException(UserAlreadyExistsException.throwException)
     }
   }
 }

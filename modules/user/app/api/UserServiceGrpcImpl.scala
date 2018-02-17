@@ -25,32 +25,39 @@ class UserServiceGrpcImpl @Inject()(userService: UserService)(implicit ec: Execu
 
   val log: Logger = LoggerFactory.getLogger(classOf[UserServiceGrpcImpl])
 
-  override def userGetById(request: UserGetByIdRequest) = GrpcErrorHandler {
-    log.info(s"userGetById - {}", request)
-    userService.getById(request.userId)
+  override def userGetById(rq: UserGetByIdRequest) = GrpcErrorHandler {
+    log.info(s"userGetById - {}", rq)
+    userService.getById(rq.userId)
       .map { userOption =>
         UserGetByIdResponse(
-          request.header.map(_.copy(token = "")),
+          rq.header.map(_.copy(token = "")),
           userOption.map(userDtoCast)
         )
       }
   }
 
-  override def userCreate(request: UserCreateRequest) = GrpcErrorHandler {
-    log.info(s"userCreate - {}", request)
-    userService.save(request.email, request.password, None, None).map { user => //TODO: locale and timezone
+  override def userCreate(rq: UserCreateRequest) = GrpcErrorHandler {
+    log.info(s"userCreate - {}", rq)
+    userService.save(rq.email, rq.password, None, None).map { user => //TODO: locale and timezone
       UserCreateResponse(
-        request.header,
+        rq.header,
         Some(user)
       )
     }
   }
 
-  override def userVerify(request: UserVerifyRequest) = GrpcErrorHandler {
-    log.info(s"{}", request)
-    val token = UUID.fromString(request.token)
+  override def userVerify(rq: UserVerifyRequest) = GrpcErrorHandler {
+    log.info(s"userVerify - {}", rq)
+    val token = UUID.fromString(rq.token)
     userService.verify(1L, token).map { user =>
-      UserVerifyResponse(request.header)
+      UserVerifyResponse(rq.header)
+    }
+  }
+
+  override def readerCreate(rq: ReaderCreateRequest) = GrpcErrorHandler {
+    log.info(s"userCreate - {}", rq)
+    userService.createReader(rq.eamil, if (rq.locale.isEmpty) None else Some(rq.locale)).map{ user =>
+      ReaderCreateResponse(rq.header, Some(user))
     }
   }
 }

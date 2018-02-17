@@ -64,5 +64,23 @@ class UserServiceSpec extends TestContext {
         t mustBe an[InvalidAuthTokenException]
       }
     }
+
+    "create reader" in {
+      val testEmail = "test@test.com"
+      whenReady(userService.createReader(testEmail, None)) {user =>
+        user.email mustBe testEmail
+        user.roles mustBe List(User.Role.READER)
+      }
+    }
+
+    "add READER role to the already created user" in {
+      whenReady(userService.save(email, password, Some("en"), Some(1))) { user =>
+        user.roles mustBe List(User.Role.USER)
+      }
+      whenReady(userService.createReader(email, None)) {user =>
+        user.email mustBe email
+        user.roles mustBe List(User.Role.USER, User.Role.READER)
+      }
+    }
   }
 }
