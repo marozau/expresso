@@ -2,9 +2,7 @@ package services
 
 import javax.inject.{Inject, Singleton}
 
-import com.mohiva.play.silhouette.api.LoginInfo
-import com.mohiva.play.silhouette.api.services.IdentityService
-import models.User
+import today.expresso.grpc.user.domain.User
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -14,5 +12,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class UserService @Inject()()(implicit ec: ExecutionContext) {
 
-  def getOrCreateByEmail(email: String): Future[User] = ???
+  // TODO: must just create new user with status pending
+  // when user verify subscription it sends event that will be used as user verification email
+  def getSubscriber(email: String): Future[User] = ???
 }

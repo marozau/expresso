@@ -3,11 +3,12 @@ package services
 import javax.inject.{Inject, Singleton}
 
 import events.newsletter.Subscribe
-import models.{Recipient, User}
+import models.Recipient
 import play.api.libs.mailer.{Email, MailerClient}
+import today.expresso.grpc.user.domain.User
 import utils.UrlUtils
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * @author im.
@@ -20,27 +21,28 @@ class MailService @Inject()(
 
   //TODO: bounce address on the mail client side
 
-  def sendVerification(user: User, recipient: Recipient) = {
-    val event = Subscribe(recipient.id.get.getMostSignificantBits, recipient.id.get.getLeastSignificantBits, user.id.get, recipient.newsletterId)
+  def sendVerification(email: String, user: User, recipient: Recipient) = {
+    val event = Subscribe(recipient.id.getMostSignificantBits, recipient.id.getLeastSignificantBits, user.id, recipient.newsletterId)
     val call = controllers.routes.EventController.subscribe(event)
     val url = urlUtils.absoluteURL(call)
 
-    newsletterService.getById(recipient.newsletterId)
-      .map { newsletter =>
-        mailerClient.send(Email(
-          subject = s"Verify Your Email Address for ${newsletter.name}",
-          from = newsletter.email,
-          to = Seq(user.email),
-          replyTo = Seq(newsletter.email),
-          bounceAddress = Some(newsletter.email),
-          bodyText = Some(
-            s"""
-               |Click <a href="$url">here</a> to subscribe
-               |""".stripMargin
-          )
-          //                bodyText = Some(views.txt.emails.signUp(user, url).body),
-          //                bodyHtml = Some(views.html.emails.signUp(user, url).body)
-        ))
-      }
+    Future.successful(Unit)
+//    newsletterService.getById(recipient.newsletterId)
+//      .map { newsletter =>
+//        mailerClient.send(Email(
+//          subject = s"Verify Your Email Address for ${newsletter.name}",
+//          from = newsletter.email,
+//          to = Seq(user.email),
+//          replyTo = Seq(newsletter.email),
+//          bounceAddress = Some(newsletter.email),
+//          bodyText = Some(
+//            s"""
+//               |Click <a href="$url">here</a> to subscribe
+//               |""".stripMargin
+//          )
+//          //                bodyText = Some(views.txt.emails.signUp(user, url).body),
+//          //                bodyHtml = Some(views.html.emails.signUp(user, url).body)
+//        ))
+//      }
   }
 }

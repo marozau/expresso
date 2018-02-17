@@ -40,7 +40,7 @@ class RecipientDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(imp
     }.map(_.toList)
   }
 
-  def add(userId: Long, newsletterId: Long, status: Option[Recipient.Status.Value]): Future[Recipient] = {
+  def add(userId: Long, newsletterId: Long, status: Option[Recipient.Status.Value] = None): Future[Recipient] = {
     val query = sql"SELECT * FROM recipients_add(${userId}, ${newsletterId}, ${status})".as[Recipient].head
     db.run(query.transactionally)
   }

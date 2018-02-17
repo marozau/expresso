@@ -2,10 +2,10 @@ package services
 
 import javax.inject.{Inject, Singleton}
 
-import com.mohiva.play.silhouette.api.LoginInfo
-import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import models.{Recipient, UserRole, UserStatus}
+import exceptions.InvalidUserStatusException
+import models.Recipient
 import models.daos.RecipientDao
+import today.expresso.grpc.user.domain.User
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -13,7 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * @author im.
   */
 @Singleton
-class RecipientService @Inject()(recipientsDao: RecipientDao, userService: UserService)(implicit ec: ExecutionContext) {
+class RecipientService @Inject()(recipientsDao: RecipientDao, userService: UserService, mailService: MailService)(implicit ec: ExecutionContext) {
 
   def getByNewsletterId(newsletterId: Long, status: Recipient.Status.Value) = {
     recipientsDao.getByNewsletterId(newsletterId, None, Some(status))
@@ -34,23 +34,21 @@ class RecipientService @Inject()(recipientsDao: RecipientDao, userService: UserS
     recipientsDao.add(userId, newsletterId, Some(Recipient.Status.SUBSCRIBED))
   }
 
+  // TODO: in case of failure - retry, all services should be idempotent
   def subscribeEmail(email: String, newsletterId: Long) = {
-    userService.getOrCreateByEmail(email)
+    userService.getSubscriber(email)
       .flatMap{ user =>
-
+        if (user.status == User.Status.BLOCKED) throw InvalidUserStatusException("failed to subscribe, user is blocked")
+        else recipientsDao.add(user.id, newsletterId).map((user, _))
       }
-//    val loginInfo = LoginInfo(CredentialsProvider.ID, email)
-//    userService.getOrCreate(loginInfo)
-//      .flatMap { user =>
-//        recipientsDao.add(newsletterId, user.id.get, Recipient.Status.PENDING).map((user, _))
-//      }
-//      .flatMap { case (user, recipient) =>
-//        if (recipient.status == Recipient.Status.PENDING) {
-//          recipient.id.get.getMostSignificantBits
-//          mailService.sendVerification(user, recipient)
-//            .map(_ => recipient)
-//        } else Future.successful(recipient)
-//      }
+      .flatMap { case (user, recipient) =>
+        // TODO: if user is new it sends two emails one for user verification and one for subscription
+        // TODO: we can send verification email only for registering users and single subscription verification email for both
+        if (recipient.status == Recipient.Status.PENDING) {
+          mailService.sendVerification(email, user, recipient)
+            .map(_ => recipient)
+        } else Future.successful(recipient)
+      }
   }
 
   def verify(newsletterId: Long, userId: Long) = {
@@ -59,13 +57,5 @@ class RecipientService @Inject()(recipientsDao: RecipientDao, userService: UserS
 
   def unsubscribe(newsletterId: Long, userId: Long) = {
     recipientsDao.updateStatus(newsletterId, userId, Recipient.Status.UNSUBSCRIBED)
-  }
-
-  private def getStatus(userStatus: UserStatus.Value, recipientStatus: Recipient.Status.Value): Recipient.Status.Value = {
-    userStatus match {
-      case UserStatus.NEW => recipientStatus
-      case UserStatus.VERIFIED => recipientStatus
-      case UserStatus.BLOCKED => Recipient.Status.REMOVED // don't subscribe blocked users
-    }
   }
 }

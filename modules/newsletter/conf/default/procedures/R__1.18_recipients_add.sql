@@ -17,7 +17,7 @@ BEGIN
     WHERE user_id = _user_id AND newsletter_id = _newsletter_id
     FOR UPDATE;
 
-    IF _recipient.status <> 'SUBSCRIBED'
+    IF _recipient.status <> 'PENDING' AND _recipient.status <> 'SUBSCRIBED'
     THEN
       UPDATE recipients
       SET status = 'PENDING'
