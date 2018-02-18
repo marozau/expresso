@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: expresso
-        image: eu.gcr.io/api-expresso-today/expresso:31
+        image: eu.gcr.io/api-expresso-today/expresso:32
         volumeMounts:
         - mountPath: /tmp/expresso-compiler
           name: cache-volume
