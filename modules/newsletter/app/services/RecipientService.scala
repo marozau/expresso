@@ -42,8 +42,6 @@ class RecipientService @Inject()(recipientsDao: RecipientDao, userService: UserS
         else recipientsDao.add(user.id, newsletterId).map((user, _))
       }
       .flatMap { case (user, recipient) =>
-        // TODO: if user is new it sends two emails one for user verification and one for subscription
-        // TODO: we can send verification email only for registering users and single subscription verification email for both
         if (recipient.status == Recipient.Status.PENDING) {
           mailService.sendVerification(email, user, recipient)
             .map(_ => recipient)
