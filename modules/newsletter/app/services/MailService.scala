@@ -4,6 +4,7 @@ import javax.inject.{Inject, Singleton}
 
 import events.newsletter.Subscribe
 import models.Recipient
+import play.api.Logger
 import play.api.libs.mailer.{Email, MailerClient}
 import today.expresso.grpc.user.domain.User
 import utils.UrlUtils
@@ -26,6 +27,7 @@ class MailService @Inject()(
     val call = controllers.routes.EventController.subscribe(event)
     val url = urlUtils.absoluteURL(call)
 
+    Logger.info(s"send email: $email")
     Future.successful(Unit)
 //    newsletterService.getById(recipient.newsletterId)
 //      .map { newsletter =>

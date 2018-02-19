@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION recipients_add(_user_id BIGINT, _newsletter_id BIGINT
 DECLARE
   _recipient recipients;
 BEGIN
-  INSERT INTO expresso.public.recipients (user_id, newsletter_id, status) VALUES (_user_id, _newsletter_id, coalesce(_status, 'PENDING'))
+  INSERT INTO recipients (user_id, newsletter_id, status) VALUES (_user_id, _newsletter_id, coalesce(_status, 'PENDING'))
   RETURNING *
     INTO _recipient;
 

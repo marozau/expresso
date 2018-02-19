@@ -1,14 +1,17 @@
 package models.daos
 
+import java.time.Instant
 import javax.inject.{Inject, Singleton}
 
 import db.Repository
-import exceptions.{CampaignNotFoundException, InvalidCampaignStatusException}
+import exceptions._
 import models.Campaign
-import models.components.{CampaignComponent, EditionComponent, NewsletterComponent}
+import models.components.CampaignComponent
 import play.api.db.slick.DatabaseConfigProvider
+import play.api.libs.json.JsValue
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
+import utils.SqlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -19,87 +22,64 @@ import scala.concurrent.{ExecutionContext, Future}
 class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
                             newsletterDao: EditionDao,
                            )(implicit ec: ExecutionContext)
-  extends Repository with CampaignComponent with EditionComponent with NewsletterComponent {
+  extends Repository with CampaignComponent {
 
   protected val dbConfig: DatabaseConfig[JdbcProfile] = databaseConfigProvider.get[JdbcProfile]
 
   import api._
   import dbConfig._
-
-  implicit def campaignCast(db: DBCampaign): Campaign = Campaign(db.id, db.newsletterId, db.editionId, db.preview, db.sendTime, db.status, db.options)
-
-  implicit def dbCampaignCast(c: Campaign): DBCampaign = DBCampaign(c.id, c.newsletterId, c.editionId, c.preview, c.sendTime, c.status, c.options)
-
   
-  def create(campaign: Campaign): Future[Campaign] = db.run {
-    ((campaigns returning campaigns) += campaign.copy(status = Campaign.Status.NEW))
-      .map(campaignCast)
+  def createOrUpdate(editionId: Long, sendTime: Instant, preview: Option[String], options: Option[JsValue]): Future[Campaign] = {
+    val query = sql"SELECT * FROM campaigns_create_or_update(${editionId}, ${sendTime}, ${preview}, ${options})".as[Campaign].head
+    db.run(query.transactionally.asTry).map{
+      SqlUtils.tryException(
+        EditionNotFoundException.throwException,
+        InvalidCampaignStatusException.throwException,
+        InvalidCampaignScheduleException.throwException)
+    }
+  }
+
+  def getByEditionId(editionId: Long): Future[Campaign] = {
+    val query = sql"SELECT * FROM campaigns_get_by_edition_id(${editionId})".as[Campaign].head
+    db.run(query.asTry).map {
+      SqlUtils.tryException(CampaignNotFoundException.throwException)
+    }
   }
 
 
-  def getById(id: Long) = db.run {
-    campaigns.filter(_.id === id).result.headOption.map(_.map(campaignCast))
+  def setPendingStatus(editionId: Long): Future[Campaign] = {
+    val query = sql"SELECT * FROM campaigns_set_status_pending(${editionId})".as[Campaign].head
+    db.run(query.transactionally.asTry).map{
+      SqlUtils.tryException(
+        CampaignNotFoundException.throwException,
+        InvalidCampaignStatusException.throwException)
+    }
   }
 
-  //TODO: think about campaign status. is it possible to change campaign when it is scheduled or sent or else???
-  //TODO: brake single filter statement into several with custom checks and errors (CampaignNotFound, CampaignInvalidStatus etc)
-  def update(campaign: Campaign): Future[Int] = {
-    val updateQuery = campaigns.filter(c => c.id === campaign.id && c.status.inSet(List(Campaign.Status.NEW, Campaign.Status.PENDING)))
-      .map(c => (c.preview, c.sendTime, c.options))
-      .update(campaign.preview, campaign.sendTime, campaign.options)
-    db.run(updateQuery.transactionally.withPinnedSession)
+  def setSendingStatus(editionId: Long) = {
+    val query = sql"SELECT * FROM campaigns_set_status_sending(${editionId})".as[Campaign].head
+    db.run(query.transactionally.asTry).map{
+      SqlUtils.tryException(
+        CampaignNotFoundException.throwException,
+        InvalidCampaignStatusException.throwException)
+    }
   }
 
-  def getByEditionId(editionId: Long): Future[Option[Campaign]] = db.run {
-    campaigns.filter(_.editionId === editionId).result.headOption
-      .map(_.map(campaignCast))
+  def setSentStatus(editionId: Long) ={
+    val query = sql"SELECT * FROM campaigns_set_status_sent(${editionId})".as[Campaign].head
+    db.run(query.transactionally.asTry).map{
+      SqlUtils.tryException(
+        CampaignNotFoundException.throwException,
+        InvalidCampaignStatusException.throwException)
+    }
   }
 
-  def getLastSent(): Future[Campaign] = db.run {
-    campaigns
-      .filter(c => c.status === Campaign.Status.SENT)
-      .sortBy(_.sendTime.desc)
-      .take(1)
-      .result.head
-      .map(campaignCast)
-  }
-
-  def setPendingStatus(campaignId: Long) = db.run {
-    campaigns
-      .filter(c => c.id === campaignId && c.status.inSet(List(Campaign.Status.NEW, Campaign.Status.PENDING)))
-      .map(_.status)
-      .update(Campaign.Status.PENDING)
-      .transactionally
-  }
-
-  def setSendingStatus(campaignId: Long) = db.run {
-    campaigns
-      .filter(c => c.id === campaignId && c.status === Campaign.Status.PENDING)
-      .map(_.status)
-      .update(Campaign.Status.SENDING)
-      .transactionally
-  }
-
-  def setSentStatus(campaignId: Long) = db.run {
-    campaigns
-      .filter(c => c.id === campaignId && c.status === Campaign.Status.SENDING)
-      .map(_.status)
-      .update(Campaign.Status.SENT)
-      .transactionally
-  }
-
-  /**
-    * Used for recovery operations, in normal cases more specialised methods must be used (aka setPendingStatus, setSendingStatus etc)
-    *
-    * @param campaignId
-    * @param status
-    * @return
-    */
-  def updateStatus(campaignId: Long, status: Campaign.Status.Value) = db.run {
-    campaigns
-      .filter(_.id === campaignId)
-      .map(_.status)
-      .update(status)
-      .transactionally
+  def setSuspendedStatus(editionId: Long) ={
+    val query = sql"SELECT * FROM campaigns_set_status_suspended(${editionId})".as[Campaign].head
+    db.run(query.transactionally.asTry).map{
+      SqlUtils.tryException(
+        CampaignNotFoundException.throwException,
+        InvalidCampaignStatusException.throwException)
+    }
   }
 }

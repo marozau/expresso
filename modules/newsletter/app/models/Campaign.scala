@@ -1,6 +1,6 @@
 package models
 
-import java.time.ZonedDateTime
+import java.time.Instant
 
 import play.api.libs.json.JsValue
 
@@ -16,11 +16,9 @@ object Campaign {
 
 }
 
-// TODO: https://github.com/typesafehub/lightbend-emoji
-case class Campaign(id: Option[Long],
+case class Campaign(editionId: Long,
                     newsletterId: Long,
-                    editionId: Long,
+                    sendTime: Instant,
+                    status: Campaign.Status.Value,
                     preview: Option[String],
-                    sendTime: ZonedDateTime,
-                    status: Campaign.Status.Value = Campaign.Status.NEW,
-                    options: Option[JsValue] = None)
+                    options: Option[JsValue])

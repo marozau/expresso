@@ -1,19 +1,15 @@
 CREATE TYPE CAMPAIGN_STATUS AS ENUM ('NEW', 'PENDING', 'SENDING', 'SENT', 'SUSPENDED');
 
 CREATE TABLE campaigns (
-  id                 BIGSERIAL PRIMARY KEY,
+  edition_id         BIGINT          NOT NULL REFERENCES editions (id) PRIMARY KEY,
   newsletter_id      BIGINT          NOT NULL REFERENCES newsletters (id),
-  edition_id         BIGINT          NOT NULL REFERENCES editions (id),
-  preview            TEXT,
-  status             CAMPAIGN_STATUS NOT NULL,
   send_time          TIMESTAMPTZ     NOT NULL,
+  status             CAMPAIGN_STATUS NOT NULL,
+  preview            TEXT,
   options            JSONB,
   created_timestamp  TIMESTAMPTZ     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   modified_timestamp TIMESTAMPTZ     NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-
-CREATE UNIQUE INDEX campaigns_edition_id_unique_idx
-  ON campaigns (edition_id);
 
 CREATE INDEX campaigns_modified_timestamp_idx
   ON campaigns (modified_timestamp);

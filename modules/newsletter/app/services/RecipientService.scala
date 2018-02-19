@@ -1,5 +1,6 @@
 package services
 
+import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import exceptions.InvalidUserStatusException
@@ -37,7 +38,7 @@ class RecipientService @Inject()(recipientsDao: RecipientDao, userService: UserS
   // TODO: in case of failure - retry, all services should be idempotent
   def subscribeEmail(email: String, newsletterId: Long) = {
     userService.createReader(email)
-      .flatMap{ user =>
+      .flatMap { user =>
         if (user.status == User.Status.BLOCKED) throw InvalidUserStatusException("failed to subscribe, user is blocked")
         else recipientsDao.add(user.id, newsletterId).map((user, _))
       }
@@ -49,11 +50,23 @@ class RecipientService @Inject()(recipientsDao: RecipientDao, userService: UserS
       }
   }
 
-  def verify(newsletterId: Long, userId: Long) = {
-    recipientsDao.updateStatus(newsletterId, userId, Recipient.Status.SUBSCRIBED)
+  def verifySubscription(recipientId: UUID) = {
+    recipientsDao.subscribe(recipientId) //TODO: event
   }
 
-  def unsubscribe(newsletterId: Long, userId: Long) = {
-    recipientsDao.updateStatus(newsletterId, userId, Recipient.Status.UNSUBSCRIBED)
+  def unsubscribe(recipientId: UUID) = {
+    recipientsDao.unsubscribe(recipientId) //TODO: event
+  }
+
+  def remove(recipientId: UUID) = {
+    recipientsDao.remove(recipientId) //TODO: event
+  }
+
+  def clean(recipientId: UUID) = {
+    recipientsDao.clean(recipientId) //TODO: event
+  }
+
+  def spam(recipientId: UUID) = {
+    recipientsDao.spam(recipientId) //TODO: event
   }
 }

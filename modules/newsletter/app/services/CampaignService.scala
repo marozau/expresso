@@ -1,10 +1,10 @@
 package services
 
+import java.time.Instant
 import javax.inject.{Inject, Singleton}
 
-import exceptions.CampaignNotFoundException
-import models.Campaign
 import models.daos.CampaignDao
+import play.api.libs.json.JsValue
 
 import scala.concurrent.ExecutionContext
 
@@ -14,56 +14,25 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class CampaignService @Inject()(campaignDao: CampaignDao)(implicit ec: ExecutionContext) {
 
-  def save(campaign: Campaign) = {
-    def ifEmpty() = campaignDao.create(campaign)
-
-    def ifExist(campaignId: Long) = {
-      campaignDao.update(campaign)
-        .map { result =>
-          if (result == 0) throw CampaignNotFoundException("save failed")
-          campaign
-        }
-
-    }
-
-    campaign.id.fold(ifEmpty())(ifExist)
-  }
-
-  def getById(campaignId: Long) = {
-    campaignDao.getById(campaignId)
-      .map { result =>
-        if (result.isEmpty) throw CampaignNotFoundException(s"getById failed")
-        result.get
-      }
+  def createOrUpdate(editionId: Long, sendTime: Instant, preview: Option[String], options: Option[JsValue]) = {
+    campaignDao.createOrUpdate(editionId, sendTime, preview, options) //TODO: event
   }
 
   def getByEditionId(editionId: Long) = campaignDao.getByEditionId(editionId)
 
-  def setPendingStatus(campaignId: Long) = {
-    campaignDao.setPendingStatus(campaignId)
-      .map { res =>
-        if (res == 0) throw CampaignNotFoundException(s"setPendingStatus failed")
-        res
-      }
+  def setPendingStatus(editionId: Long) = {
+    campaignDao.setPendingStatus(editionId) //TODO: event
   }
 
-  def setSendingStatus(campaignId: Long) = {
-    campaignDao.setSendingStatus(campaignId)
-      .map { res =>
-        if (res == 0) throw CampaignNotFoundException(s"setSendingStatus failed")
-        res
-      }
+  def setSendingStatus(editionId: Long) = {
+    campaignDao.setSendingStatus(editionId) //TODO: event
   }
 
-  def setSentStatus(campaignId: Long) = {
-    campaignDao.setSentStatus(campaignId)
-      .map { res =>
-        if (res == 0) throw CampaignNotFoundException(s"setSentStatus failed")
-        res
-      }
+  def setSentStatus(editionId: Long) = {
+    campaignDao.setSentStatus(editionId) //TODO: event
   }
 
-  def updateStatus(campaignId: Long, status: Campaign.Status.Value) = {
-    campaignDao.updateStatus(campaignId, status)
+  def setSuspendedStatus(editionId: Long) = {
+    campaignDao.setSuspendedStatus(editionId) //TODO: event
   }
 }

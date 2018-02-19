@@ -1,8 +1,13 @@
-CREATE OR REPLACE FUNCTION recipients_subscribe(_recipient_id UUID, _status RECIPIENT_STATUS)
+CREATE OR REPLACE FUNCTION recipients_update_status(_recipient_id UUID, _status RECIPIENT_STATUS)
   RETURNS recipients AS $$
 DECLARE
   _recipient recipients;
 BEGIN
+  IF _status = 'PENDING'
+    THEN
+      RAISE '<ERROR>code=INVALID_RECIPIENT_STATUS,message=% status update is not permitted<ERROR>', _status;
+  END IF;
+
   SELECT *
   INTO _recipient
   FROM recipients
