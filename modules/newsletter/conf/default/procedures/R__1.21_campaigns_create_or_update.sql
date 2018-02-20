@@ -1,4 +1,5 @@
 CREATE OR REPLACE FUNCTION campaigns_create_or_update(
+  _user_id    BIGINT,
   _edition_id BIGINT,
   _send_time  TIMESTAMPTZ,
   _preview    TEXT,

@@ -14,11 +14,11 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class CampaignService @Inject()(campaignDao: CampaignDao)(implicit ec: ExecutionContext) {
 
-  def createOrUpdate(editionId: Long, sendTime: Instant, preview: Option[String], options: Option[JsValue]) = {
-    campaignDao.createOrUpdate(editionId, sendTime, preview, options) //TODO: event
-  }
-
   def getByEditionId(editionId: Long) = campaignDao.getByEditionId(editionId)
+
+  def createOrUpdate(userId: Long, editionId: Long, sendTime: Instant, preview: Option[String], options: Option[JsValue]) = {
+    campaignDao.createOrUpdate(userId, editionId, sendTime, preview, options) //TODO: event
+  }
 
   def setPendingStatus(editionId: Long) = {
     campaignDao.setPendingStatus(editionId) //TODO: event

@@ -28,16 +28,6 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
 
   import api._
   import dbConfig._
-  
-  def createOrUpdate(editionId: Long, sendTime: Instant, preview: Option[String], options: Option[JsValue]): Future[Campaign] = {
-    val query = sql"SELECT * FROM campaigns_create_or_update(${editionId}, ${sendTime}, ${preview}, ${options})".as[Campaign].head
-    db.run(query.transactionally.asTry).map{
-      SqlUtils.tryException(
-        EditionNotFoundException.throwException,
-        InvalidCampaignStatusException.throwException,
-        InvalidCampaignScheduleException.throwException)
-    }
-  }
 
   def getByEditionId(editionId: Long): Future[Campaign] = {
     val query = sql"SELECT * FROM campaigns_get_by_edition_id(${editionId})".as[Campaign].head
@@ -46,6 +36,19 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
     }
   }
 
+  def createOrUpdate(userId: Long,
+                     editionId: Long,
+                     sendTime: Instant,
+                     preview: Option[String],
+                     options: Option[JsValue]): Future[Campaign] = {
+    val query = sql"SELECT * FROM campaigns_create_or_update(${userId}, ${editionId}, ${sendTime}, ${preview}, ${options})".as[Campaign].head
+    db.run(query.transactionally.asTry).map{
+      SqlUtils.tryException(
+        EditionNotFoundException.throwException,
+        InvalidCampaignStatusException.throwException,
+        InvalidCampaignScheduleException.throwException)
+    }
+  }
 
   def setPendingStatus(editionId: Long): Future[Campaign] = {
     val query = sql"SELECT * FROM campaigns_set_status_pending(${editionId})".as[Campaign].head
