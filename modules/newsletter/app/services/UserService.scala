@@ -15,4 +15,6 @@ class UserService @Inject()()(implicit ec: ExecutionContext) {
   // TODO: must just create new user with status pending
   // when user verify subscription it sends event that will be used as user verification email
   def createReader(email: String): Future[User] = ???
+
+  def getById(userId: Long): Future[User] = ???
 }

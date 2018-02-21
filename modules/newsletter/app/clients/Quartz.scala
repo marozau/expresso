@@ -16,7 +16,7 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
   * @author im.
   */
-@Singleton
+//@Singleton
 class Quartz @Inject()(appLifecycle: ApplicationLifecycle, config: Configuration, actorSystem: ActorSystem)(implicit ec: ExecutionContext) {
 
   private val blockingExecutionContext = actorSystem.dispatchers.lookup("quartz.blocking-dispatcher")

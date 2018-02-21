@@ -2,7 +2,7 @@ package clients
 
 import javax.inject.{Inject, Singleton}
 
-import play.api.libs.json._
+import play.api.libs.json.{JsValue, _}
 
 /**
   * @author im.
@@ -59,9 +59,7 @@ class Quill @Inject()() {
 
   import Quill._
 
-  def toTag(opsJson: String): List[Tag] = {
-    val json = Json.parse(opsJson)
-
+  def jsonToTag(json: JsValue): List[Tag] = {
     val ops = (json \ "ops").as[JsArray].value
       .map(_.transform(insertTransformer).get)
       .map(_.as[Operation]).toList
@@ -83,7 +81,16 @@ class Quill @Inject()() {
     }
   }
 
-  def toTagStr(opsJson: String): String = {
-    toTag(opsJson).map(_.toTag).mkString
+  def strToTag(str: String): List[Tag] = {
+    val json = Json.parse(str)
+    jsonToTag(json)
+  }
+
+  def strToTagStr(str: String): String = {
+    strToTag(str).map(_.toTag).mkString
+  }
+
+  def jsonToTagStr(json: JsValue): String = {
+    jsonToTag(json).map(_.toTag).mkString
   }
 }

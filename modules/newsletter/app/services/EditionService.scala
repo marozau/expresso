@@ -13,7 +13,7 @@ import scala.concurrent.ExecutionContext
   * @author im.
   */
 @Singleton
-class EditionService @Inject()(editionDao: EditionDao, campaignDao: CampaignDao)(implicit ec: ExecutionContext) {
+class EditionService @Inject()(editionDao: EditionDao)(implicit ec: ExecutionContext) {
 
   def create(userId: Long, newsletterId: Long, date: Date) = {
     editionDao.create(userId, newsletterId, date) //TODO: NewsletterCreated event
@@ -35,4 +35,6 @@ class EditionService @Inject()(editionDao: EditionDao, campaignDao: CampaignDao)
   def getById(userId: Long, id: Long) = editionDao.getById(userId, id)
 
   def getByNewsletterId(userId: Long, newsletterId: Long) = editionDao.getByNewsletterId(userId, newsletterId)
+
+
 }

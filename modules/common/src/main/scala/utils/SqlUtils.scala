@@ -18,7 +18,6 @@ object SqlUtils {
   val timestampTzNotNullType = SqlType("TIMESTAMPTZ NOT NULL DEFAULT timezone('UTC', now())")
   val timestampTzType = SqlType("TIMESTAMPTZ")
 
-
   private val propertiesSplitter: Splitter.MapSplitter = Splitter.on(',').withKeyValueSeparator('=')
 
   private val MESSAGE_START_INDEX: Int = 7

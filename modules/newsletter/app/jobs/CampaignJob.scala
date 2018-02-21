@@ -24,21 +24,12 @@ object CampaignJob {
 
   def group = "campaign"
 
-  def identity(campaign: Campaign) = s"$group-${campaign.id.get}"
-
-  def toInstant(campaign: Campaign) = {
-    val campaignTimestamp = campaign.sendTime.toInstant
-    val sendTimestamp = campaignTimestamp.minus(15, ChronoUnit.MINUTES)
-    val now = Instant.now()
-    if (campaignTimestamp.compareTo(now) < 0) throw InvalidCampaignScheduleException("campaign timestamp must be in the future")
-    if (sendTimestamp.compareTo(now) < 0) now
-    else sendTimestamp
-  }
+  def identity(campaign: Campaign) = s"$group-${campaign.editionId}"
 
   def buildTrigger(campaign: Campaign): Trigger = {
     // Prefef.long2Long is nedded to avoid error: the result type of an implicit conversion must be more specific than AnyRef
     val jobDataMap = Map[String, AnyRef](
-      "campaignId" -> Predef.long2Long(campaign.id.get),
+      "editionId" -> Predef.long2Long(campaign.editionId),
     )
     import scala.collection.JavaConverters._
     val jobData = JobDataMapSupport.newJobDataMap(jobDataMap.asJava)
@@ -46,7 +37,7 @@ object CampaignJob {
     TriggerBuilder.newTrigger()
       .withIdentity(identity(campaign), group)
       .usingJobData(jobData)
-      .startAt(Date.from(toInstant(campaign)))
+      .startAt(Date.from(campaign.sendTime))
       .build()
   }
 
@@ -68,9 +59,9 @@ class CampaignJob @Inject()(quartz: Quartz,
 
   override protected def execute(context: JobExecutionContext, retry: Int): Unit = {
     val data = context.getMergedJobDataMap
-    val campaignId = data.get("campaignId").asInstanceOf[Long]
-    logger.info(s"execute CampaignJob, campaignId=$campaignId")
-    val schedule = campaignService.getById(campaignId).flatMap(jobSchedulerService.scheduleEdition)
+    val editionId = data.get("editionId").asInstanceOf[Long]
+    logger.info(s"execute CampaignJob, editionId=$editionId")
+    val schedule = campaignService.getByEditionId(editionId).flatMap(jobSchedulerService.scheduleEdition)
     //TODO: retry schedule for failed user ids
     Await.result(schedule, Duration.Inf)
 

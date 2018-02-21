@@ -55,8 +55,8 @@ class CompilerService @Inject()(
 
   def doPost(post: Post, target: Target.Value): Future[PostTemplate] = {
     logger.info(s"compiling post, id=${post.id}, userId=${post.userId}, title=${post.title}")
-    compile(quill.toTagStr(post.body), target)
-      .map(html => PostTemplate(post.id, post.title, post.titleUrl, post.annotation, html, Configuration.from(post.options), target))
+    compile(quill.jsonToTagStr(post.body), target)
+      .map(html => PostTemplate(post.id, post.title, "", post.annotation, html, Configuration.from(post.options), target))
   }
 
   def doPosts(posts: List[Post], target: Target.Value): Future[List[PostTemplate]] = {
@@ -78,8 +78,8 @@ class CompilerService @Inject()(
   def doEdition(edition: Edition, target: Target.Value): Future[EditionTemplate] = {
     logger.info(s"compiling edition, id=${edition.id}, newsletterId=${edition.newsletter.name}, title=${edition.title}")
     for {
-      header <- if (edition.header.isDefined) compile(quill.toTagStr(edition.header.get), target).map(Some(_)) else Future(None)
-      footer <- if (edition.footer.isDefined) compile(quill.toTagStr(edition.footer.get), target).map(Some(_)) else Future(None)
+      header <- if (edition.header.isDefined) compile(quill.strToTagStr(edition.header.get), target).map(Some(_)) else Future(None)
+      footer <- if (edition.footer.isDefined) compile(quill.strToTagStr(edition.footer.get), target).map(Some(_)) else Future(None)
       posts <- doPosts(edition.posts, target)
     } yield EditionTemplate(edition.id, edition.newsletter, edition.date, edition.url, edition.title, header, footer, posts, Configuration.from(edition.options), target)
   }

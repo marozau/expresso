@@ -9,7 +9,7 @@ import models.components.{EditionWriterComponent, NewsletterWriterComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-import utils.SqlUtils
+import utils.{SqlUtils, Tx}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -25,10 +25,13 @@ class WriterDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(implic
   import api._
   import dbConfig._
 
-
-  def addNewsletterWriter(userId: Long, newsletterId: Long, newUserId: Long): Future[NewsletterWriter] = {
+  //TODO: test like event sourcing
+  def addNewsletterWriter(userId: Long, newsletterId: Long, newUserId: Long)(implicit tx: Tx[NewsletterWriter]): Future[NewsletterWriter] = {
     val query = sql"SELECT * FROM newsletter_writers_add(${userId}, ${newsletterId}, ${newUserId})".as[NewsletterWriter].head
-    db.run(query.transactionally.asTry).map{
+      .flatMap { writer =>
+        DBIO.from(tx.tx(writer)).map(_ => writer)
+      }
+    db.run(query.transactionally.asTry).map {
       SqlUtils.tryException(
         AuthorizationException.throwException
       )
@@ -37,7 +40,7 @@ class WriterDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(implic
 
   def addEditionWriter(userId: Long, editionId: Long, newUserId: Long): Future[EditionWriter] = {
     val query = sql"SELECT * FROM edition_writers_add(${userId}, ${editionId}, ${newUserId})".as[EditionWriter].head
-    db.run(query.transactionally.asTry).map{
+    db.run(query.transactionally.asTry).map {
       SqlUtils.tryException(
         AuthorizationException.throwException
       )

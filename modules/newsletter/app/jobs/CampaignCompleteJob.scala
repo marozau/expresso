@@ -24,12 +24,12 @@ object CampaignCompleteJob {
 
   def group = "campaign"
 
-  def identity(campaign: Campaign) = s"$group-complete-${campaign.id.get}"
+  def identity(campaign: Campaign) = s"$group-complete-${campaign.editionId}"
 
   def buildTrigger(campaign: Campaign): Trigger = {
     // Prefef.long2Long is nedded to avoid error: the result type of an implicit conversion must be more specific than AnyRef
     val jobDataMap = Map[String, AnyRef](
-      "campaignId" -> Predef.long2Long(campaign.id.get),
+      "editionId" -> Predef.long2Long(campaign.editionId),
     )
     import scala.collection.JavaConverters._
     val jobData = JobDataMapSupport.newJobDataMap(jobDataMap.asJava)
@@ -37,7 +37,7 @@ object CampaignCompleteJob {
     TriggerBuilder.newTrigger()
       .withIdentity(identity(campaign), group)
       .usingJobData(jobData)
-      .startAt(Date.from(campaign.sendTime.toInstant.plus(5, ChronoUnit.MINUTES)))
+      .startAt(Date.from(campaign.sendTime.plus(5, ChronoUnit.MINUTES)))
       .build()
   }
 
@@ -57,15 +57,15 @@ class CampaignCompleteJob @Inject()(quartz: Quartz, campaignService: CampaignSer
 
   override protected def execute(context: JobExecutionContext, retry: Int): Unit = {
     val data = context.getMergedJobDataMap
-    val campaignId = data.get("campaignId").asInstanceOf[Long]
-    logger.info(s"execute CampaignCompleteJob, campaignId=$campaignId")
-    val jobKeysFuture = quartz.getJobKeys(GroupMatcher.groupStartsWith(EditionSendJob.edition(campaignId)))
+    val editionId = data.get("editionId").asInstanceOf[Long]
+    logger.info(s"execute CampaignCompleteJob, editionId=$editionId")
+    val jobKeysFuture = quartz.getJobKeys(GroupMatcher.groupStartsWith(EditionSendJob.edition(editionId)))
     val jobKeys = Await.result(jobKeysFuture, Duration.Inf)
     if (jobKeys.isEmpty) {
-      Await.result(campaignService.setSentStatus(campaignId), Duration.Inf)
+      Await.result(campaignService.setSentStatus(editionId), Duration.Inf)
     } else {
-      logger.warn(s"reschedule CampaignCompleteJob, campaignId=$campaignId, jobKeys.size=${jobKeys.size()}")
-      val campaign = Await.result(campaignService.getById(campaignId), Duration.Inf)
+      logger.warn(s"reschedule CampaignCompleteJob, editionId=$editionId, jobKeys.size=${jobKeys.size()}")
+      val campaign = Await.result(campaignService.getByEditionId(editionId), Duration.Inf)
       val trigger = TriggerBuilder.newTrigger()
         .withIdentity(identity(campaign), group)
         .usingJobData(data)
