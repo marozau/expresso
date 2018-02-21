@@ -1,0 +1,33 @@
+@(newsletterId: String)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+@templates.email.html.text {
+    <div style="text-align: center;">
+        <form class="newsletter-subscribe-form" role="form" action="https://api.expresso.today/subscribe" method="POST" data-formactiontype="1" data-is-formajax="y">
+            @views.html.helper.CSRF.formField
+            <input type="hidden" name="newsletterId" tabindex="-1" value="@newsletterId">
+            <input type="email" name="email" value="" placeholder="Твой email" required="required" style="color: #000000;
+                border: 1px solid rgba(110, 110, 110, 0.7);
+                background-color: #ffffff;
+                border-radius: 0px;
+                -moz-border-radius: 0px;
+                -webkit-border-radius: 0px;
+                height: 30px;
+                width: 270px;
+                padding-left: 10px;
+                font-size: 17px;">
+            <br>
+            <br>
+            <button type="submit" style="color: #ffffff;
+                border: 0px;
+                background-color: #ff5335;
+                border-radius: 0px;
+                -moz-border-radius: 0px;
+                -webkit-border-radius: 0px;
+                height: 35px;
+                width: 150px;
+                font-size: 17px;">
+                ПОДПИСАТЬСЯ
+            </button>
+        </form>
+    </div>
+}

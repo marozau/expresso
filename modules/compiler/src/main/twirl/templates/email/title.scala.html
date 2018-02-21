@@ -1,0 +1,15 @@
+@(title: String, url: Option[String] = None)
+
+@templates.email.html.text {
+    <div class="mcnTitleContent">
+        <font face="arial, helvetica neue, helvetica, sans-serif" size="5">
+        @if(url.isDefined) {
+            <a href=@url>
+                <strong>@title</strong>
+            </a>
+        } else {
+            <strong>@title</strong>
+        }
+        </font>
+    </div>
+}

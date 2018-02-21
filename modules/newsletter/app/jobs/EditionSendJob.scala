@@ -8,7 +8,6 @@ import javax.inject.Inject
 
 import clients.Mailer.EmailHtml
 import clients.{Mailer, Quartz}
-import controllers.AssetsFinder
 import models.{Campaign, Target}
 import org.quartz.core.jmx.JobDataMapSupport
 import org.quartz._
@@ -65,9 +64,7 @@ class EditionSendJob @Inject()(quartz: Quartz,
                                urlUtils: UrlUtils,
                                langs: Langs,
                                messagesApi: MessagesApi)
-                              (implicit
-                               ec: ExecutionContext,
-                               assets: AssetsFinder)
+                              (implicit ec: ExecutionContext)
   extends RecoveringJob(quartz) {
 
   private val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())

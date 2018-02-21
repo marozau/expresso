@@ -1,13 +1,8 @@
-@(code: Int)(implicit request: RequestHeader, messages: Messages)
+@()(implicit request: RequestHeader, messages: Messages)
 
-@errorMsg(implicit request: RequestHeader) = @{
-    //   использовать MessageAPi для получения дефолтного сообщения под ошибку
-    request.flash.get("error").getOrElse("Упс! Что-то пошло не так.")
-}
+@templates.email.html.main("Спасибо, что подписался", None, None) {
 
-@views.html.email.main(s"Ой, ошибка $code", None, None) {
-
-    @views.html.email.container {
+    @templates.email.html.container {
 
         <br>
         <br>
@@ -26,21 +21,20 @@
                 padding-top: 0px;
                 padding-bottom: 0;">
 
-                @views.html.email.image("https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png", Some("https://www.expresso.today"))
+                @templates.email.html.image("https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png", Some("https://www.expresso.today"))
 
             </td>
         </tr>
 
-        @views.html.email.body {
+        @templates.email.html.body {
 
-            @views.html.email.text {
+            @templates.email.html.text {
                 <div style="text-align: center;">
                     <em>
                         <span style="font-size: 17px">
                             <span style="font-family: georgia, times, times new roman, serif">
                                 <br>
-                                @errorMsg
-                                Попробуй еще раз.
+                                    Почти готово! Теперь проверь свой почтовый ящик. Если ты не видишь письма, попробуй поискать в спаме.
                                 <br>
                                 <br>
                             </span>
@@ -48,8 +42,6 @@
                     </em>
                 </div>
             }
-
-            @views.html.email.subscribe("fb75c0e47f")
         }
     }
 }

@@ -1,0 +1,6 @@
+@import today.expresso.compiler.CompilerContext
+@(text: String, href: String, bold: Boolean, italic: Boolean)(implicit ctx: CompilerContext)
+
+@*TODO: add utm mark to the href*@
+<a href="@href" target="_blank" style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #ff5335;font-weight: normal;text-decoration: none;">@templates.compiler.email.html._text(text, bold, italic)</a>
+

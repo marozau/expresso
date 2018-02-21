@@ -7,7 +7,9 @@ import Keys._
 object Dependency {
 
   object v {
-    lazy val twirl = "1.3.3"
+    lazy val play = "2.6.11"
+
+    lazy val twirl = "1.3.12"
     lazy val slick = "3.0.3"
     lazy val postgresql = "42.1.4"
     lazy val slickPg = "0.15.4"
@@ -40,6 +42,8 @@ object Dependency {
     lazy val scalatestplus = "3.1.2"
     lazy val mokito = "2.13.0"
   }
+
+  lazy val play: ModuleID = "com.typesafe.play" %% "play" % v.play
 
   lazy val twirlCompiler: ModuleID = "com.typesafe.play" %% "twirl-compiler" % v.twirl
   lazy val twirlApi: ModuleID = "com.typesafe.play" %% "twirl-api" % v.twirl

@@ -1,41 +1,23 @@
 @import play.api.i18n.Messages
+@import controllers.AssetsFinder
 @import java.time.format.DateTimeFormatter
 
 @(edition: EditionTemplate)(implicit request: RequestHeader, messages: Messages)
 
-@editionUrl = @{
-    edition
-            .url
-            .map(_.toString)
-            .getOrElse(
-        controllers.site.routes.ArchiveController.edition(
-            edition.newsletter.nameUrl,
-            edition.date.format(DateTimeFormatter.BASIC_ISO_DATE))
-                .absoluteURL())
 
-}
+@templates.email.html.main(edition.title, Some(edition.newsletter.name), Some(edition.url)) {
 
-@postUrl(post: PostTemplate) = @{
-    controllers.site.routes.ArchiveController.post(
-        edition.newsletter.nameUrl,
-        edition.date.format(DateTimeFormatter.BASIC_ISO_DATE),
-        post.titleUrl)
-            .absoluteURL()
-}
-
-@views.html.email.main(edition.title.get, Some(edition.newsletter.name), Some(editionUrl)) {
-
-    @views.html.email.container {
+    @templates.email.html.container {
 
         @if(edition.target == Target.EMAIL) {
-            @views.html.email.preheader(editionUrl)
+            @templates.email.html.preheader(edition.url)
         }
 
-        @views.html.email.header(edition.date)
+        @templates.email.html.header(edition.date)
 
-        @views.html.email.body {
+        @templates.email.html.body {
 
-            @views.html.email.text {
+            @templates.email.html.text {
                 <div style="text-align: center;">
                     <em>
                         <span style="font-size: 17px">
@@ -53,23 +35,23 @@
             }
 
             @for(post <- edition.posts) {
-                @views.html.email.title(
+                @templates.email.html.title(
                     post.title,
-                    Some(postUrl(post))
+                    Some(post.url)
                 )
-                @views.html.email.divider()
-                @views.html.email.text {
+                @templates.email.html.divider()
+                @templates.email.html.text {
                     <div style="text-align: left;">
                         <span style="font-family: georgia, times, times new roman, serif">
                         @post.body(post.config)
                         </span>
                     </div>
                 }
-                @views.html.email.share(s"${edition.newsletter.name}: ${post.title}", postUrl(post))
+                @templates.email.html.share(s"${edition.newsletter.name}: ${post.title}", post.url)
                 <br>
             }
 
-            @views.html.email.text {
+            @templates.email.html.text {
                 <div style="text-align: left;">
                     <span style="font-size: 17px">
                         <span style="font-family: georgia, times, times new roman, serif">
@@ -83,15 +65,15 @@
                 </div>
             }
 
-            @views.html.email.regards()
+            @templates.email.html.regards()
 
-            @views.html.email.url(editionUrl)
+            @templates.email.html.url(edition.url)
 
-            @views.html.email.share(s"${edition.newsletter.name}: ${edition.title.get}", editionUrl)
+            @templates.email.html.share(s"${edition.newsletter.name}: ${edition.title}", edition.url)
 
-            @views.html.email.channels()
+            @templates.email.html.channels()
 
-            @views.html.email.footer()
+            @templates.email.html.footer()
         }
     }
 }

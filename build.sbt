@@ -87,6 +87,31 @@ lazy val newsletter = (project in file("modules/newsletter"))
     libraryDependencies += ehcache % Test
   )
 
+lazy val compiler = (project in file("modules/compiler"))
+  .enablePlugins(SbtTwirl)
+  .settings(Common.settings: _*)
+  .settings(
+    libraryDependencies += play % Provided,
+    libraryDependencies += ficus,
+    libraryDependencies += scalaGuice,
+    libraryDependencies += scalacache,
+    libraryDependencies ++= twirlAll,
+    libraryDependencies += reflections,
+    libraryDependencies += playHtmlCompressor,
+
+    libraryDependencies ++= testAll
+  )
+  .settings(
+    TwirlKeys.templateImports ++= Seq(
+      "play.api.templates.PlayMagic._",
+      "play.api.i18n._",
+      "play.api.mvc._",
+      "play.api.data._",
+      "today.expresso.compiler.api.domain._",
+      "today.expresso.compiler.impl.domain._"
+    )
+  )
+
 lazy val expresso = (project in file("."))
   .settings(Common.settings: _*)
   .settings(Manifest.manifestSettings: _*)

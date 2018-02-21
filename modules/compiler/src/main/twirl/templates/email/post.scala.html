@@ -1,0 +1,28 @@
+@import java.time.format.DateTimeFormatter
+@(edition: EditionTemplate, post: PostTemplate)(implicit request: RequestHeader, messages: Messages)
+
+@templates.email.html.main(post.title, Some(post.annotation), Some(post.url)) {
+    @templates.email.html.container {
+        @templates.email.html.body {
+
+            @templates.email.html.date(edition.date)
+            @templates.email.html.image("https://gallery.mailchimp.com/9ce62abc6f7d6b9a356b4533d/images/623a55f8-c30d-4de4-b8db-cbb2f32bdcde.png", Some("https://www.expresso.today"))
+
+            <br>
+
+            @templates.email.html.title(post.title)
+            @templates.email.html.text {
+                @post.body(post.config)
+            }
+
+            @templates.email.html.share(s"${edition.newsletter.name}: ${post.title}", Call(request.method, request.uri).absoluteURL())
+            @templates.email.html.pnavigation(edition, utils.PostNavigation(edition, post.id).prev, utils.PostNavigation(edition, post.id).next)
+
+            <br>
+            @templates.email.html.subscribe("fb75c0e47f")
+        }
+    }
+}
+
+
+

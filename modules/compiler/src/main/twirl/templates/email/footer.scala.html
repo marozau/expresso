@@ -1,0 +1,108 @@
+@import java.util.Calendar
+@()
+
+<tr>
+    <td valign="top" id="templateFooter" style="background: #ffffff none no-repeat center/cover;
+        mso-line-height-rule: exactly;
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%;
+        background-color: #ffffff;
+        background-image: none;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        border-top: 0;
+        border-bottom: 0;
+        padding-top: 9px;
+        padding-bottom: 0px;">
+
+        <tbody class="mcnTextBlockOuter">
+            <tr>
+                <td valign="top" class="mcnTextBlockInner" style="padding-top: 9px;
+                    mso-line-height-rule: exactly;
+                    -ms-text-size-adjust: 100%;
+                    -webkit-text-size-adjust: 100%;">
+                    @templates.email.html.mso {
+                        <table align="left" border="0" cellpadding="0" cellspacing="0" style="max-width: 100%;
+                            min-width: 100%;
+                            border-collapse: collapse;
+                            mso-table-lspace: 0pt;
+                            mso-table-rspace: 0pt;
+                            -ms-text-size-adjust: 100%;
+                            -webkit-text-size-adjust: 100%;" width="100%" class="mcnTextContentContainer">
+                            <tbody>
+                                <tr>
+                                    <td valign="top" class="mcnTextContent" style="padding: 0px 18px 9px;
+                                        line-height: 150%;
+                                        mso-line-height-rule: exactly;
+                                        -ms-text-size-adjust: 100%;
+                                        -webkit-text-size-adjust: 100%;
+                                        word-break: break-word;
+                                        color: #202020;
+                                        font-family: Helvetica;
+                                        font-size: 11px;
+                                        text-align: left;">
+
+                                        Перепечатка материалов только c письменного разрешения.&nbsp;<br>
+
+                                        @*TODO: only for email*@
+                                        @*Ты всегда можешь&nbsp;<a href="http://today.us9.list-manage.com/unsubscribe?u=9ce62abc6f7d6b9a356b4533d&id=fb75c0e47f&e=[UNIQID]&c=f3389dd20d" target="_blank" style="mso-line-height-rule: exactly;*@
+                                        @*-ms-text-size-adjust: 100%;*@
+                                        @*-webkit-text-size-adjust: 100%;*@
+                                        @*color: #202020;*@
+                                        @*font-weight: normal;*@
+                                        @*text-decoration: underline;">отписаться от рассылки</a>. Никаких обид.&nbsp; &nbsp;<br>*@
+                                        <br>
+                                        <a href="http://www.expresso.today/" target="_blank" style="mso-line-height-rule: exactly;
+                                            -ms-text-size-adjust: 100%;
+                                            -webkit-text-size-adjust: 100%;
+                                            color: #202020;
+                                            font-weight: normal;
+                                            text-decoration: underline;">Home</a>
+                                            |
+                                        <a href="http://expresso.today/terms" target="_blank" style="mso-line-height-rule: exactly;
+                                            -ms-text-size-adjust: 100%;
+                                            -webkit-text-size-adjust: 100%;
+                                            color: #202020;
+                                            font-weight: normal;
+                                            text-decoration: underline;">Правила пользования</a>
+                                            |
+                                            email:&nbsp;<a href="mailto:hi@@expresso.today?subject=%D0%AF%20%D0%BA%20%D0%B2%D0%B0%D0%BC%20%D0%BF%D0%B8%D1%88%D1%83" target="_blank" style="mso-line-height-rule: exactly;
+                                        -ms-text-size-adjust: 100%;
+                                        -webkit-text-size-adjust: 100%;
+                                        color: #202020;
+                                        font-weight: normal;
+                                        text-decoration: underline;">hi@@expresso.today</a>
+                                            |
+                                        <a href="https://www.instagram.com/expresso_today/" target="_blank" style="mso-line-height-rule: exactly;
+                                            -ms-text-size-adjust: 100%;
+                                            -webkit-text-size-adjust: 100%;
+                                            color: #202020;
+                                            font-weight: normal;
+                                            text-decoration: underline;">Instagram</a>
+                                            |
+                                        <a href="http://expresso.today/donations" target="_blank" style="mso-line-height-rule: exactly;
+                                            -ms-text-size-adjust: 100%;
+                                            -webkit-text-size-adjust: 100%;
+                                            color: #202020;
+                                            font-weight: normal;
+                                            text-decoration: underline;">Поддержать Expresso</a>
+                                        <br>
+                                        <br>
+                                        <em>Copyright ©
+                                            @{
+                                                Calendar.getInstance().get(Calendar.YEAR);
+                                            } Expresso. Все права защищены.</em>
+                                        <br>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    }
+                </td>
+            </tr>
+        </tbody>
+    </td>
+</tr>
+

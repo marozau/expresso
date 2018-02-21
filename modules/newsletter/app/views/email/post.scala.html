@@ -1,5 +1,5 @@
 @import java.time.format.DateTimeFormatter
-@(data: EditionPostTemplate)(implicit request: RequestHeader, messages: Messages, assets: AssetsFinder)
+@(data: EditionPostTemplate)(implicit request: RequestHeader, messages: Messages)
 
 @url = @{
     if(data.edition.isDefined) {

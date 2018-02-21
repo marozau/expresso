@@ -1,0 +1,52 @@
+@import java.time.format.DateTimeFormatter
+
+@(edition: EditionTemplate, prev: Option[PostTemplate] = None, next: Option[PostTemplate] = None)(implicit request: RequestHeader)
+
+@templates.email.html.text {
+    <div style="text-align: center;">
+        <em>
+            <span style="font-size: 17px">
+                <span style="font-family: georgia, times, times new roman, serif">
+                    Это пост из выпуска
+                    <a href="@edition.url">
+                        Expresso за
+                        @{
+                            edition.date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+                        }
+                    </a>
+                </span>
+            </span>
+        </em>
+    </div>
+}
+
+@templates.email.html.text {
+    <div>
+        <em>
+            @if(prev.isDefined) {
+                <span style="font-size: 17px">
+                    <span style="font-family: georgia, times, times new roman, serif" class="mcnPrevUrl">
+                        <a href="@prev.get.url">
+                            @Html("<<")
+                            @{
+                                prev.get.title
+                            }
+                        </a>
+                    </span>
+                </span>
+            }
+            @if(next.isDefined) {
+                <span style="font-size: 17px">
+                    <span style="font-family: georgia, times, times new roman, serif" class="mcnNextUrl">
+                        <a href="@next.get.url">
+                            @{
+                                next.get.title
+                            }
+                            @Html(">>")
+                        </a>
+                    </span>
+                </span>
+            }
+        </em>
+    </div>
+}
