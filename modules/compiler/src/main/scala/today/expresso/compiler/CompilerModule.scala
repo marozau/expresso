@@ -27,6 +27,6 @@ class CompilerModule extends Module {
   def provideCompiler(configuration: Configuration, actorSystem: ActorSystem, injector: Injector): HtmlCompiler = {
     val config = configuration.underlying.as[CompilerConfig]("compiler")
     implicit val ec: ExecutionContext = actorSystem.dispatchers.lookup(config.dispatcher)
-    new HtmlCompilerImpl(config, injector)
+    new HtmlCompilerImpl(config.directory, injector)
   }
 }

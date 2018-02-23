@@ -24,7 +24,7 @@ object HtmlCompilerImpl {
   //TODO: add context for complex solutions like specific word counting, statistics etc
   val header: String =
     """
-      |@import _root_.CompilerContext
+      |@import _root_.today.expresso.compiler.CompilerContext
       |@import _root_.play.api.Configuration
       |@this(implicit ctx: CompilerContext)
       |@(implicit config: Configuration)
@@ -33,14 +33,14 @@ object HtmlCompilerImpl {
 }
 
 @Singleton
-class HtmlCompilerImpl @Inject()(config: CompilerConfig, injector: Injector)(implicit ec: ExecutionContext) extends HtmlCompiler {
+class HtmlCompilerImpl @Inject()(directory: String, injector: Injector)(implicit ec: ExecutionContext) extends HtmlCompiler {
 
   import Helper._
-  import api.HtmlCompiler._
+  import HtmlCompiler._
 
-  private val sourceDir = Paths.get(config.directory, "source").toFile
-  private val generatedDir =  Paths.get(config.directory, "generated-templates").toFile
-  private val generatedClasses =  Paths.get(config.directory, "generated-classes").toFile
+  private val sourceDir = Paths.get(directory, "source").toFile
+  private val generatedDir =  Paths.get(directory, "generated-templates").toFile
+  private val generatedClasses =  Paths.get(directory, "generated-classes").toFile
 
   Helper.deleteRecursively(sourceDir)
   sourceDir.mkdirs()
@@ -56,13 +56,13 @@ class HtmlCompilerImpl @Inject()(config: CompilerConfig, injector: Injector)(imp
   // https://github.com/playframework/twirl/blob/master/compiler/src/test/scala/play/twirl/compiler/test/CompilerSpec.scala
 
   override def compile(html: String, packageName: Option[String] = None, imports: Seq[String] = List.empty): HtmlTemplate = {
-    val (templateName, template) = templateHelper.createTemplate(html)
+    val (templateName, template) = templateHelper.createTemplate(HtmlCompilerImpl.header + html)
     Logger.info(s"generate, template=$template")
     try {
       val className = templateHelper.getClassName(templateName)
       val viewsImports = packageName.map(reflectionsHelper.getImports).getOrElse(Seq.empty)
       val helper = new CompilerHelper(sourceDir, generatedDir, generatedClasses)
-      val t = helper.compile[(HtmlTemplate)](template.getName, className, viewsImports ++ imports)
+      val t = helper.compile[(HtmlTemplate)](template.getName, className, injector, viewsImports ++ imports)
       t.guiceInject()
     } finally {
       templateHelper.deleteGenerated(templateName)
@@ -80,7 +80,7 @@ class HtmlCompilerImpl @Inject()(config: CompilerConfig, injector: Injector)(imp
 class ReflectionsHelper {
 
   private val root = "_root_."
-  private val packages = Seq("views.html", "clients")
+  private val packages = Seq("templates.compiler")
 
   private val imports: Seq[String] = packages.flatMap(new Reflections(_).getSubTypesOf(classOf[BaseScalaTemplate[_, _]]).asScala.map(root + _.getName.replace("$", "")).toSeq)
   private var cache: Map[String, Seq[String]] = Map.empty //TODO: replace by better cache implementation, caffeine for example
@@ -210,7 +210,7 @@ object Helper {
       compiler
     }
 
-    class CompiledTemplate[T](className: String) {
+    class CompiledTemplate[T](className: String, injector: Injector) {
 
       private def getF(template: Any) = {
         template.getClass.getMethod("f").invoke(template).asInstanceOf[T]
@@ -229,7 +229,7 @@ object Helper {
 
       def guiceInject(): T = {
         try {
-          getF(Play.current.injector.instanceOf(classloader.loadClass(className)))
+          getF(injector.instanceOf(classloader.loadClass(className)))
         } catch {
           case e: Exception => {
             throw new IllegalStateException("Problem instantiating class '" + className + "'", e)
@@ -238,7 +238,7 @@ object Helper {
       }
     }
 
-    def compile[T](templateName: String, className: String, additionalImports: Seq[String] = Nil): CompiledTemplate[T] = {
+    def compile[T](templateName: String, className: String, injector: Injector, additionalImports: Seq[String] = Nil): CompiledTemplate[T] = {
       val templateFile = new File(sourceDir, templateName)
       val Some(generated) = twirlCompiler.compile(templateFile, sourceDir, generatedDir, "play.twirl.api.HtmlFormat", twirlCompiler.DefaultImports ++ additionalImports, Seq("@javax.inject.Inject()"))
       twirlCompiler.generatedFile(templateFile, Codec(scala.util.Properties.sourceEncoding), sourceDir, generatedDir, false)
@@ -257,7 +257,7 @@ object Helper {
         }
       }
 
-      new CompiledTemplate[T](className)
+      new CompiledTemplate[T](className, injector)
     }
   }
 

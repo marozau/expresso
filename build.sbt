@@ -109,7 +109,8 @@ lazy val compiler = (project in file("modules/compiler"))
       "play.api.data._",
       "today.expresso.compiler.api.domain._",
       "today.expresso.compiler.impl.domain._"
-    )
+    ),
+    TwirlKeys.constructorAnnotations += "@javax.inject.Inject()"
   )
 
 lazy val expresso = (project in file("."))
