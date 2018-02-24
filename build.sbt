@@ -87,7 +87,7 @@ lazy val newsletter = (project in file("modules/newsletter"))
     libraryDependencies += ehcache % Test
   )
 
-lazy val compiler = (project in file("modules/compiler"))
+lazy val templates = (project in file("modules/templates"))
   .enablePlugins(SbtTwirl)
   .settings(Common.settings: _*)
   .settings(
@@ -107,8 +107,8 @@ lazy val compiler = (project in file("modules/compiler"))
       "play.api.i18n._",
       "play.api.mvc._",
       "play.api.data._",
-      "today.expresso.compiler.api.domain._",
-      "today.expresso.compiler.impl.domain._"
+      "today.expresso.templates.api.domain._",
+      "today.expresso.templates.impl.domain._"
     ),
     TwirlKeys.constructorAnnotations += "@javax.inject.Inject()"
   )
