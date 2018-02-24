@@ -4,20 +4,23 @@ import java.util.{Date, Properties}
 import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
-import org.quartz.impl.StdSchedulerFactory
-import org.quartz.spi.{JobFactory, TriggerFiredBundle}
 import org.quartz._
+import org.quartz.impl.StdSchedulerFactory
 import org.quartz.impl.matchers.GroupMatcher
-import play.api.inject.ApplicationLifecycle
-import play.api.{Configuration, Logger, Play}
+import org.quartz.spi.{JobFactory, TriggerFiredBundle}
+import play.api.inject.{ApplicationLifecycle, Injector}
+import play.api.{Configuration, Logger}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * @author im.
   */
-//@Singleton
-class Quartz @Inject()(appLifecycle: ApplicationLifecycle, config: Configuration, actorSystem: ActorSystem)(implicit ec: ExecutionContext) {
+@Singleton
+class Quartz @Inject()(appLifecycle: ApplicationLifecycle,
+                       config: Configuration,
+                       actorSystem: ActorSystem,
+                       jobFactory: JobFactory)(implicit ec: ExecutionContext) {
 
   private val blockingExecutionContext = actorSystem.dispatchers.lookup("quartz.blocking-dispatcher")
 
@@ -34,7 +37,7 @@ class Quartz @Inject()(appLifecycle: ApplicationLifecycle, config: Configuration
   }
 
   private val scheduler: Scheduler = schedulerFactory.getScheduler
-  scheduler.setJobFactory(new GuiceJobFactory())
+  scheduler.setJobFactory(jobFactory)
 
   scheduler.start()
   Logger.info(s"$getClass: started")
@@ -86,7 +89,8 @@ class Quartz @Inject()(appLifecycle: ApplicationLifecycle, config: Configuration
   }
 }
 
-class GuiceJobFactory extends JobFactory {
+@Singleton
+class GuiceJobFactory @Inject() (injector: Injector) extends JobFactory {
   final val log = Logger(getClass)
 
   @throws[SchedulerException]
@@ -97,7 +101,7 @@ class GuiceJobFactory extends JobFactory {
 
     try {
       if (log.isDebugEnabled) log.debug("Producing instance of Job '" + jobDetail.getKey + "', class=" + jobClass.getName)
-      Play.current.injector.instanceOf(jobClass)
+      injector.instanceOf(jobClass)
 
     } catch {
       case e: Exception => {

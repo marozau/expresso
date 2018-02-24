@@ -6,7 +6,7 @@ import javax.inject.{Inject, Singleton}
 import db.Repository
 import exceptions._
 import models.Recipient
-import models.components.RecipientComponent
+import models.components.{CommonComponent, RecipientComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -19,7 +19,7 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 @Singleton
 class RecipientDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
-  extends Repository with RecipientComponent {
+  extends Repository with RecipientComponent with CommonComponent {
 
   protected val dbConfig: DatabaseConfig[JdbcProfile] = databaseConfigProvider.get[JdbcProfile]
 

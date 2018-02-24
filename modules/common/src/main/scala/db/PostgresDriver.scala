@@ -34,6 +34,7 @@ trait PostgresDriver extends ExPostgresProfile
     with DateTimeImplicits
     with Date2DateTimePlainImplicits
     with JsonImplicits
+    with PlayJsonPlainImplicits
     with NetImplicits
     with LTreeImplicits
     with RangeImplicits

@@ -14,7 +14,7 @@ object PostImplicits {
 
   final val emptyOptions: JsValue = Json.parse("{}")
 
-  implicit def postIdsCast(posts: List[Post]): List[Long] = posts.map(_.id.get)
+  implicit def postIdsCast(posts: List[Post]): List[Long] = posts.map(_.id)
 
   implicit def urlCast(url: String): URL = new URL(url)
 

@@ -30,7 +30,7 @@ class NewsletterDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
   import api._
   import dbConfig._
 
-  def create(userId: Long, name: String, locale: Lang): Future[Newsletter] = {
+  def create(userId: Long, name: String, locale: String): Future[Newsletter] = {
     val query = sql"SELECT * FROM newsletters_create(${userId}, ${name}, ${locale})".as[Newsletter].head
     db.run(query.transactionally.asTry).map {
       case Success(res) => res
@@ -43,9 +43,9 @@ class NewsletterDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
 
   def update(userId: Long,
              newsletterId: Long,
-             locale: Option[Lang],
-             logoUrl: Option[URL],
-             avatarUrl: Option[URL],
+             locale: Option[String],
+             logoUrl: Option[String],
+             avatarUrl: Option[String],
              options: Option[JsValue]): Future[Newsletter] = {
     val query = sql"SELECT * FROM newsletters_update(${userId}, ${newsletterId}, ${locale}, ${logoUrl}, ${avatarUrl}, ${options})".as[Newsletter].head
     db.run(query.transactionally.asTry).map {

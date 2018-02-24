@@ -9,7 +9,7 @@ import clients.{MailChimp, Quartz}
 /**
   * @author im.
   */
-class ExpressoModule extends AbstractModule with AkkaGuiceSupport {
+class NewsletterModule extends AbstractModule with AkkaGuiceSupport {
 
   override def configure(): Unit = {
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"))

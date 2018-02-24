@@ -1,13 +1,10 @@
 package jobs
 
 import java.lang.invoke.MethodHandles
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.Date
 import javax.inject.Inject
 
 import clients.Quartz
-import exceptions.InvalidCampaignScheduleException
 import models.Campaign
 import org.quartz.core.jmx.JobDataMapSupport
 import org.quartz.{JobBuilder, JobExecutionContext, Trigger, TriggerBuilder}

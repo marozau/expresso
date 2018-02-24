@@ -1,7 +1,7 @@
 package models.daos
 
 import java.net.URL
-import java.util.Date
+import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 
 import db.Repository
@@ -30,7 +30,7 @@ class EditionDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(impli
   import api._
   import dbConfig._
 
-  def create(userId: Long, newsletterId: Long, date: Date): Future[Edition] = {
+  def create(userId: Long, newsletterId: Long, date: LocalDate): Future[Edition] = {
     val query = sql"SELECT * FROM editions_create(${userId}, ${newsletterId}, ${date})".as[Edition].head
     db.run(query.transactionally.asTry).map {
       case Success(res) => res
@@ -44,8 +44,8 @@ class EditionDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(impli
 
   def update(userId: Long,
              editionId: Long,
-             date: Option[Date],
-             url: Option[URL] = None,
+             date: Option[LocalDate],
+             url: Option[String],
              title: Option[String],
              header: Option[JsValue],
              footer: Option[JsValue],

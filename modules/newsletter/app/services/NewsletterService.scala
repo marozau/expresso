@@ -16,7 +16,7 @@ import scala.concurrent.ExecutionContext
 class NewsletterService @Inject()(newsletterDao: NewsletterDao)(implicit ec: ExecutionContext) {
 
   def create(userId: Long, name: String, locale: Lang) = {
-    newsletterDao.create(userId, name, locale) //TODO: NewsletterCreated event
+    newsletterDao.create(userId, name, locale.code) //TODO: NewsletterCreated event
   }
 
   def update(userId: Long,
@@ -25,7 +25,7 @@ class NewsletterService @Inject()(newsletterDao: NewsletterDao)(implicit ec: Exe
              logoUrl: Option[URL],
              avatarUrl: Option[URL],
              options: Option[JsValue]) = {
-    newsletterDao.update(userId, newsletterId, locale, logoUrl, avatarUrl, options) //TODO: NewsletterUpdated event
+    newsletterDao.update(userId, newsletterId, locale.map(_.code), logoUrl.map(_.toString), avatarUrl.map(_.toString), options) //TODO: NewsletterUpdated event
   }
 
   def getById(newsletterId: Long) = {

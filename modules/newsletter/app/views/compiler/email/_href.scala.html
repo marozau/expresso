@@ -1,6 +1,0 @@
-@import models.Application
-@(text: String, href: String, bold: Boolean, italic: Boolean)(implicit app: Application)
-
-@*TODO: add utm mark to the href*@
-<a href="@href" target="_blank" style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #ff5335;font-weight: normal;text-decoration: none;">@views.html.compiler.email._text(text, bold, italic)</a>
-

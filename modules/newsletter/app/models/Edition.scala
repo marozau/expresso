@@ -1,8 +1,7 @@
 package models
 
 import java.net.URL
-import java.time.Instant
-import java.util.Date
+import java.time.{Instant, LocalDate}
 
 import play.api.libs.json.JsValue
 
@@ -12,7 +11,7 @@ import play.api.libs.json.JsValue
 
 case class Edition(id: Long,
                    newsletterId: Long,
-                   date: Date,
+                   date: LocalDate,
                    url: Option[URL] = None,
                    title: Option[String],
                    header: Option[JsValue],

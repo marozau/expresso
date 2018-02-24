@@ -9,7 +9,3 @@ import scala.concurrent.Future
 trait Tx[A] {
   def tx(a: A): Future[A]
 }
-
-object Tx {
-  def apply[A] =
-}

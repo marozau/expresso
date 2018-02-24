@@ -2,7 +2,6 @@ package services
 
 import javax.inject.{Inject, Singleton}
 
-import events.newsletter.Subscribe
 import models.Recipient
 import play.api.Logger
 import play.api.libs.mailer.{Email, MailerClient}
@@ -23,9 +22,9 @@ class MailService @Inject()(
   //TODO: bounce address on the mail client side
 
   def sendVerification(email: String, user: User, recipient: Recipient) = {
-    val event = Subscribe(recipient.id.getMostSignificantBits, recipient.id.getLeastSignificantBits, user.id, recipient.newsletterId)
-    val call = controllers.routes.EventController.subscribe(event)
-    val url = urlUtils.absoluteURL(call)
+//    val event = Subscribe(recipient.id.getMostSignificantBits, recipient.id.getLeastSignificantBits, user.id, recipient.newsletterId)
+//    val call = controllers.routes.EventController.subscribe(event)
+//    val url = urlUtils.absoluteURL(call)
 
     Logger.info(s"send email: $email")
     Future.successful(Unit)

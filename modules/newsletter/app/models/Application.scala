@@ -16,9 +16,6 @@ case class Application @Inject()(
                              newsletterService: NewsletterService,
                              editionService: EditionService,
                              campaignService: CampaignService,
-                             trackingService: TrackingService,
-                             mailService: MailService,
-                           ) {
-
+                             mailService: MailService) {
 
 }

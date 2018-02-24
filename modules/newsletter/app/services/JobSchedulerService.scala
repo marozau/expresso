@@ -6,7 +6,7 @@ import javax.inject.{Inject, Singleton}
 
 import clients.Quartz
 import jobs.{CampaignCompleteJob, CampaignJob, EditionSendJob}
-import models.Campaign
+import models.{Campaign, Recipient}
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -22,7 +22,7 @@ class JobSchedulerService @Inject()(quartz: Quartz, campaigns: CampaignService, 
   //TODO: personalized newsletter time
   def scheduleCampaign(campaign: Campaign): Future[Date] = {
     campaigns
-      .setPendingStatus(campaign.id.get)
+      .setPendingStatus(campaign.editionId) //TODO: move next code to to transaction
       .flatMap { _ =>
         val job = CampaignJob.buildJob(campaign)
         val trigger = CampaignJob.buildTrigger(campaign)
@@ -34,15 +34,15 @@ class JobSchedulerService @Inject()(quartz: Quartz, campaigns: CampaignService, 
         quartz.scheduleJob(job, trigger)
       }
       .map { date =>
-        logger.info(s"campaign scheduled, campaignId=${campaign.id.get}, newsletterId=${campaign.newsletterId}, editionId=${campaign.editionId}, date=$date")
+        logger.info(s"campaign scheduled, newsletterId=${campaign.newsletterId}, editionId=${campaign.editionId}, date=$date")
         date
       }
-      .recover {
-        case t: Throwable =>
-          logger.error(s"failed to schedule campaign, campaign=$campaign", t)
-          campaigns.updateStatus(campaign.id.get, Campaign.Status.NEW)
-          throw t
-      }
+//      .recover {
+//        case t: Throwable =>
+//          logger.error(s"failed to schedule campaign, campaign=$campaign", t)
+//          campaigns.updateStatus(campaign.id.get, Campaign.Status.NEW)
+//          throw t
+//      }
   }
 
   def stopCampaign() = ???
@@ -51,18 +51,18 @@ class JobSchedulerService @Inject()(quartz: Quartz, campaigns: CampaignService, 
 
   def scheduleEdition(campaign: Campaign) = {
     campaigns
-      .setSendingStatus(campaign.id.get)
+      .setSendingStatus(campaign.editionId) //TODO: move next code to to transaction
       .flatMap { _ =>
-        recipientService.getByNewsletterId(campaign.newsletterId)
+        recipientService.getByNewsletterId(campaign.newsletterId, Recipient.Status.SUBSCRIBED)
           .flatMap { recipients =>
             Future.sequence(recipients
               .map { recipient =>
                 val userId = recipient.userId
                 val trigger = EditionSendJob.buildTrigger(userId, campaign)
                 val job = EditionSendJob.buildJob(userId, campaign)
-                quartz.scheduleJob(job, trigger)
+                quartz.scheduleJob(job, trigger) //TODO: remove old job if exists and create new one
                   .map { _ =>
-                    logger.info(s"edition scheduled, campaignId=${campaign.id.get}, newsletterId=${campaign.newsletterId}, editionId=${campaign.editionId}, userId=$userId")
+                    logger.info(s"edition sending scheduled, newsletterId=${campaign.newsletterId}, editionId=${campaign.editionId}, userId=$userId")
                     Left(userId)
                   }
                   .recover {
@@ -74,11 +74,11 @@ class JobSchedulerService @Inject()(quartz: Quartz, campaigns: CampaignService, 
             )
           }
       }
-      .recover {
-        case t: Throwable =>
-          logger.error(s"failed to schedule edition, campaign=$campaign", t)
-          campaigns.updateStatus(campaign.id.get, Campaign.Status.PENDING)
-          throw t
-      }
+//      .recover {
+//        case t: Throwable =>
+//          logger.error(s"failed to schedule edition, campaign=$campaign", t)
+//          campaigns.updateStatus(campaign.id.get, Campaign.Status.PENDING)
+//          throw t
+//      }
   }
 }

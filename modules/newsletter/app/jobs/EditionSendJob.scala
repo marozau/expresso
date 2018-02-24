@@ -8,13 +8,14 @@ import javax.inject.Inject
 
 import clients.Mailer.EmailHtml
 import clients.{Mailer, Quartz}
-import models.{Campaign, Target}
+import models.Campaign
 import org.quartz.core.jmx.JobDataMapSupport
 import org.quartz._
 import org.slf4j.LoggerFactory
 import play.api.i18n._
-import services.{CompilerService, EditionService, NewsletterService, UserService}
+import services.{EditionService, NewsletterService, UserService}
 import _root_.utils.UrlUtils
+import today.expresso.templates.impl.CompilerService
 
 import scala.concurrent.ExecutionContext
 

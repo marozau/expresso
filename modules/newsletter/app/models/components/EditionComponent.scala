@@ -19,7 +19,7 @@ trait EditionComponent {
     Edition(
       r.nextLong(),
       r.nextLong(),
-      r.nextDate(),
+      r.nextDate().toLocalDate,
       r.nextStringOption().map(new URL(_)),
       r.nextStringOption(),
       Option(playJsonTypeMapper.getValue(r.rs, r.skip.currentPos)),

@@ -11,6 +11,6 @@ case class Post(id: Long,
                 editionId: Option[Long],
                 title: String,
                 annotation: String,
-                body: String,
-                options: Option[JsValue] = None)
+                body: JsValue,
+                options: Option[JsValue])
 

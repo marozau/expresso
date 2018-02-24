@@ -1,13 +1,13 @@
-package clients
+package today.expresso.templates.impl
 
 import javax.inject.{Inject, Singleton}
 
-import play.api.libs.json.{JsValue, _}
+import play.api.libs.json._
 
 /**
   * @author im.
   */
-object Quill {
+object QuillParser {
 
   val insertTransformer: Reads[JsObject] = (__ \ 'insert).json.update(
     __.read[JsValue].map {
@@ -55,9 +55,9 @@ object Quill {
 }
 
 @Singleton
-class Quill @Inject()() {
+class QuillParser @Inject()() {
 
-  import Quill._
+  import QuillParser._
 
   def jsonToTag(json: JsValue): List[Tag] = {
     val ops = (json \ "ops").as[JsArray].value

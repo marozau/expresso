@@ -1,20 +1,21 @@
-package services
+package today.expresso.templates.impl
 
 import java.lang.invoke.MethodHandles
 import javax.inject.{Inject, Singleton}
 
-import clients.Compiler.HtmlTemplate
-import clients.{Compiler, Quill}
-import models._
 import org.slf4j.LoggerFactory
 import play.api.Configuration
+import today.expresso.templates.api.HtmlCompiler
+import today.expresso.templates.api.HtmlCompiler.HtmlTemplate
+import today.expresso.templates.api.domain.{Edition, Post, Target}
+import today.expresso.templates.impl.domain.{EditionTemplate, PostTemplate}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * @author im.
   */
-class CompilerCache(compiler: Compiler)(implicit ec: ExecutionContext) {
+class CompilerCache(compiler: HtmlCompiler)(implicit ec: ExecutionContext) {
 
   import com.github.benmanes.caffeine.cache.Caffeine
 
@@ -27,8 +28,7 @@ class CompilerCache(compiler: Compiler)(implicit ec: ExecutionContext) {
   private implicit val scalaCache: ScalaCache[NoSerialization] = ScalaCache(CaffeineCache(underlyingCaffeineCache))
 
   def compile(tags: String, target: Target.Value): Future[HtmlTemplate] = memoize(ttl(target)) {
-    val body = Compiler.header + tags
-    compiler.compile(body, Some("views.html.compiler." + target.toString.toLowerCase))
+    compiler.compileAsync(tags, Some("templates.compiler." + target.toString.toLowerCase + ".html"))
   }
 
   private def ttl(target: Target.Value) = target match {
@@ -38,12 +38,7 @@ class CompilerCache(compiler: Compiler)(implicit ec: ExecutionContext) {
 }
 
 @Singleton
-class CompilerService @Inject()(
-                                 configuration: Configuration,
-                                 quill: Quill,
-                                 compiler: Compiler)(implicit ec: ExecutionContext) {
-
-  import implicits.PostImplicits._
+class CompilerService @Inject()(quill: QuillParser, compiler: HtmlCompiler)(implicit ec: ExecutionContext) {
 
   private val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
 
@@ -56,7 +51,7 @@ class CompilerService @Inject()(
   def doPost(post: Post, target: Target.Value): Future[PostTemplate] = {
     logger.info(s"compiling post, id=${post.id}, userId=${post.userId}, title=${post.title}")
     compile(quill.jsonToTagStr(post.body), target)
-      .map(html => PostTemplate(post.id, post.title, "", post.annotation, html, Configuration.from(post.options), target))
+      .map(html => PostTemplate(post.id, post.url, post.title, post.annotation, html, Configuration.empty, target)) //TODO: Configuration.from(post.options)
   }
 
   def doPosts(posts: List[Post], target: Target.Value): Future[List[PostTemplate]] = {
@@ -67,20 +62,20 @@ class CompilerService @Inject()(
     Future.sequence(posts.map(post => post.fold(Future(Option.empty[PostTemplate]))(p => doPost(p, target).map(Some(_)))))
   }
 
-  def doPostView(postView: PostView, target: Target.Value): Future[EditionPostTemplate] = {
-    for {
-      post <- doPost(postView.post, target)
-      prev <- postView.prev.fold(Future(Option.empty[PostTemplate]))(p => doPost(p, target).map(Some(_)))
-      next <- postView.next.fold(Future(Option.empty[PostTemplate]))(p => doPost(p, target).map(Some(_)))
-    } yield EditionPostTemplate(post, postView.edition, prev, next)
-  }
+  //  def doPostView(postView: PostView, target: Target.Value): Future[EditionPostTemplate] = {
+  //    for {
+  //      post <- doPost(postView.post, target)
+  //      prev <- postView.prev.fold(Future(Option.empty[PostTemplate]))(p => doPost(p, target).map(Some(_)))
+  //      next <- postView.next.fold(Future(Option.empty[PostTemplate]))(p => doPost(p, target).map(Some(_)))
+  //    } yield EditionPostTemplate(post, postView.edition, prev, next)
+  //  }
 
   def doEdition(edition: Edition, target: Target.Value): Future[EditionTemplate] = {
     logger.info(s"compiling edition, id=${edition.id}, newsletterId=${edition.newsletter.name}, title=${edition.title}")
     for {
-      header <- if (edition.header.isDefined) compile(quill.strToTagStr(edition.header.get), target).map(Some(_)) else Future(None)
-      footer <- if (edition.footer.isDefined) compile(quill.strToTagStr(edition.footer.get), target).map(Some(_)) else Future(None)
+      header <- if (edition.header.isDefined) compile(quill.jsonToTagStr(edition.header.get), target).map(Some(_)) else Future(None)
+      footer <- if (edition.footer.isDefined) compile(quill.jsonToTagStr(edition.footer.get), target).map(Some(_)) else Future(None)
       posts <- doPosts(edition.posts, target)
-    } yield EditionTemplate(edition.id, edition.newsletter, edition.date, edition.url, edition.title, header, footer, posts, Configuration.from(edition.options), target)
+    } yield EditionTemplate(edition.id, edition.url, edition.newsletter, edition.date, edition.title, posts, header, footer, Configuration.empty, target) //TODO: Configuration.from(edition.options)
   }
 }
