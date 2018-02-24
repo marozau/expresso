@@ -32,7 +32,7 @@ class CompilerSpec extends WordSpec
   }
 
   "Compiler" should {
-    "create html from dsl" in {
+    "create html from @_text dsl" in {
       val dsl =
         """
           |@_text("hello", true, true)
@@ -41,5 +41,25 @@ class CompilerSpec extends WordSpec
       val body = template(Configuration.empty).body
       body.trim should be("<i><strong>hello</strong></i>")
     }
+
+    "create html from @_image dsl" in {
+      val dsl =
+        """
+          |@_image("image", Some("https://expresso.today"))
+        """.stripMargin
+      val template: HtmlTemplate = compiler.compile(dsl, Some("templates.compiler." + Target.DEV.toString.toLowerCase + ".html"))
+      val body = template(Configuration.empty).body
+      body.trim should startWith("<a href=\"https://expresso.today\"")
+    }
+  }
+
+  "create html from @_href dsl" in {
+    val dsl =
+      """
+        |@_href("hello", "https://expresso.today", true, true)
+      """.stripMargin
+    val template: HtmlTemplate = compiler.compile(dsl, Some("templates.compiler." + Target.DEV.toString.toLowerCase + ".html"))
+    val body = template(Configuration.empty).body
+    body.trim should startWith("<a href=\"https://expresso.today\"")
   }
 }
