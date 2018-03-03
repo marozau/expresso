@@ -58,11 +58,12 @@ class NewsletterDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
     }
   }
 
-  def getById(newsletterId: Long): Future[Newsletter] = {
-    val query = sql"SELECT * FROM newsletters_get_by_id(${newsletterId})".as[Newsletter].head
+  def getById(userId: Long, newsletterId: Long): Future[Newsletter] = {
+    val query = sql"SELECT * FROM newsletters_get_by_id(${userId}, ${newsletterId})".as[Newsletter].head
     db.run(query.asTry).map {
       case Success(res) => res
       case Failure(e: PSQLException) =>
+        SqlUtils.parseException(e, AuthorizationException.throwException)
         SqlUtils.parseException(e, NewsletterNotFoundException.throwException)
         throw e
       case Failure(e: Throwable) => throw e
@@ -70,7 +71,17 @@ class NewsletterDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
   }
 
   def getByUserId(userId: Long): Future[List[Newsletter]] = {
-    val query = sql"SELECT * FROM newsletters_get_by_user(${userId})".as[Newsletter]
+    val query = sql"SELECT * FROM newsletters_get_by_user_id(${userId})".as[Newsletter]
     db.run(query).map(_.toList)
+  }
+
+  def validateName(name: String): Future[Boolean] = {
+    val query = sql"SELECT * FROM newsletters_name_validate(${name})".as[Boolean].head
+    db.run(query)
+  }
+
+  def validateNameUrl(nameUrl: String): Future[Boolean] = {
+    val query = sql"SELECT * FROM newsletters_name_url_validate(${nameUrl})".as[Boolean].head
+    db.run(query)
   }
 }

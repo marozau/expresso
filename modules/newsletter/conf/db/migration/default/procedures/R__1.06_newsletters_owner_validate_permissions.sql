@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION newsletters_validate_permissions(_user_id BIGINT, _newsletter_id BIGINT)
+CREATE OR REPLACE FUNCTION newsletters_owner_validate_permissions(_user_id BIGINT, _newsletter_id BIGINT)
   RETURNS VOID AS $$
 BEGIN
   IF NOT exists(SELECT *

@@ -9,7 +9,7 @@ CREATE OR REPLACE FUNCTION newsletters_update(
 DECLARE
   _newsletter newsletters;
 BEGIN
-  PERFORM newsletters_validate_permissions(_user_id, _newsletter_id);
+  PERFORM newsletters_owner_validate_permissions(_user_id, _newsletter_id);
 
   UPDATE newsletters
   SET

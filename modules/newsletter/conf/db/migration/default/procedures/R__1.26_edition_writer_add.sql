@@ -23,4 +23,4 @@ BEGIN
     WHERE edition_id = _edition_id AND user_id = _news_user_id;
     RETURN _edition_writer;
 END;
-$$ LANGUAGE plgpsql;
+$$ LANGUAGE plpgsql;

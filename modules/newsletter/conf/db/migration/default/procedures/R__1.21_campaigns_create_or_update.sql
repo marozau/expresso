@@ -29,7 +29,7 @@ BEGIN
 
   IF _campaign.status <> 'NEW'
   THEN
-    RAISE '<ERROR>code=INVALID_CAMPAIGN_STATUS,message=cannot update, campaign status is ''$''<ERROR>', _campaign.status;
+    RAISE '<ERROR>code=INVALID_CAMPAIGN_STATUS,message=cannot update, campaign status is ''%''<ERROR>', _campaign.status;
   END IF;
 
   INSERT INTO campaigns (edition_id, newsletter_id, preview, status, send_time, options)

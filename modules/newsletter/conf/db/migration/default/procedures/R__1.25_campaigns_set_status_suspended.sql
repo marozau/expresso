@@ -7,7 +7,7 @@ BEGIN
 
   IF _campaign.status = 'SENT' OR _campaign.status = 'NEW'
   THEN
-    RAISE '<ERROR>code=INVALID_CAMPAIGN_STATUS,message=cannot set SUSPEND status, campaign status is ''$''<ERROR>', _campaign.status;
+    RAISE '<ERROR>code=INVALID_CAMPAIGN_STATUS,message=cannot set SUSPEND status, campaign status is ''%''<ERROR>', _campaign.status;
   END IF;
 
   UPDATE campaigns
@@ -18,4 +18,4 @@ BEGIN
 
   RETURN _campaign;
 END;
-$$ LANGUAGE plgqsql;
+$$ LANGUAGE plpgsql;

@@ -1,5 +1,6 @@
 package clients
 
+import java.util
 import java.util.{Date, Properties}
 import javax.inject.{Inject, Singleton}
 
@@ -16,11 +17,31 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
   * @author im.
   */
+trait Quartz {
+  def scheduleJobBlocking(trigger: Trigger): Date
+
+  def rescheduleJobBlocking(triggerKey: TriggerKey, newTrigger: Trigger): Date
+
+  def scheduleUniqueJob(jobDetail: JobDetail, trigger: Trigger): Future[Date]
+
+  def scheduleJob(jobDetail: JobDetail, trigger: Trigger): Future[Date]
+
+  def rescheduleJob(triggerKey: TriggerKey, newTrigger: Trigger): Future[Date]
+
+  def pauseTriggers(matcher: GroupMatcher[TriggerKey]): Future[Unit]
+
+  def deleteJob(jobKey: JobKey): Future[Boolean]
+
+  def checkExists(triggerKey: TriggerKey): Future[Boolean]
+
+  def getJobKeys(matcher: GroupMatcher[JobKey]): Future[util.Set[JobKey]]
+}
+
 @Singleton
-class Quartz @Inject()(appLifecycle: ApplicationLifecycle,
-                       config: Configuration,
-                       actorSystem: ActorSystem,
-                       jobFactory: JobFactory)(implicit ec: ExecutionContext) {
+class QuartzImpl @Inject()(appLifecycle: ApplicationLifecycle,
+                           config: Configuration,
+                           actorSystem: ActorSystem,
+                           jobFactory: JobFactory)(implicit ec: ExecutionContext) extends Quartz {
 
   private val blockingExecutionContext = actorSystem.dispatchers.lookup("quartz.blocking-dispatcher")
 
@@ -48,19 +69,19 @@ class Quartz @Inject()(appLifecycle: ApplicationLifecycle,
     }
   }
 
-  def scheduleJobBlocking(trigger: Trigger): Date = {
+  override def scheduleJobBlocking(trigger: Trigger): Date = {
     scheduler.scheduleJob(trigger)
   }
 
-  def rescheduleJobBlocking(triggerKey: TriggerKey, newTrigger: Trigger): Date = {
+  override def rescheduleJobBlocking(triggerKey: TriggerKey, newTrigger: Trigger): Date = {
     scheduler.rescheduleJob(triggerKey, newTrigger)
   }
 
-  def scheduleUniqueJob(jobDetail: JobDetail, trigger: Trigger): Future[Date] = {
+  override def scheduleUniqueJob(jobDetail: JobDetail, trigger: Trigger): Future[Date] = {
     Future(scheduler.scheduleJob(jobDetail, trigger))(blockingExecutionContext)
   }
 
-  def scheduleJob(jobDetail: JobDetail, trigger: Trigger): Future[Date] = {
+  override def scheduleJob(jobDetail: JobDetail, trigger: Trigger): Future[Date] = {
     checkExists(trigger.getKey)
       .flatMap { exists =>
         if (exists) rescheduleJob(trigger.getKey, trigger)
@@ -68,29 +89,29 @@ class Quartz @Inject()(appLifecycle: ApplicationLifecycle,
       }
   }
 
-  def rescheduleJob(triggerKey: TriggerKey, newTrigger: Trigger): Future[Date] = {
+  override def rescheduleJob(triggerKey: TriggerKey, newTrigger: Trigger): Future[Date] = {
     Future(scheduler.rescheduleJob(triggerKey, newTrigger))(blockingExecutionContext)
   }
 
-  def pauseTriggers(matcher: GroupMatcher[TriggerKey]): Future[Unit] = {
+  override def pauseTriggers(matcher: GroupMatcher[TriggerKey]): Future[Unit] = {
     Future(scheduler.pauseTriggers(matcher))(blockingExecutionContext)
   }
 
-  def deleteJob(jobKey: JobKey): Future[Boolean] = {
+  override def deleteJob(jobKey: JobKey): Future[Boolean] = {
     Future(scheduler.deleteJob(jobKey))(blockingExecutionContext)
   }
 
-  def checkExists(triggerKey: TriggerKey): Future[Boolean] = {
+  override def checkExists(triggerKey: TriggerKey): Future[Boolean] = {
     Future(scheduler.checkExists(triggerKey))(blockingExecutionContext)
   }
 
-  def getJobKeys(matcher: GroupMatcher[JobKey]) = {
+  override def getJobKeys(matcher: GroupMatcher[JobKey]): Future[util.Set[JobKey]] = {
     Future(scheduler.getJobKeys(matcher))(blockingExecutionContext)
   }
 }
 
 @Singleton
-class GuiceJobFactory @Inject() (injector: Injector) extends JobFactory {
+class GuiceJobFactory @Inject()(injector: Injector) extends JobFactory {
   final val log = Logger(getClass)
 
   @throws[SchedulerException]
@@ -110,4 +131,3 @@ class GuiceJobFactory @Inject() (injector: Injector) extends JobFactory {
     }
   }
 }
-

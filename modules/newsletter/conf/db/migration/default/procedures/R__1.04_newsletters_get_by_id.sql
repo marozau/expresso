@@ -14,5 +14,7 @@ BEGIN
   THEN
     RAISE '<ERROR>code=NEWSLETTER_NOT_FOUND,message=invalid newsletter_id ''%''<ERROR>', _newsletter_id;
   END IF;
+
+  RETURN _newsletter;
 END;
 $$ LANGUAGE plpgsql STABLE;

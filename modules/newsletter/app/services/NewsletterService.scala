@@ -28,11 +28,15 @@ class NewsletterService @Inject()(newsletterDao: NewsletterDao)(implicit ec: Exe
     newsletterDao.update(userId, newsletterId, locale.map(_.code), logoUrl.map(_.toString), avatarUrl.map(_.toString), options) //TODO: NewsletterUpdated event
   }
 
-  def getById(newsletterId: Long) = {
-    newsletterDao.getById(newsletterId)
+  def getById(userId: Long, newsletterId: Long) = {
+    newsletterDao.getById(userId, newsletterId)
   }
 
   def getByUserId(userId: Long) = {
     newsletterDao.getByUserId(userId)
+  }
+
+  def validateName(name: String) = {
+    newsletterDao.validateName(name)
   }
 }

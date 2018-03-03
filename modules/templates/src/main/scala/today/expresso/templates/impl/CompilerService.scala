@@ -15,42 +15,14 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
   * @author im.
   */
-class CompilerCache(compiler: HtmlCompiler)(implicit ec: ExecutionContext) {
-
-  import com.github.benmanes.caffeine.cache.Caffeine
-
-  import scalacache._
-  import caffeine._
-  import memoization._
-  import scala.concurrent.duration._
-
-  private val underlyingCaffeineCache = Caffeine.newBuilder().maximumSize(100000L).build[String, Object]
-  private implicit val scalaCache: ScalaCache[NoSerialization] = ScalaCache(CaffeineCache(underlyingCaffeineCache))
-
-  def compile(tags: String, target: Target.Value): Future[HtmlTemplate] = memoize(ttl(target)) {
-    compiler.compileAsync(tags, Some("templates.compiler." + target.toString.toLowerCase + ".html"))
-  }
-
-  private def ttl(target: Target.Value) = target match {
-    case Target.DEV => 1.hour
-    case _ => 2.days
-  }
-}
-
 @Singleton
-class CompilerService @Inject()(quill: QuillParser, compiler: HtmlCompiler)(implicit ec: ExecutionContext) {
+class CompilerService @Inject()(quill: QuillParser, compiler: CompilerCache)(implicit ec: ExecutionContext) {
 
   private val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
 
-  private val cache = new CompilerCache(compiler)
-
-  private def compile(tags: String, target: Target.Value): Future[HtmlTemplate] = {
-    cache.compile(tags, target)
-  }
-
   def doPost(post: Post, target: Target.Value): Future[PostTemplate] = {
     logger.info(s"compiling post, id=${post.id}, userId=${post.userId}, title=${post.title}")
-    compile(quill.jsonToTagStr(post.body), target)
+    compiler.compile(quill.jsonToTagStr(post.body), target)
       .map(html => PostTemplate(post.id, post.url, post.title, post.annotation, html, Configuration.empty, target)) //TODO: Configuration.from(post.options)
   }
 
@@ -73,8 +45,8 @@ class CompilerService @Inject()(quill: QuillParser, compiler: HtmlCompiler)(impl
   def doEdition(edition: Edition, target: Target.Value): Future[EditionTemplate] = {
     logger.info(s"compiling edition, id=${edition.id}, newsletterId=${edition.newsletter.name}, title=${edition.title}")
     for {
-      header <- if (edition.header.isDefined) compile(quill.jsonToTagStr(edition.header.get), target).map(Some(_)) else Future(None)
-      footer <- if (edition.footer.isDefined) compile(quill.jsonToTagStr(edition.footer.get), target).map(Some(_)) else Future(None)
+      header <- if (edition.header.isDefined) compiler.compile(quill.jsonToTagStr(edition.header.get), target).map(Some(_)) else Future(None)
+      footer <- if (edition.footer.isDefined) compiler.compile(quill.jsonToTagStr(edition.footer.get), target).map(Some(_)) else Future(None)
       posts <- doPosts(edition.posts, target)
     } yield EditionTemplate(edition.id, edition.url, edition.newsletter, edition.date, edition.title, posts, header, footer, Configuration.empty, target) //TODO: Configuration.from(edition.options)
   }

@@ -11,9 +11,6 @@ CREATE TABLE posts (
   modified_timestamp TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE UNIQUE INDEX posts_title_url_idx
-  ON posts (edition_id, title_url);
-
 CREATE UNIQUE INDEX posts_edition_order_unique_idx
   ON posts (edition_id, edition_order);
 

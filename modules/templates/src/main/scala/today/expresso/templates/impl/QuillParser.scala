@@ -42,14 +42,14 @@ object QuillParser {
     override def toTag: String = s"""@_text(${escape(text)}, $bold, $italic)"""
   }
 
-  def stringCast(value: Option[String]): String = value.fold("None")(v => s"""Some("$v")""")
+  def stringOptionCast(value: Option[String]): String = value.fold("None")(v => s"""Some("$v")""")
 
   case class HrefTag(text: String, link: String, bold: Boolean, italic: Boolean) extends Tag {
     override def toTag: String = s"""@_href(${escape(text)}, "$link", $bold, $italic)"""
   }
 
   case class ImageTag(img: String, link: Option[String]) extends Tag {
-    override def toTag: String = s"""@_image("$img",${stringCast(link)})"""
+    override def toTag: String = s"""@_image("$img",${stringOptionCast(link)})"""
   }
 
 }

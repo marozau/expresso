@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION recipients_get_by_newsletter_id(_newsletter_id BIGINT
 BEGIN
   IF _user_id NOTNULL
   THEN
-    PERFORM newsletters_validate_permissions(_user_id, _newsletter_id);
+    PERFORM newsletters_owner_validate_permissions(_user_id, _newsletter_id);
   END IF;
 
   RETURN QUERY SELECT *

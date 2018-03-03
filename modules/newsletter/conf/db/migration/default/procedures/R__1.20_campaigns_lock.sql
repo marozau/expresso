@@ -15,4 +15,4 @@ BEGIN
 
   RETURN _campaign;
 END;
-$$ LANGUAGE plgqsql STABLE;
+$$ LANGUAGE plpgsql STABLE;
