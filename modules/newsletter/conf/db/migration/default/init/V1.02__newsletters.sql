@@ -2,7 +2,7 @@ CREATE TABLE newsletters (
   id                 BIGSERIAL PRIMARY KEY,
   user_id            BIGINT      NOT NULL,
   name               TEXT        NOT NULL,
-  locale             TEXT        NOT NULL,
+  locale             LOCALE      NOT NULL,
   logo_url           TEXT,
   avatar_url         TEXT,
   options            JSONB,

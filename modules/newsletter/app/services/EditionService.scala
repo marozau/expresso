@@ -32,6 +32,8 @@ class EditionService @Inject()(editionDao: EditionDao)(implicit ec: ExecutionCon
     editionDao.update(userId, editionId, date, url.map(_.toString), title, header, footer, options) //TODO: NewsletterUpdated event
   }
 
+  def removeUrl(userId: Long, editionId: Long) = editionDao.removeUrl(userId, editionId)
+
   def getById(userId: Long, id: Long) = editionDao.getById(userId, id)
 
   def getByNewsletterId(userId: Long, newsletterId: Long) = editionDao.getByNewsletterId(userId, newsletterId)

@@ -1,5 +1,6 @@
 CREATE TYPE RECIPIENT_STATUS AS ENUM ('PENDING', 'SUBSCRIBED', 'UNSUBSCRIBED', 'REMOVED', 'CLEANED', 'SPAM');
 
+-- TODO: add locale for multilang newsletters
 CREATE TABLE recipients (
   id                 UUID PRIMARY KEY          DEFAULT uuid_generate_v4(),
   user_id            BIGINT           NOT NULL,

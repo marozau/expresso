@@ -1,22 +1,18 @@
 package models.daos
 
-import java.net.URL
 import javax.inject.{Inject, Singleton}
 
 import db.Repository
 import exceptions.{AuthorizationException, NewsletterAlreadyExistException, NewsletterNotFoundException}
-import models.Newsletter
-import models.components.NewsletterComponent
-import org.postgresql.util.PSQLException
+import models.components.{CommonComponent, NewsletterComponent}
+import models.{Locale, Newsletter}
 import play.api.db.slick.DatabaseConfigProvider
-import play.api.i18n.Lang
 import play.api.libs.json.JsValue
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import utils.SqlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 /**
   * @author im.
@@ -30,43 +26,37 @@ class NewsletterDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
   import api._
   import dbConfig._
 
-  def create(userId: Long, name: String, locale: String): Future[Newsletter] = {
+  def create(userId: Long, name: String, locale: Locale.Value): Future[Newsletter] = {
     val query = sql"SELECT * FROM newsletters_create(${userId}, ${name}, ${locale})".as[Newsletter].head
     db.run(query.transactionally.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, NewsletterAlreadyExistException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+      SqlUtils.tryException(
+        NewsletterAlreadyExistException.throwException
+      )
     }
   }
 
   def update(userId: Long,
              newsletterId: Long,
-             locale: Option[String],
+             locale: Option[Locale.Value],
              logoUrl: Option[String],
              avatarUrl: Option[String],
              options: Option[JsValue]): Future[Newsletter] = {
     val query = sql"SELECT * FROM newsletters_update(${userId}, ${newsletterId}, ${locale}, ${logoUrl}, ${avatarUrl}, ${options})".as[Newsletter].head
     db.run(query.transactionally.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, AuthorizationException.throwException)
-        SqlUtils.parseException(e, NewsletterAlreadyExistException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+      SqlUtils.tryException(
+        AuthorizationException.throwException,
+        NewsletterAlreadyExistException.throwException,
+      )
     }
   }
 
   def getById(userId: Long, newsletterId: Long): Future[Newsletter] = {
     val query = sql"SELECT * FROM newsletters_get_by_id(${userId}, ${newsletterId})".as[Newsletter].head
     db.run(query.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, AuthorizationException.throwException)
-        SqlUtils.parseException(e, NewsletterNotFoundException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+      SqlUtils.tryException(
+        AuthorizationException.throwException,
+        NewsletterNotFoundException.throwException
+      )
     }
   }
 

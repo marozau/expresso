@@ -1,7 +1,7 @@
 CREATE OR REPLACE FUNCTION newsletters_update(
   _user_id       BIGINT,
   _newsletter_id BIGINT,
-  _locale        TEXT,
+  _locale        LOCALE,
   _logo_url      TEXT,
   _avatar_url    TEXT,
   _options       JSONB)

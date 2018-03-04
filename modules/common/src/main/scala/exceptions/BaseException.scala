@@ -19,7 +19,7 @@ object BaseException {
     val INVALID_RECIPIENT_STATUS = Value
 
     val NEWSLETTER_NOT_FOUND = Value
-    val NEWSLETTER_ALREADY_EXIST = Value
+    val NEWSLETTER_ALREADY_EXISTS = Value
     val NEWSLETTER_NAME_URL_ALREADY_EXIST = Value
     val ARCHIVE_NOT_FOUND = Value
 

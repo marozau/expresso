@@ -1,7 +1,7 @@
 CREATE OR REPLACE FUNCTION newsletters_create(
   _user_id BIGINT,
   _name    TEXT,
-  _locale  TEXT)
+  _locale  LOCALE)
   RETURNS newsletters AS $$
 DECLARE
   _newsletter newsletters;

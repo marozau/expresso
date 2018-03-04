@@ -3,8 +3,8 @@ package services
 import java.net.URL
 import javax.inject.{Inject, Singleton}
 
+import models.Locale
 import models.daos.NewsletterDao
-import play.api.i18n.Lang
 import play.api.libs.json.JsValue
 
 import scala.concurrent.ExecutionContext
@@ -15,17 +15,17 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class NewsletterService @Inject()(newsletterDao: NewsletterDao)(implicit ec: ExecutionContext) {
 
-  def create(userId: Long, name: String, locale: Lang) = {
-    newsletterDao.create(userId, name, locale.code) //TODO: NewsletterCreated event
+  def create(userId: Long, name: String, locale: Locale.Value) = {
+    newsletterDao.create(userId, name, locale) //TODO: NewsletterCreated event
   }
 
   def update(userId: Long,
              newsletterId: Long,
-             locale: Option[Lang],
+             locale: Option[Locale.Value],
              logoUrl: Option[URL],
              avatarUrl: Option[URL],
              options: Option[JsValue]) = {
-    newsletterDao.update(userId, newsletterId, locale.map(_.code), logoUrl.map(_.toString), avatarUrl.map(_.toString), options) //TODO: NewsletterUpdated event
+    newsletterDao.update(userId, newsletterId, locale, logoUrl.map(_.toString), avatarUrl.map(_.toString), options) //TODO: NewsletterUpdated event
   }
 
   def getById(userId: Long, newsletterId: Long) = {

@@ -16,6 +16,12 @@ import play.api.inject.guice.GuiceApplicationBuilder
   */
 //https://www.playframework.com/documentation/2.6.x/ScalaTestingWithGuice
 
+object TestContext {
+
+  val user = 1L
+
+}
+
 trait TestContext extends PlaySpec
   with GuiceOneAppPerSuite
   with BeforeAndAfterEach

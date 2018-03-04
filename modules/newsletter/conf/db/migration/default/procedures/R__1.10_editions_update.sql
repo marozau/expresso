@@ -1,7 +1,7 @@
 CREATE OR REPLACE FUNCTION editions_update(
   _user_id    BIGINT,
   _edition_id BIGINT,
-  _date       TEXT,
+  _date       DATE,
   _url        TEXT,
   _title      TEXT,
   _header     JSONB,

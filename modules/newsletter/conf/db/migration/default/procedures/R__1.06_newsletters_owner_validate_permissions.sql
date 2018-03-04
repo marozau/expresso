@@ -5,7 +5,7 @@ BEGIN
                 FROM newsletters
                 WHERE user_id = _user_id AND id = _newsletter_id)
   THEN
-    RAISE '<ERROR>code=AUTHORIZATION,message=user does not have editor permissions<ERROR>';
+    RAISE '<ERROR>code=AUTHORIZATION,message=user is not newsletter owner<ERROR>';
   END IF;
 END;
 $$ LANGUAGE plpgsql STABLE;

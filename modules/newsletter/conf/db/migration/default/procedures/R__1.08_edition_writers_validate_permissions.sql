@@ -10,7 +10,7 @@ BEGIN
     RETURN;
   END IF;
 
-  SELECT _newsletter_id
+  SELECT newsletter_id
   INTO _newsletter_id
   FROM editions
   WHERE id = _edition_id;

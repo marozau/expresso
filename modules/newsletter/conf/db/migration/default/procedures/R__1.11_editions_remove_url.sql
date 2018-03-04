@@ -1,7 +1,7 @@
 CREATE OR REPLACE FUNCTION editions_remove_url(_user_id BIGINT, _edition_id BIGINT)
-  RETURNS EDITIONS AS $$
+  RETURNS editions AS $$
 DECLARE
-  _edition EDITIONS;
+  _edition editions;
 BEGIN
   PERFORM edition_writers_validate_permissions(_user_id, _edition_id);
 

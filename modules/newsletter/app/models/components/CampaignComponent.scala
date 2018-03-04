@@ -12,7 +12,7 @@ trait CampaignComponent {
 
   import api._
 
-  implicit val campaignStatusMapper = createEnumJdbcType("campaign_status", Campaign.Status)
+  implicit val campaignStatusMapper = createEnumJdbcType("CAMPAIGN_STATUS", Campaign.Status)
 
   implicit val campaignGetResult: GetResult[Campaign] = GetResult { r =>
     Campaign(

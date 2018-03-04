@@ -14,7 +14,7 @@ import play.api.i18n.Lang
 case class Newsletter(id: Long,
                       userId: Long,
                       name: String,
-                      locale: Lang,
+                      locale: Locale.Value,
                       logoUrl: Option[URL],
                       avatarUrl: Option[URL],
                       options: Option[JsValue],

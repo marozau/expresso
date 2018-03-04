@@ -33,12 +33,10 @@ class EditionDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(impli
   def create(userId: Long, newsletterId: Long, date: LocalDate): Future[Edition] = {
     val query = sql"SELECT * FROM editions_create(${userId}, ${newsletterId}, ${date})".as[Edition].head
     db.run(query.transactionally.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, NewsletterNotFoundException.throwException)
-        SqlUtils.parseException(e, EditionAlreadyExistsException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+      SqlUtils.tryException(
+        NewsletterNotFoundException.throwException,
+        EditionAlreadyExistsException.throwException
+      )
     }
   }
 
@@ -52,24 +50,30 @@ class EditionDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(impli
              options: Option[JsValue]): Future[Edition] = {
     val query = sql"SELECT * FROM editions_update(${userId}, ${editionId}, ${date}, ${url}, ${title}, ${header}, ${footer}, ${options})".as[Edition].head
     db.run(query.transactionally.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, AuthorizationException.throwException)
-        SqlUtils.parseException(e, EditionNotFoundException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+      SqlUtils.tryException(
+        AuthorizationException.throwException,
+        EditionNotFoundException.throwException
+      )
+    }
+  }
+
+  def removeUrl(userId: Long, editionId: Long): Future[Edition] = {
+    val query = sql"SELECT * FROM editions_remove_url(${userId}, ${editionId})".as[Edition].head
+    db.run(query.asTry).map {
+      SqlUtils.tryException(
+        AuthorizationException.throwException,
+        EditionNotFoundException.throwException
+      )
     }
   }
 
   def getById(userId: Long, editionId: Long): Future[Edition] = {
     val query = sql"SELECT * FROM editions_get_by_id(${userId}, ${editionId})".as[Edition].head
     db.run(query.asTry).map {
-      case Success(res) => res
-      case Failure(e: PSQLException) =>
-        SqlUtils.parseException(e, AuthorizationException.throwException)
-        SqlUtils.parseException(e, EditionNotFoundException.throwException)
-        throw e
-      case Failure(e: Throwable) => throw e
+      SqlUtils.tryException(
+        AuthorizationException.throwException,
+        EditionNotFoundException.throwException
+      )
     }
   }
 

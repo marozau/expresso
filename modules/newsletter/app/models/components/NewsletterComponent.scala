@@ -10,7 +10,7 @@ import slick.jdbc.GetResult
 /**
   * @author im.
   */
-trait NewsletterComponent {
+trait NewsletterComponent extends CommonComponent {
   this: Repository =>
 
   import api._
@@ -20,7 +20,7 @@ trait NewsletterComponent {
       r.nextLong(),
       r.nextLong(),
       r.nextString(),
-      Lang(r.nextString()),
+      localeMapper.getValue(r.rs, r.skip.currentPos),
       r.nextStringOption().map(new URL(_)),
       r.nextStringOption().map(new URL(_)),
       Option(playJsonTypeMapper.getValue(r.rs, r.skip.currentPos)),
