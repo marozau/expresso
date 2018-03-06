@@ -3,25 +3,29 @@ package services
 import java.time.Instant
 import javax.inject.{Inject, Singleton}
 
+import models.Campaign
 import models.daos.CampaignDao
 import play.api.libs.json.JsValue
+import utils.Tx
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * @author im.
   */
 @Singleton
-class CampaignService @Inject()(campaignDao: CampaignDao)(implicit ec: ExecutionContext) {
+class CampaignService @Inject()(campaignDao: CampaignDao, campaignSchedulerService: CampaignSchedulerService)(implicit ec: ExecutionContext) {
 
-  def getByEditionId(editionId: Long) = campaignDao.getByEditionId(editionId)
+  implicit val tx: Tx[Campaign] = c => Future.successful(c)
+
+  def getByEditionId(userId: Long, editionId: Long) = campaignDao.getByEditionId(userId, editionId)
 
   def createOrUpdate(userId: Long, editionId: Long, sendTime: Instant, preview: Option[String], options: Option[JsValue]) = {
     campaignDao.createOrUpdate(userId, editionId, sendTime, preview, options) //TODO: event
   }
 
-  def setPendingStatus(editionId: Long) = {
-    campaignDao.setPendingStatus(editionId) //TODO: event
+  def setPendingStatus(userId: Long, editionId: Long) = {
+    campaignDao.setPendingStatus(userId, editionId) //TODO: event
   }
 
   def setSendingStatus(editionId: Long) = {
@@ -32,7 +36,26 @@ class CampaignService @Inject()(campaignDao: CampaignDao)(implicit ec: Execution
     campaignDao.setSentStatus(editionId) //TODO: event
   }
 
-  def setSuspendedStatus(editionId: Long) = {
-    campaignDao.setSuspendedStatus(editionId) //TODO: event
+  def setSuspendedStatus(userId: Long, editionId: Long) = {
+    campaignDao.setSuspendedStatus(userId, editionId) //TODO: event
+  }
+
+  def scheduleCampaign(userId: Long, editionId: Long) = {
+    campaignDao.setPendingStatus(userId, editionId) { campaign =>
+      campaignSchedulerService.scheduleCampaign(userId, campaign)
+    }
+  }
+
+  def scheduleEdition(editionId: Long) = {
+    campaignDao.setSendingStatus(editionId) { campaign =>
+      campaignSchedulerService.scheduleEdition(campaign)
+    }
+  }
+
+  def suspendCampaign() = {
+  }
+
+  def removeCampaign() = {
+
   }
 }

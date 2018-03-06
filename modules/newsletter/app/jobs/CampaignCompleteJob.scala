@@ -24,7 +24,7 @@ object CampaignCompleteJob {
 
   def group = "campaign"
 
-  def identity(campaign: Campaign) = s"$group-complete-${campaign.editionId}"
+  def identity(editionId: Long) = s"$group-complete-$editionId"
 
   def buildTrigger(campaign: Campaign): Trigger = {
     // Prefef.long2Long is nedded to avoid error: the result type of an implicit conversion must be more specific than AnyRef
@@ -35,7 +35,7 @@ object CampaignCompleteJob {
     val jobData = JobDataMapSupport.newJobDataMap(jobDataMap.asJava)
 
     TriggerBuilder.newTrigger()
-      .withIdentity(identity(campaign), group)
+      .withIdentity(identity(campaign.editionId), group)
       .usingJobData(jobData)
       .startAt(Date.from(campaign.sendTime.plus(5, ChronoUnit.MINUTES)))
       .build()
@@ -43,7 +43,7 @@ object CampaignCompleteJob {
 
   def buildJob(campaign: Campaign) = {
     JobBuilder.newJob(classOf[CampaignCompleteJob])
-      .withIdentity(identity(campaign), group)
+      .withIdentity(identity(campaign.editionId), group)
       .requestRecovery
       .build
   }
@@ -65,9 +65,8 @@ class CampaignCompleteJob @Inject()(quartz: Quartz, campaignService: CampaignSer
       Await.result(campaignService.setSentStatus(editionId), Duration.Inf)
     } else {
       logger.warn(s"reschedule CampaignCompleteJob, editionId=$editionId, jobKeys.size=${jobKeys.size()}")
-      val campaign = Await.result(campaignService.getByEditionId(editionId), Duration.Inf)
       val trigger = TriggerBuilder.newTrigger()
-        .withIdentity(identity(campaign), group)
+        .withIdentity(identity(editionId), group)
         .usingJobData(data)
         .startAt(Date.from(Instant.now().plus(1, ChronoUnit.MINUTES)))
         .build()

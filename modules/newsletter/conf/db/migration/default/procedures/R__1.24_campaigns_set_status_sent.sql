@@ -1,13 +1,13 @@
 CREATE OR REPLACE FUNCTION campaigns_set_status_sent(_edition_id BIGINT)
-  RETURNS CAMPAIGNS AS $$
+  RETURNS campaigns AS $$
 DECLARE
-  _campaign CAMPAIGNS;
+  _campaign campaigns;
 BEGIN
   _campaign = campaigns_lock(_edition_id);
 
   IF _campaign.status <> 'SENDING'
   THEN
-    RAISE '<ERROR>code=INVALID_CAMPAIGN_STATUS,message=cannot set SENT status, campaign status is ''%''<ERROR>', _campaign.status;
+    RAISE '<ERROR>code=INVALID_CAMPAIGN_STATUS,message=cannot set SENT status - campaign status is ''%''<ERROR>', _campaign.status;
   END IF;
 
   UPDATE campaigns

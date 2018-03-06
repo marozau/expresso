@@ -14,8 +14,8 @@ import scala.collection.immutable.HashMap
 /**
   * @author im.
   */
-//TODO: binding
-class UrlUtils(configuration: Configuration) {
+@Singleton
+class UrlUtils @Inject() (configuration: Configuration) {
 
   private val url = configuration.get[String]("domain.url")
   private val secure = configuration.get[Boolean]("domain.secure")

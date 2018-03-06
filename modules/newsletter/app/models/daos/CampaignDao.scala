@@ -11,7 +11,7 @@ import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json.JsValue
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-import utils.SqlUtils
+import utils.{SqlUtils, Tx}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -29,8 +29,8 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
   import api._
   import dbConfig._
 
-  def getByEditionId(editionId: Long): Future[Campaign] = {
-    val query = sql"SELECT * FROM campaigns_get_by_edition_id(${editionId})".as[Campaign].head
+  def getByEditionId(userId: Long, editionId: Long): Future[Campaign] = {
+    val query = sql"SELECT * FROM campaigns_get_by_edition_id(${userId}, ${editionId})".as[Campaign].head
     db.run(query.asTry).map {
       SqlUtils.tryException(CampaignNotFoundException.throwException)
     }
@@ -44,43 +44,57 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
     val query = sql"SELECT * FROM campaigns_create_or_update(${userId}, ${editionId}, ${sendTime}, ${preview}, ${options})".as[Campaign].head
     db.run(query.transactionally.asTry).map{
       SqlUtils.tryException(
+        AuthorizationException.throwException,
         EditionNotFoundException.throwException,
         InvalidCampaignStatusException.throwException,
         InvalidCampaignScheduleException.throwException)
     }
   }
 
-  def setPendingStatus(editionId: Long): Future[Campaign] = {
-    val query = sql"SELECT * FROM campaigns_set_status_pending(${editionId})".as[Campaign].head
+  def setPendingStatus(userId: Long, editionId: Long)(implicit tx: Tx[Campaign]): Future[Campaign] = {
+    val query = sql"SELECT * FROM campaigns_set_status_pending(${userId}, ${editionId})".as[Campaign].head
+      .flatMap { campaign =>
+        DBIO.from(tx.tx(campaign)).map(_ => campaign)
+      }
     db.run(query.transactionally.asTry).map{
       SqlUtils.tryException(
+        AuthorizationException.throwException,
         CampaignNotFoundException.throwException,
         InvalidCampaignStatusException.throwException)
     }
   }
 
-  def setSendingStatus(editionId: Long) = {
+  def setSendingStatus(editionId: Long)(implicit tx: Tx[Campaign]) = {
     val query = sql"SELECT * FROM campaigns_set_status_sending(${editionId})".as[Campaign].head
+      .flatMap { campaign =>
+        DBIO.from(tx.tx(campaign)).map(_ => campaign)
+      }
     db.run(query.transactionally.asTry).map{
       SqlUtils.tryException(
+        AuthorizationException.throwException,
         CampaignNotFoundException.throwException,
         InvalidCampaignStatusException.throwException)
     }
   }
 
-  def setSentStatus(editionId: Long) ={
+  def setSentStatus(editionId: Long)(implicit tx: Tx[Campaign]) = {
     val query = sql"SELECT * FROM campaigns_set_status_sent(${editionId})".as[Campaign].head
+      .flatMap { campaign =>
+        DBIO.from(tx.tx(campaign)).map(_ => campaign)
+      }
     db.run(query.transactionally.asTry).map{
       SqlUtils.tryException(
+        AuthorizationException.throwException,
         CampaignNotFoundException.throwException,
         InvalidCampaignStatusException.throwException)
     }
   }
 
-  def setSuspendedStatus(editionId: Long) ={
-    val query = sql"SELECT * FROM campaigns_set_status_suspended(${editionId})".as[Campaign].head
+  def setSuspendedStatus(userId: Long, editionId: Long) ={
+    val query = sql"SELECT * FROM campaigns_set_status_suspended(${userId}, ${editionId})".as[Campaign].head
     db.run(query.transactionally.asTry).map{
       SqlUtils.tryException(
+        AuthorizationException.throwException,
         CampaignNotFoundException.throwException,
         InvalidCampaignStatusException.throwException)
     }

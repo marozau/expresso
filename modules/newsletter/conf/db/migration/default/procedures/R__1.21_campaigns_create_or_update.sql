@@ -10,6 +10,7 @@ DECLARE
   _edition  editions;
   _campaign campaigns;
 BEGIN
+
   IF _send_time - INTERVAL '15 minutes' < CURRENT_TIMESTAMP
   THEN
     RAISE '<ERROR>code=INVALID_CAMPAIGN_SCHEDULE,message=send timestamp must at leas 15 minutes in the future<ERROR>';
@@ -20,6 +21,8 @@ BEGIN
   FROM editions
   WHERE id = _edition_id;
 
+  PERFORM newsletters_owner_validate_permissions(_user_id, _edition.newsletter_id);
+
   IF NOT FOUND
   THEN
     RAISE '<ERROR>code=EDITION_NOT_FOUND,message=edition not found with such id ''%''<ERROR>', _edition_id;
@@ -29,16 +32,16 @@ BEGIN
 
   IF _campaign.status <> 'NEW'
   THEN
-    RAISE '<ERROR>code=INVALID_CAMPAIGN_STATUS,message=cannot update, campaign status is ''%''<ERROR>', _campaign.status;
+    RAISE '<ERROR>code=INVALID_CAMPAIGN_STATUS,message=cannot update - campaign status is ''%''<ERROR>', _campaign.status;
   END IF;
 
-  INSERT INTO campaigns (edition_id, newsletter_id, preview, status, send_time, options)
-  VALUES (_edition_id, _edition.newsletter_id, _preview, _send_time, 'NEW', _options)
+  INSERT INTO campaigns (edition_id, newsletter_id, send_time, status, preview, options)
+  VALUES (_edition_id, _edition.newsletter_id, _send_time, 'NEW', _preview, _options)
   ON CONFLICT (edition_id)
     DO UPDATE
-      SET preview = coalesce(_preview, preview),
-        send_time = coalesce(_send_time, send_time),
-        options   = coalesce(_options, options)
+      SET preview = coalesce(_preview, campaigns.preview),
+        send_time = coalesce(_send_time, campaigns.send_time),
+        options   = coalesce(_options, campaigns.options)
   RETURNING *
     INTO _campaign;
 
