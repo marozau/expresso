@@ -3,7 +3,7 @@ package models.components
 import com.github.tminglei.slickpg.utils.PlainSQLUtils
 import db.Repository
 import models.Recipient
-import slick.jdbc.{GetResult, SetParameter}
+import slick.jdbc.{GetResult, JdbcType, SetParameter}
 
 /**
   * @author im.
@@ -13,13 +13,13 @@ trait RecipientComponent {
 
   import api._
 
-  implicit val recipientStatusTypeMapper = createEnumJdbcType("recipient_status", Recipient.Status)
-  implicit val recipientStatusListTypeMapper = createEnumListJdbcType("recipient_status", Recipient.Status)
-  implicit val recipientStatusMethodBuilder = createEnumColumnExtensionMethodsBuilder(Recipient.Status)
-  implicit val recipientStatusOptionMethodBuilder = createEnumOptionColumnExtensionMethodsBuilder(Recipient.Status)
+  implicit val recipientStatusTypeMapper: JdbcType[Recipient.Status.Value] = createEnumJdbcType("RECIPIENT_STATUS", Recipient.Status)
+  implicit val recipientStatusListTypeMapper: JdbcType[List[Recipient.Status.Value]] = createEnumListJdbcType("RECIPIENT_STATUS", Recipient.Status)
+  implicit val recipientStatusMethodBuilder: api.Rep[Recipient.Status.Value] => EnumColumnExtensionMethods[Recipient.Status.Value, Recipient.Status.Value] = createEnumColumnExtensionMethodsBuilder(Recipient.Status)
+  implicit val recipientStatusOptionMethodBuilder: api.Rep[Option[Recipient.Status.Value]] => EnumColumnExtensionMethods[Recipient.Status.Value, Option[Recipient.Status.Value]] = createEnumOptionColumnExtensionMethodsBuilder(Recipient.Status)
 
-  implicit val recipientStatusSetParameter = PlainSQLUtils.mkSetParameter[Recipient.Status.Value]("recipient_status")
-  implicit val recipientStatusOptionSetParameter = PlainSQLUtils.mkSetParameter[Option[Recipient.Status.Value]]("recipient_status")
+  implicit val recipientStatusSetParameter: SetParameter[Recipient.Status.Value] = PlainSQLUtils.mkSetParameter[Recipient.Status.Value]("RECIPIENT_STATUS")
+  implicit val recipientStatusOptionSetParameter: SetParameter[Option[Recipient.Status.Value]] = PlainSQLUtils.mkOptionSetParameter[Recipient.Status.Value]("RECIPIENT_STATUS")
 
   implicit val recipientGetResult: GetResult[Recipient] = GetResult { r =>
     Recipient(

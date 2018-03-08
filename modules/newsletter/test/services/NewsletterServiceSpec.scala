@@ -23,8 +23,8 @@ class NewsletterServiceSpec extends TestContext {
 
     "create newsletter" in {
 
-      whenReady(newsletterService.create(user, "test", Locale.en)) { newsletter =>
-        newsletter.userId mustBe user
+      whenReady(newsletterService.create(userId, "test", Locale.en)) { newsletter =>
+        newsletter.userId mustBe userId
         newsletter.name mustBe "test"
         newsletter.locale mustBe Locale.en
         newsletter.logoUrl mustBe None
@@ -34,8 +34,8 @@ class NewsletterServiceSpec extends TestContext {
     }
 
     "don't create newsletter duplicate" in {
-      Await.result(newsletterService.create(user, "test", Locale.en), 5.seconds)
-      whenReady(newsletterService.create(user, "test", Locale.en).failed) { error =>
+      Await.result(newsletterService.create(userId, "test", Locale.en), 5.seconds)
+      whenReady(newsletterService.create(userId, "test", Locale.en).failed) { error =>
         error mustBe an[NewsletterAlreadyExistException]
       }
       whenReady(newsletterService.create(2, "test", Locale.en).failed) { error =>
@@ -48,10 +48,10 @@ class NewsletterServiceSpec extends TestContext {
 
     "update newsletter" in {
       whenReady(
-        newsletterService.create(user, "test", Locale.en)
+        newsletterService.create(userId, "test", Locale.en)
           .flatMap { newsletter =>
             newsletterService.update(
-              user,
+              userId,
               newsletter.id,
               Some(Locale.ru),
               Some(new URL("http://logo")),
@@ -59,7 +59,7 @@ class NewsletterServiceSpec extends TestContext {
               None)
           }
       ) { newsletter =>
-        newsletter.userId mustBe user
+        newsletter.userId mustBe userId
         newsletter.name mustBe "test"
         newsletter.locale mustBe Locale.ru
         newsletter.logoUrl mustBe Some(new URL("http://logo"))
@@ -70,12 +70,12 @@ class NewsletterServiceSpec extends TestContext {
 
     "get newsletter by id" in {
       whenReady(
-        newsletterService.create(user, "test", Locale.en)
+        newsletterService.create(userId, "test", Locale.en)
           .flatMap { newsletter =>
-            newsletterService.getById(user, newsletter.id)
+            newsletterService.getById(userId, newsletter.id)
           }
       ) { newsletter =>
-        newsletter.userId mustBe user
+        newsletter.userId mustBe userId
         newsletter.name mustBe "test"
         newsletter.locale mustBe Locale.en
         newsletter.logoUrl mustBe None
@@ -86,10 +86,10 @@ class NewsletterServiceSpec extends TestContext {
 
     "get by user id" in {
       whenReady(
-        newsletterService.create(user, "test", Locale.en)
-          .flatMap(_ => newsletterService.create(user, "test2", Locale.en))
+        newsletterService.create(userId, "test", Locale.en)
+          .flatMap(_ => newsletterService.create(userId, "test2", Locale.en))
           .flatMap { _ =>
-            newsletterService.getByUserId(user)
+            newsletterService.getByUserId(userId)
           }
       ) { newsletters =>
         newsletters.size mustBe 2
@@ -97,7 +97,7 @@ class NewsletterServiceSpec extends TestContext {
     }
 
     "validate name and return false when duplicate" in {
-      Await.result(newsletterService.create(user, "test", Locale.en), 5.seconds)
+      Await.result(newsletterService.create(userId, "test", Locale.en), 5.seconds)
       whenReady(
         newsletterService.validateName("test")
       ) {result =>
@@ -112,14 +112,14 @@ class NewsletterServiceSpec extends TestContext {
     }
 
     "don't allow to update newsletter if user is not owner" in {
-      val newsletter = Await.result(newsletterService.create(user, "test", Locale.en), 5.seconds)
+      val newsletter = Await.result(newsletterService.create(userId, "test", Locale.en), 5.seconds)
       whenReady(newsletterService.update(2, newsletter.id, None, None, None, None).failed) { error =>
         error mustBe an [AuthorizationException]
       }
     }
 
     "don't allow to get newsletter if user is not owner or writer" in {
-      val newsletter = Await.result(newsletterService.create(user, "test", Locale.en), 5.seconds)
+      val newsletter = Await.result(newsletterService.create(userId, "test", Locale.en), 5.seconds)
       whenReady(newsletterService.getById(2, newsletter.id).failed) { error =>
         error mustBe an [AuthorizationException]
       }

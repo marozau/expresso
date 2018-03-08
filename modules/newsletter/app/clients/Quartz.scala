@@ -6,6 +6,7 @@ import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
 import org.quartz._
+import org.quartz.core.jmx.JobDataMapSupport
 import org.quartz.impl.StdSchedulerFactory
 import org.quartz.impl.matchers.GroupMatcher
 import org.quartz.spi.{JobFactory, TriggerFiredBundle}
@@ -30,11 +31,17 @@ trait Quartz {
 
   def pauseTriggers(matcher: GroupMatcher[TriggerKey]): Future[Unit]
 
+  def resumeTriggers(matcher: GroupMatcher[TriggerKey]): Future[Unit]
+
   def deleteJob(jobKey: JobKey): Future[Boolean]
 
   def checkExists(triggerKey: TriggerKey): Future[Boolean]
 
   def getJobKeys(matcher: GroupMatcher[JobKey]): Future[util.Set[JobKey]]
+
+  def getPausedTriggerGroups: Future[Set[String]]
+
+  def triggerJob(jobKey: JobKey, data: JobDataMap): Future[Unit]
 }
 
 @Singleton
@@ -97,6 +104,10 @@ class QuartzImpl @Inject()(appLifecycle: ApplicationLifecycle,
     Future(scheduler.pauseTriggers(matcher))(blockingExecutionContext)
   }
 
+  override def resumeTriggers(matcher: GroupMatcher[TriggerKey]) = {
+    Future(scheduler.resumeTriggers(matcher))(blockingExecutionContext)
+  }
+
   override def deleteJob(jobKey: JobKey): Future[Boolean] = {
     Future(scheduler.deleteJob(jobKey))(blockingExecutionContext)
   }
@@ -107,6 +118,15 @@ class QuartzImpl @Inject()(appLifecycle: ApplicationLifecycle,
 
   override def getJobKeys(matcher: GroupMatcher[JobKey]): Future[util.Set[JobKey]] = {
     Future(scheduler.getJobKeys(matcher))(blockingExecutionContext)
+  }
+
+  override def getPausedTriggerGroups: Future[Set[String]] = {
+    import scala.collection.JavaConverters._
+    Future(scheduler.getPausedTriggerGroups.asScala.toSet)(blockingExecutionContext)
+  }
+
+  override def triggerJob(jobKey: JobKey, data: JobDataMap) = {
+    Future(scheduler.triggerJob(jobKey, data))(blockingExecutionContext)
   }
 }
 
@@ -129,5 +149,12 @@ class GuiceJobFactory @Inject()(injector: Injector) extends JobFactory {
         throw new SchedulerException("Problem instantiating class '" + jobDetail.getJobClass.getName + "'", e)
       }
     }
+  }
+}
+
+object Quartz {
+  def newJobDataMap(data: Map[String, AnyRef]): JobDataMap = {
+    import scala.collection.JavaConverters._
+    JobDataMapSupport.newJobDataMap(data.asJava)
   }
 }

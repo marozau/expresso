@@ -37,25 +37,33 @@ class CampaignService @Inject()(campaignDao: CampaignDao, campaignSchedulerServi
   }
 
   def setSuspendedStatus(userId: Long, editionId: Long) = {
-    campaignDao.setSuspendedStatus(userId, editionId) //TODO: event
+    campaignDao.suspend(userId, editionId) //TODO: event
   }
 
-  def scheduleCampaign(userId: Long, editionId: Long) = {
+  def startCampaign(userId: Long, editionId: Long) = {
     campaignDao.setPendingStatus(userId, editionId) { campaign =>
       campaignSchedulerService.scheduleCampaign(userId, campaign)
     }
   }
 
-  def scheduleEdition(editionId: Long) = {
+  def startEdition(userId: Long, editionId: Long) = {
     campaignDao.setSendingStatus(editionId) { campaign =>
-      campaignSchedulerService.scheduleEdition(campaign)
+      campaignSchedulerService.scheduleEdition(userId, campaign)
     }
   }
 
-  def suspendCampaign() = {
+  def suspendCampaign(userId: Long, editionId: Long) = {
+    campaignDao.suspend(userId, editionId) { campaign =>
+      campaignSchedulerService.suspendCampaign(userId, campaign)
+    }
   }
 
-  def removeCampaign() = {
+  def resumeCampaign(userId: Long, editionId: Long) = {
+    campaignDao.resume(userId, editionId) { campaign =>
+      campaignSchedulerService.resumeCampaign(userId, campaign)
+    }
+  }
 
+  def stopCampaign() = {
   }
 }

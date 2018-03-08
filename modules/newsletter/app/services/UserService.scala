@@ -9,12 +9,18 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
   * @author im.
   */
+trait UserService {
+
+  def createReader(email: String): Future[User]
+  def getById(userId: Long): Future[User]
+}
+
 @Singleton
-class UserService @Inject()()(implicit ec: ExecutionContext) {
+class UserServiceImpl @Inject()()(implicit ec: ExecutionContext) extends UserService {
 
   // TODO: must just create new user with status pending
   // when user verify subscription it sends event that will be used as user verification email
-  def createReader(email: String): Future[User] = ???
+  override def createReader(email: String): Future[User] = ???
 
-  def getById(userId: Long): Future[User] = ???
+  override def getById(userId: Long): Future[User] = ???
 }

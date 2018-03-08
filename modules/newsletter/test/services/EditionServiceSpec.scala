@@ -25,13 +25,13 @@ class EditionServiceSpec extends TestContext {
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
-    newsletter = Await.result(newsletterService.create(user, "test", Locale.ru), 5.seconds)
+    newsletter = Await.result(newsletterService.create(userId, "test", Locale.ru), 5.seconds)
   }
 
   "Edition service" must {
 
     "create edition" in {
-      whenReady(editionService.create(user, newsletter.id, LocalDate.now())) { edition =>
+      whenReady(editionService.create(userId, newsletter.id, LocalDate.now())) { edition =>
         edition.newsletterId mustBe newsletter.id
         edition.date mustBe LocalDate.now()
         edition.url mustBe None
@@ -43,11 +43,11 @@ class EditionServiceSpec extends TestContext {
     }
 
     "update edition" in {
-      val edition = Await.result(editionService.create(user, newsletter.id, LocalDate.now()), 5.seconds)
+      val edition = Await.result(editionService.create(userId, newsletter.id, LocalDate.now()), 5.seconds)
       val header = Json.parse("""{"header":"hello"}""")
       val footer = Json.parse("""{"footer":"world"}""")
       whenReady(editionService.update(
-        user,
+        userId,
         edition.id,
         Some(LocalDate.now().plusDays(1)),
         Some(new URL("http://url")),
@@ -65,7 +65,7 @@ class EditionServiceSpec extends TestContext {
         result.options mustBe None
       }
       whenReady(editionService.update(
-        user,
+        userId,
         edition.id,
         None,
         None,
@@ -85,7 +85,7 @@ class EditionServiceSpec extends TestContext {
     }
 
     "don't allow to update edition if user is not owner or writer" in {
-      val edition = Await.result(editionService.create(user, newsletter.id, LocalDate.now()), 5.seconds)
+      val edition = Await.result(editionService.create(userId, newsletter.id, LocalDate.now()), 5.seconds)
 
       whenReady(
         editionService.update(2, edition.id, None, None, None, None, None, None).failed
@@ -95,11 +95,11 @@ class EditionServiceSpec extends TestContext {
     }
 
     "remove url" in {
-      val edition = Await.result(editionService.create(user, newsletter.id, LocalDate.now()), 5.seconds)
-      Await.result(editionService.update(user, edition.id, None, Some(new URL("http://url")), None, None, None, None), 5.seconds)
+      val edition = Await.result(editionService.create(userId, newsletter.id, LocalDate.now()), 5.seconds)
+      Await.result(editionService.update(userId, edition.id, None, Some(new URL("http://url")), None, None, None, None), 5.seconds)
 
       whenReady(
-        editionService.removeUrl(user, edition.id)
+        editionService.removeUrl(userId, edition.id)
       ) { result =>
         result.url mustBe None
       }
@@ -107,17 +107,17 @@ class EditionServiceSpec extends TestContext {
 
     "don't remove for unknown edition" in {
       whenReady(
-        editionService.removeUrl(user, 1).failed
+        editionService.removeUrl(userId, 1).failed
       ) { error =>
         error mustBe an [AuthorizationException]
       }
     }
 
     "get by id" in {
-      val edition = Await.result(editionService.create(user, newsletter.id, LocalDate.now()), 5.seconds)
+      val edition = Await.result(editionService.create(userId, newsletter.id, LocalDate.now()), 5.seconds)
 
       whenReady(
-        editionService.getById(user, edition.id)
+        editionService.getById(userId, edition.id)
       ) { result =>
         result.id mustBe edition.id
         result.newsletterId mustBe newsletter.id
@@ -126,18 +126,18 @@ class EditionServiceSpec extends TestContext {
 
     "throw exception when newsletter not found, in this system cannot detect newsletter owner and throws AuthorizationException" in {
       whenReady(
-        editionService.getById(user, 1).failed
+        editionService.getById(userId, 1).failed
       ) { error =>
         error mustBe an [AuthorizationException]
       }
     }
 
     "get by newsletter id" in {
-      Await.result(editionService.create(user, newsletter.id, LocalDate.now()), 5.seconds)
-      Await.result(editionService.create(user, newsletter.id, LocalDate.now().plusDays(1)), 5.seconds)
+      Await.result(editionService.create(userId, newsletter.id, LocalDate.now()), 5.seconds)
+      Await.result(editionService.create(userId, newsletter.id, LocalDate.now().plusDays(1)), 5.seconds)
 
       whenReady(
-        editionService.getByNewsletterId(user, newsletter.id)
+        editionService.getByNewsletterId(userId, newsletter.id)
       ) { result =>
         result.size mustBe 2
       }
@@ -145,7 +145,7 @@ class EditionServiceSpec extends TestContext {
 
     "don't return editions for unknown newsletter" in {
       whenReady(
-        editionService.getByNewsletterId(user, 3).failed
+        editionService.getByNewsletterId(userId, 3).failed
       ) { error =>
         error mustBe an [NewsletterNotFoundException]
       }

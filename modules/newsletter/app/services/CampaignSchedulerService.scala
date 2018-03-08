@@ -7,6 +7,7 @@ import javax.inject.{Inject, Singleton}
 import clients.Quartz
 import jobs.{CampaignCompleteJob, CampaignJob, EditionSendJob}
 import models.{Campaign, Recipient}
+import org.quartz.impl.matchers.GroupMatcher
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,8 +36,8 @@ class CampaignSchedulerService @Inject()(quartz: Quartz, recipientService: Recip
       }
   }
 
-  def scheduleEdition(campaign: Campaign) = {
-    recipientService.getByNewsletterId(campaign.newsletterId, Recipient.Status.SUBSCRIBED)
+  def scheduleEdition(userId: Long, campaign: Campaign) = {
+    recipientService.getByNewsletterId(userId, campaign.newsletterId, Some(Recipient.Status.SUBSCRIBED))
       .flatMap { recipients =>
         Future.sequence(recipients
           .map { recipient =>
@@ -57,7 +58,21 @@ class CampaignSchedulerService @Inject()(quartz: Quartz, recipientService: Recip
       }
   }
 
-  def stopCampaign() = ???
+  def stopCampaign() = {
 
-  def pauseCampaign() = ???
+  }
+
+  def suspendCampaign(userId: Long, campaign: Campaign) = {
+    for {
+      _ <- quartz.pauseTriggers(GroupMatcher.groupEquals(CampaignJob.identity(campaign)))
+      _ <- quartz.pauseTriggers(GroupMatcher.groupStartsWith(EditionSendJob.edition(campaign.editionId)))
+    } yield Unit
+  }
+
+  def resumeCampaign(userId: Long, campaign: Campaign) = {
+    for {
+      _ <- quartz.resumeTriggers(GroupMatcher.groupEquals(CampaignJob.identity(campaign)))
+      _ <- quartz.resumeTriggers(GroupMatcher.groupStartsWith(EditionSendJob.edition(campaign.editionId)))
+    } yield Unit
+  }
 }

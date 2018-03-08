@@ -10,6 +10,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import services.{MailService, UserService}
+import today.expresso.grpc.user.domain.User
 
 /**
   * @author im.
@@ -18,8 +20,9 @@ import play.api.inject.guice.GuiceApplicationBuilder
 
 object TestContext {
 
-  val user = 1L
-
+  val userId = 1L
+  val userEmail = "test@expresso.today"
+  val user = User(userId, userEmail, User.Status.VERIFIED, Seq(User.Role.EDITOR))
 }
 
 trait TestContext extends PlaySpec
@@ -32,11 +35,17 @@ trait TestContext extends PlaySpec
 
   override implicit val patienceConfig: PatienceConfig = PatienceConfig(scaled(Span(1000, Millis)), scaled(Span(100, Millis)))
 
+  val mockGrpcServer = mock[GrpcServer]
+  val mockUserService = mock[UserService]
+  val mockMailService = mock[MailService]
+
   override def fakeApplication() = {
-    val mockGrpcServer = mock[GrpcServer]
+
     new GuiceApplicationBuilder()
       .disable(classOf[play.api.cache.redis.RedisCacheModule])
       .overrides(bind[GrpcServer].toInstance(mockGrpcServer))
+      .overrides(bind[UserService].toInstance(mockUserService))
+      .overrides(bind[MailService].toInstance(mockMailService))
       .build()
   }
 

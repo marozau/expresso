@@ -16,12 +16,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class RecipientService @Inject()(recipientsDao: RecipientDao, userService: UserService, mailService: MailService)(implicit ec: ExecutionContext) {
 
-  def getByNewsletterId(newsletterId: Long, status: Recipient.Status.Value) = {
-    recipientsDao.getByNewsletterId(newsletterId, None, Some(status))
-  }
-
   def getByNewsletterId(userId: Long, newsletterId: Long, status: Option[Recipient.Status.Value]) = {
-    recipientsDao.getByNewsletterId(newsletterId, Some(userId), status)
+    recipientsDao.getByNewsletterId(userId, newsletterId, status)
   }
 
   /**
@@ -50,8 +46,8 @@ class RecipientService @Inject()(recipientsDao: RecipientDao, userService: UserS
       }
   }
 
-  def verifySubscription(recipientId: UUID) = {
-    recipientsDao.subscribe(recipientId) //TODO: event
+  def verify(recipientId: UUID) = {
+    recipientsDao.verify(recipientId) //TODO: event
   }
 
   def unsubscribe(recipientId: UUID) = {

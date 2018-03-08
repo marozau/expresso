@@ -6,6 +6,7 @@ import clients.{GuiceJobFactory, Quartz, QuartzImpl}
 import com.google.inject.AbstractModule
 import org.quartz.spi.JobFactory
 import play.api.libs.concurrent.AkkaGuiceSupport
+import services.{MailService, MailServiceImpl, UserService, UserServiceImpl}
 
 /**
   * @author im.
@@ -17,5 +18,8 @@ class NewsletterModule extends AbstractModule with AkkaGuiceSupport {
 
     bind(classOf[JobFactory]).to(classOf[GuiceJobFactory])
     bind(classOf[Quartz]).to(classOf[QuartzImpl])
+
+    bind(classOf[UserService]).to(classOf[UserServiceImpl])
+    bind(classOf[MailService]).to(classOf[MailServiceImpl])
   }
 }

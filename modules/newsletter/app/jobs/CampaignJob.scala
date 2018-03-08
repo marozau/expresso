@@ -29,8 +29,7 @@ object CampaignJob {
       "editionId" -> Predef.long2Long(campaign.editionId),
       "userId" -> Predef.long2Long(userId)
     )
-    import scala.collection.JavaConverters._
-    val jobData = JobDataMapSupport.newJobDataMap(jobDataMap.asJava)
+    val jobData = Quartz.newJobDataMap(jobDataMap)
 
     TriggerBuilder.newTrigger()
       .withIdentity(identity(campaign), group)
@@ -47,10 +46,7 @@ object CampaignJob {
   }
 }
 
-class CampaignJob @Inject()(quartz: Quartz,
-                            jobSchedulerService: CampaignSchedulerService,
-                            campaignService: CampaignService)
-                           (implicit ec: ExecutionContext)
+class CampaignJob @Inject()(quartz: Quartz, campaignService: CampaignService)(implicit ec: ExecutionContext)
   extends RecoveringJob(quartz) {
 
   private val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
@@ -60,8 +56,7 @@ class CampaignJob @Inject()(quartz: Quartz,
     val editionId = data.get("editionId").asInstanceOf[Long]
     val userId = data.get("userId").asInstanceOf[Long]
     logger.info(s"execute CampaignJob, editionId=$editionId")
-    val schedule = campaignService.getByEditionId(userId, editionId) //TODO: store userId
-      .flatMap(jobSchedulerService.scheduleEdition)
+    val schedule = campaignService.startEdition(userId, editionId)
     //TODO: retry schedule for failed user ids
     Await.result(schedule, Duration.Inf)
 

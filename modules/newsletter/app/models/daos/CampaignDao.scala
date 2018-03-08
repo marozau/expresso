@@ -90,8 +90,24 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
     }
   }
 
-  def setSuspendedStatus(userId: Long, editionId: Long) ={
-    val query = sql"SELECT * FROM campaigns_set_status_suspended(${userId}, ${editionId})".as[Campaign].head
+  def suspend(userId: Long, editionId: Long)(implicit tx: Tx[Campaign]) ={
+    val query = sql"SELECT * FROM campaigns_suspend(${userId}, ${editionId})".as[Campaign].head
+      .flatMap { campaign =>
+        DBIO.from(tx.tx(campaign)).map(_ => campaign)
+      }
+    db.run(query.transactionally.asTry).map{
+      SqlUtils.tryException(
+        AuthorizationException.throwException,
+        CampaignNotFoundException.throwException,
+        InvalidCampaignStatusException.throwException)
+    }
+  }
+
+  def resume(userId: Long, editionId: Long)(implicit tx: Tx[Campaign]) ={
+    val query = sql"SELECT * FROM campaigns_resume(${userId}, ${editionId})".as[Campaign].head
+      .flatMap { campaign =>
+        DBIO.from(tx.tx(campaign)).map(_ => campaign)
+      }
     db.run(query.transactionally.asTry).map{
       SqlUtils.tryException(
         AuthorizationException.throwException,

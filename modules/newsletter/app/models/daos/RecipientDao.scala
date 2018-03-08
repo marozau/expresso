@@ -31,7 +31,7 @@ class RecipientDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(imp
     * @param newsletterId
     * @return newsletter recipients with SUBSCRIBED status
     */
-  def getByNewsletterId(newsletterId: Long, userId: Option[Long] = None, status: Option[Recipient.Status.Value] = None): Future[List[Recipient]] = {
+  def getByNewsletterId(userId: Long, newsletterId: Long, status: Option[Recipient.Status.Value] = None): Future[List[Recipient]] = {
     val query = sql"SELECT * FROM recipients_get_by_newsletter_id(${userId}, ${newsletterId}, ${status})".as[Recipient]
     db.run(query.asTry).map {
       SqlUtils.tryException {
@@ -45,7 +45,7 @@ class RecipientDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(imp
     db.run(query.transactionally)
   }
 
-  def subscribe(recipientId: UUID): Future[Recipient] = {
+  def verify(recipientId: UUID): Future[Recipient] = {
     val query = sql"SELECT * FROM recipients_update_status(${recipientId}, ${Recipient.Status.SUBSCRIBED})".as[Recipient].head
     db.run(query.transactionally.asTry).map {
       SqlUtils.tryException {
