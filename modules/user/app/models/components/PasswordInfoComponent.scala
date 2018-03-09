@@ -1,7 +1,7 @@
 package models.components
 
 import com.mohiva.play.silhouette.api.util.PasswordInfo
-import db.Repository
+import today.expresso.common.db.Repository
 import slick.jdbc.GetResult
 
 /**

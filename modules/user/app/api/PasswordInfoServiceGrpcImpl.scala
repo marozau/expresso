@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 
 import com.mohiva.play.silhouette.api.util.PasswordInfo
 import com.mohiva.play.silhouette.api.{LoginInfo, util}
-import grpc.GrpcErrorHandler
+import today.expresso.common.grpc.GrpcErrorHandler
 import models.daos.PasswordInfoDao
 import org.slf4j.{Logger, LoggerFactory}
 import today.expresso.grpc.user._

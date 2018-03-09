@@ -39,7 +39,7 @@ object EditionForm {
     )(FooterData.apply)(FooterData.unapply)
   )
 
-  import utils.UrlUtils._
+  import today.expresso.common.utils.UrlUtils._
   val urlForm = Form(
     mapping(
       "id" -> longNumber,

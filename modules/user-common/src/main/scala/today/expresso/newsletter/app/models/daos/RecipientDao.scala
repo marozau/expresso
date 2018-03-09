@@ -2,8 +2,8 @@ package models.daos
 
 import javax.inject.{Inject, Singleton}
 
-import db.Repository
-import exceptions.{InvalidUserStatusException, UserUnverifiedException}
+import today.expresso.common.db.Repository
+import today.expresso.common.exceptions.{InvalidUserStatusException, UserUnverifiedException}
 import models.components.{EditionComponent, NewsletterComponent, RecipientComponent}
 import models.{Recipient, UserStatus}
 import play.api.Logger

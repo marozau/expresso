@@ -1,7 +1,7 @@
 package services
 
 import config.TestContext
-import exceptions.{InvalidAuthTokenException, InvalidEmailException}
+import today.expresso.common.exceptions.{InvalidAuthTokenException, InvalidEmailException}
 import models.User
 
 import scala.concurrent.ExecutionContext.Implicits.global

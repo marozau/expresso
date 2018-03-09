@@ -3,7 +3,7 @@ package services
 import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 
-import exceptions.PostNotFoundException
+import today.expresso.common.exceptions.PostNotFoundException
 import models.{Edition, Post}
 import models.daos.{CampaignDao, EditionDao}
 

@@ -4,7 +4,7 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import com.mohiva.play.silhouette.api.LoginInfo
-import grpc.GrpcErrorHandler
+import today.expresso.common.grpc.GrpcErrorHandler
 import models.User
 import org.slf4j.{Logger, LoggerFactory}
 import services.UserService

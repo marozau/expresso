@@ -1,6 +1,6 @@
 package models
 
-import exceptions.PostNotFoundException
+import today.expresso.common.exceptions.PostNotFoundException
 import play.api.Logger
 
 /**

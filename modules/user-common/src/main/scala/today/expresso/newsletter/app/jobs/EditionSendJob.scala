@@ -15,7 +15,7 @@ import org.quartz._
 import org.slf4j.LoggerFactory
 import play.api.i18n._
 import services.{CompilerService, EditionService, NewsletterService, UserService}
-import _root_.utils.UrlUtils
+import today.expresso.common.utils.UrlUtils
 
 import scala.concurrent.ExecutionContext
 

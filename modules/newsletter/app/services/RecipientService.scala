@@ -3,7 +3,7 @@ package services
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
-import exceptions.InvalidUserStatusException
+import today.expresso.common.exceptions.InvalidUserStatusException
 import models.Recipient
 import models.daos.RecipientDao
 import today.expresso.grpc.user.domain.User

@@ -2,7 +2,7 @@ package services
 
 import javax.inject.{Inject, Singleton}
 
-import exceptions.NewsletterNotFoundException
+import today.expresso.common.exceptions.NewsletterNotFoundException
 import models.{Campaign, Edition, Newsletter, User}
 import models.daos.{CampaignDao, EditionDao, NewsletterDao}
 

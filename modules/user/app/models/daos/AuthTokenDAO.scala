@@ -3,14 +3,14 @@ package models.daos
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
-import db.Repository
-import exceptions.InvalidAuthTokenException
+import today.expresso.common.db.Repository
+import today.expresso.common.exceptions.InvalidAuthTokenException
 import models.AuthToken
 import models.components.{AuthTokenComponent, CommonComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-import utils.SqlUtils
+import today.expresso.common.utils.SqlUtils
 
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}

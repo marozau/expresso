@@ -2,15 +2,15 @@ package models.daos
 
 import javax.inject.{Inject, Singleton}
 
-import db.Repository
-import exceptions.{AuthorizationException, NewsletterAlreadyExistException, NewsletterNotFoundException}
+import today.expresso.common.db.Repository
+import today.expresso.common.exceptions.{AuthorizationException, NewsletterAlreadyExistException, NewsletterNotFoundException}
 import models.components.{CommonComponent, NewsletterComponent}
 import models.{Locale, Newsletter}
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json.JsValue
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-import utils.SqlUtils
+import today.expresso.common.utils.SqlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 

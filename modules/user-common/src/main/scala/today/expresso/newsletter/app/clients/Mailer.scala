@@ -3,7 +3,7 @@ package clients
 import java.lang.invoke.MethodHandles
 import javax.inject.{Inject, Singleton}
 
-import exceptions.EmailSendException
+import today.expresso.common.exceptions.EmailSendException
 import org.slf4j.LoggerFactory
 import play.api.Configuration
 

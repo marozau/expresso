@@ -4,7 +4,7 @@ import java.lang.invoke.MethodHandles
 import javax.inject._
 
 import controllers.AssetsFinder
-import exceptions.BaseException
+import today.expresso.common.exceptions.BaseException
 import org.slf4j.LoggerFactory
 import play.api.http.DefaultHttpErrorHandler
 import play.api.i18n.MessagesApi

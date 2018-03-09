@@ -6,7 +6,7 @@ import java.util.Date
 import javax.inject.Inject
 
 import clients.Quartz
-import exceptions.InvalidCampaignStatusException
+import today.expresso.common.exceptions.InvalidCampaignStatusException
 import jobs.api.RecoveringJob
 import models.Campaign
 import org.quartz.{JobBuilder, JobExecutionContext, Trigger, TriggerBuilder}

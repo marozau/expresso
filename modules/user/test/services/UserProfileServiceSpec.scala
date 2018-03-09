@@ -1,7 +1,7 @@
 package services
 
 import config.TestContext
-import exceptions.UserNotFoundException
+import today.expresso.common.exceptions.UserNotFoundException
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

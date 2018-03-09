@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 
 import models.NewsletterWriter
 import models.daos.WriterDao
-import utils.Tx
+import today.expresso.common.utils.Tx
 
 import scala.concurrent.{ExecutionContext, Future}
 

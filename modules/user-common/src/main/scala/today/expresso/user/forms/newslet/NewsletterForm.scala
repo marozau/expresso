@@ -10,7 +10,7 @@ import play.api.data._
   */
 object NewsletterForm {
 
-  import utils.UrlUtils._
+  import today.expresso.common.utils.UrlUtils._
 
   val form = Form(
     mapping(

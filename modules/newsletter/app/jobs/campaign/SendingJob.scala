@@ -6,7 +6,7 @@ import java.time.temporal.ChronoUnit
 import java.util.Date
 import javax.inject.Inject
 
-import _root_.utils.UrlUtils
+import today.expresso.common.utils.UrlUtils
 import clients.{Mailer, Quartz}
 import jobs.api.RecoveringJob
 import models.Campaign

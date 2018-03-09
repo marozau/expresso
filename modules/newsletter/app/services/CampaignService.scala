@@ -8,7 +8,8 @@ import models.Campaign
 import models.daos.CampaignDao
 import org.slf4j.LoggerFactory
 import play.api.libs.json.JsValue
-import utils.{CampaignScheduler, Tx}
+import today.expresso.common.utils.Tx
+import utils.CampaignScheduler
 
 import scala.concurrent.{ExecutionContext, Future}
 

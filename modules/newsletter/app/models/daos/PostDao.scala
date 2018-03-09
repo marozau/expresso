@@ -2,8 +2,8 @@ package models.daos
 
 import javax.inject.{Inject, Singleton}
 
-import db.Repository
-import exceptions._
+import today.expresso.common.db.Repository
+import today.expresso.common.exceptions._
 import models.Post
 import models.components.PostComponent
 import org.postgresql.util.PSQLException
@@ -11,7 +11,7 @@ import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json.JsValue
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-import utils.SqlUtils
+import today.expresso.common.utils.SqlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}

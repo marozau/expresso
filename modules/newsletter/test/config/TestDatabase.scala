@@ -1,6 +1,6 @@
 package config
 
-import db.Repository
+import today.expresso.common.db.Repository
 import models.components.CommonComponent
 import play.api.Logger
 import play.api.db.slick.DatabaseConfigProvider

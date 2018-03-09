@@ -2,7 +2,7 @@ package services.graphql
 
 import javax.inject.{Inject, Singleton}
 
-import grpc.GrpcErrorHandler
+import today.expresso.common.grpc.GrpcErrorHandler
 import models.graphql.{GraphQLAnonymousContext, GraphQLContext}
 import models.graphql.rotes.{PublicSchema, SchemaRegistry}
 import models.{ApplicationContext, Credentials}

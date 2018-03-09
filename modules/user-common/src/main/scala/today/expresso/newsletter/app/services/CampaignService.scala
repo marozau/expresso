@@ -2,7 +2,7 @@ package services
 
 import javax.inject.{Inject, Singleton}
 
-import exceptions.CampaignNotFoundException
+import today.expresso.common.exceptions.CampaignNotFoundException
 import models.Campaign
 import models.daos.CampaignDao
 

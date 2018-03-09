@@ -3,7 +3,7 @@ package services
 import java.time.Instant
 
 import config.TestContext
-import exceptions.InvalidAuthTokenException
+import today.expresso.common.exceptions.InvalidAuthTokenException
 import models.AuthToken
 
 import scala.concurrent.Await

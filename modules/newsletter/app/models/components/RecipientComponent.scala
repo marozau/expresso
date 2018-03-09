@@ -1,7 +1,7 @@
 package models.components
 
 import com.github.tminglei.slickpg.utils.PlainSQLUtils
-import db.Repository
+import today.expresso.common.db.Repository
 import models.Recipient
 import slick.jdbc.{GetResult, JdbcType, SetParameter}
 

@@ -3,7 +3,7 @@ package models.components
 import java.util.UUID
 
 import com.github.tminglei.slickpg.utils.PlainSQLUtils
-import db.Repository
+import today.expresso.common.db.Repository
 import models.Locale
 import slick.jdbc.{GetResult, JdbcType, SetParameter}
 

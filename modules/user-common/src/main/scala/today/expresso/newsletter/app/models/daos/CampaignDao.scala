@@ -2,8 +2,8 @@ package models.daos
 
 import javax.inject.{Inject, Singleton}
 
-import db.Repository
-import exceptions.{CampaignNotFoundException, InvalidCampaignStatusException}
+import today.expresso.common.db.Repository
+import today.expresso.common.exceptions.{CampaignNotFoundException, InvalidCampaignStatusException}
 import models.Campaign
 import models.components.{CampaignComponent, EditionComponent, NewsletterComponent}
 import play.api.db.slick.DatabaseConfigProvider

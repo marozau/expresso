@@ -4,14 +4,14 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import com.mohiva.play.silhouette.api.LoginInfo
-import db.Repository
-import exceptions.{InvalidAuthTokenException, UserAlreadyExistsException, UserNotFoundException}
+import today.expresso.common.db.Repository
+import today.expresso.common.exceptions.{InvalidAuthTokenException, UserAlreadyExistsException, UserNotFoundException}
 import models._
 import models.components.{CommonComponent, UserComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-import utils.SqlUtils
+import today.expresso.common.utils.SqlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 

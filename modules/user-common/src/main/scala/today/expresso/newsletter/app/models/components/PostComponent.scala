@@ -2,10 +2,10 @@ package models.components
 
 import java.time.ZonedDateTime
 
-import db.Repository
+import today.expresso.common.db.Repository
 import models.Post
 import play.api.libs.json.JsValue
-import utils.SqlUtils
+import today.expresso.common.utils.SqlUtils
 
 /**
   * @author im.

@@ -7,7 +7,7 @@ import java.util.Date
 import javax.inject.Inject
 
 import clients.Quartz
-import exceptions.InvalidCampaignScheduleException
+import today.expresso.common.exceptions.InvalidCampaignScheduleException
 import models.Campaign
 import org.quartz.core.jmx.JobDataMapSupport
 import org.quartz.{JobBuilder, JobExecutionContext, Trigger, TriggerBuilder}

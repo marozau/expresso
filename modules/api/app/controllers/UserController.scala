@@ -7,7 +7,7 @@ import modules.ApiAuthEnv
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import today.expresso.grpc.user.dto.UserDto
-import utils.WithRole
+import today.expresso.common.utils.WithRole
 
 import scala.concurrent.{ExecutionContext, Future}
 

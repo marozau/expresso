@@ -2,7 +2,7 @@ package models.components
 
 import java.net.URL
 
-import db.Repository
+import today.expresso.common.db.Repository
 import models.Edition
 import slick.jdbc.GetResult
 

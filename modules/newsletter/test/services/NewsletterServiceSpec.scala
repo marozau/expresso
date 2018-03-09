@@ -3,7 +3,7 @@ package services
 import java.net.URL
 
 import config.TestContext
-import exceptions.{AuthorizationException, NewsletterAlreadyExistException}
+import today.expresso.common.exceptions.{AuthorizationException, NewsletterAlreadyExistException}
 import models.Locale
 import play.api.i18n.Lang
 

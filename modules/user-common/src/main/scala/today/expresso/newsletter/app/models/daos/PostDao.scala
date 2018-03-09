@@ -3,8 +3,8 @@ package models.daos
 import java.time.{ZoneOffset, ZonedDateTime}
 import javax.inject.{Inject, Singleton}
 
-import db.Repository
-import exceptions.{EditionNotFoundException, InvalidCampaignStatusException, PostNotFoundException}
+import today.expresso.common.db.Repository
+import today.expresso.common.exceptions.{EditionNotFoundException, InvalidCampaignStatusException, PostNotFoundException}
 import models.Post
 import models.components.{EditionComponent, NewsletterComponent, PostComponent}
 import play.api.db.slick.DatabaseConfigProvider

@@ -2,14 +2,14 @@ package models.daos
 
 import javax.inject.{Inject, Singleton}
 
-import db.Repository
-import exceptions.UserNotFoundException
+import today.expresso.common.db.Repository
+import today.expresso.common.exceptions.UserNotFoundException
 import models.UserProfile
 import models.components.{CommonComponent, UserProfileComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-import utils.SqlUtils
+import today.expresso.common.utils.SqlUtils
 
 import scala.concurrent.ExecutionContext
 

@@ -4,7 +4,7 @@ import java.net.URL
 import java.time.LocalDate
 
 import config.TestContext
-import exceptions.{AuthorizationException, NewsletterNotFoundException}
+import today.expresso.common.exceptions.{AuthorizationException, NewsletterNotFoundException}
 import models.{Locale, Newsletter}
 import play.api.libs.json.Json
 

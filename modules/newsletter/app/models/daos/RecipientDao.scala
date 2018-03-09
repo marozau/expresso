@@ -3,14 +3,14 @@ package models.daos
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
-import db.Repository
-import exceptions._
+import today.expresso.common.db.Repository
+import today.expresso.common.exceptions._
 import models.Recipient
 import models.components.{CommonComponent, RecipientComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-import utils.SqlUtils
+import today.expresso.common.utils.SqlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 

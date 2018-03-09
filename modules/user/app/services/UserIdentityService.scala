@@ -5,7 +5,7 @@ import javax.inject.{Inject, Singleton}
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.services.IdentityService
 import com.mohiva.play.silhouette.impl.providers.CommonSocialProfile
-import exceptions.EmailNotFoundException
+import today.expresso.common.exceptions.EmailNotFoundException
 import models.User
 import models.daos.UserDao
 

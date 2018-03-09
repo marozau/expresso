@@ -2,7 +2,7 @@ package api
 
 import javax.inject.{Inject, Singleton}
 
-import grpc.GrpcErrorHandler
+import today.expresso.common.grpc.GrpcErrorHandler
 import models.User
 import org.slf4j.{Logger, LoggerFactory}
 import services.UserIdentityService

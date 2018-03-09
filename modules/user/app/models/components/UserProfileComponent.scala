@@ -1,6 +1,6 @@
 package models.components
 
-import db.Repository
+import today.expresso.common.db.Repository
 import models.{UserProfile, UserSex}
 import slick.jdbc.{GetResult, JdbcType}
 

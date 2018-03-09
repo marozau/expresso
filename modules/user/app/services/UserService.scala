@@ -4,7 +4,7 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import com.mohiva.play.silhouette.api.util.PasswordHasherRegistry
-import exceptions.InvalidEmailException
+import today.expresso.common.exceptions.InvalidEmailException
 import models.User
 import models.daos.UserDao
 

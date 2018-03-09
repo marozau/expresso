@@ -5,13 +5,13 @@ import javax.inject.{Inject, Singleton}
 import com.mohiva.play.silhouette.api.LoginEvent
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.util.Credentials
-import exceptions.{InternalServerError, UserNotFoundException, UserUnverifiedException}
+import today.expresso.common.exceptions.{InternalServerError, UserNotFoundException, UserUnverifiedException}
 import models.{ApplicationContext, User}
 import play.api.Logger
 import play.api.mvc.RequestHeader
 import services.ServiceRegistry
 import today.expresso.grpc.user.dto.UserDto
-import utils.HashUtils
+import today.expresso.common.utils.HashUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 

@@ -3,15 +3,15 @@ package models.daos
 import java.time.Instant
 import javax.inject.{Inject, Singleton}
 
-import db.Repository
-import exceptions._
+import today.expresso.common.db.Repository
+import today.expresso.common.exceptions._
 import models.Campaign
 import models.components.CampaignComponent
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json.JsValue
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-import utils.{SqlUtils, Tx}
+import today.expresso.common.utils.{SqlUtils, Tx}
 
 import scala.concurrent.{ExecutionContext, Future}
 

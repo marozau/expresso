@@ -1,6 +1,6 @@
 package models.components
 
-import db.Repository
+import today.expresso.common.db.Repository
 import models.Campaign
 import slick.jdbc.GetResult
 

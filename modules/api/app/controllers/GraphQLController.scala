@@ -8,7 +8,7 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{AbstractController, ControllerComponents}
 import sangria.parser.{QueryParser, SyntaxError}
 import services.graphql.GraphQLService
-import utils.WithStringRole
+import today.expresso.common.utils.WithStringRole
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}

@@ -5,13 +5,13 @@ import javax.inject.Inject
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.util.PasswordInfo
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
-import db.Repository
-import exceptions.UserNotFoundException
+import today.expresso.common.db.Repository
+import today.expresso.common.exceptions.UserNotFoundException
 import models.components.{CommonComponent, PasswordInfoComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-import utils.SqlUtils
+import today.expresso.common.utils.SqlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 

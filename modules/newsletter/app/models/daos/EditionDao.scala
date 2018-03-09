@@ -4,8 +4,8 @@ import java.net.URL
 import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 
-import db.Repository
-import exceptions._
+import today.expresso.common.db.Repository
+import today.expresso.common.exceptions._
 import models.Edition
 import models.components.EditionComponent
 import org.postgresql.util.PSQLException
@@ -13,7 +13,7 @@ import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json.JsValue
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-import utils.SqlUtils
+import today.expresso.common.utils.SqlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}

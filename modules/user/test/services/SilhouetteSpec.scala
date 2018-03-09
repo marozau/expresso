@@ -4,7 +4,7 @@ import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.util.{Credentials, PasswordHasherRegistry, PasswordInfo}
 import com.mohiva.play.silhouette.impl.exceptions.{IdentityNotFoundException, InvalidPasswordException}
 import config.TestContext
-import exceptions.UserNotFoundException
+import today.expresso.common.exceptions.UserNotFoundException
 import models.{ApplicationContext, User}
 import utils.HashUtils
 

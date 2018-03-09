@@ -4,15 +4,15 @@ import java.net.URL
 import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 
-import db.Repository
-import exceptions.{EditionNotFoundException, NewsletterNotFoundException}
+import today.expresso.common.db.Repository
+import today.expresso.common.exceptions.{EditionNotFoundException, NewsletterNotFoundException}
 import models.components.{EditionComponent, NewsletterComponent, PostComponent}
 import models.{Edition, EditionSpec, Newsletter, Post}
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.i18n.Lang
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-import utils.SeqUtils
+import today.expresso.common.utils.SeqUtils
 
 import scala.collection.immutable
 import scala.concurrent.{ExecutionContext, Future}

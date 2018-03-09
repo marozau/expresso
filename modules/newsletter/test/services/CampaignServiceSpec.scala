@@ -4,7 +4,7 @@ import java.time.{Instant, LocalDate}
 
 import clients.Quartz
 import config.TestContext
-import exceptions.{AuthorizationException, InvalidCampaignScheduleException, InvalidCampaignStatusException}
+import today.expresso.common.exceptions.{AuthorizationException, InvalidCampaignScheduleException, InvalidCampaignStatusException}
 import jobs.campaign.{CampaignJob, PendingJob}
 import models.daos.RecipientDao
 import models._
