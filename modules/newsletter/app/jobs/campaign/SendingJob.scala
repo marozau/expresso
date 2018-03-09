@@ -1,4 +1,4 @@
-package jobs
+package jobs.campaign
 
 import java.lang.invoke.MethodHandles
 import java.time.Instant
@@ -6,15 +6,15 @@ import java.time.temporal.ChronoUnit
 import java.util.Date
 import javax.inject.Inject
 
-import clients.Mailer.EmailHtml
+import _root_.utils.UrlUtils
 import clients.{Mailer, Quartz}
+import jobs.api.RecoveringJob
 import models.Campaign
-import org.quartz.core.jmx.JobDataMapSupport
 import org.quartz._
+import org.quartz.core.jmx.JobDataMapSupport
 import org.slf4j.LoggerFactory
 import play.api.i18n._
 import services.{EditionService, NewsletterService, UserService}
-import _root_.utils.UrlUtils
 import today.expresso.templates.impl.CompilerService
 
 import scala.concurrent.ExecutionContext
@@ -22,50 +22,47 @@ import scala.concurrent.ExecutionContext
 /**
   * @author im.
   */
-object EditionSendJob {
+object SendingJob {
 
-  def group = "edition"
+  def name(userId: Long, c: Campaign) = s"${CampaignJob.identity(c)}-$userId"
 
-  def edition(campaignId: Long) = s"$group-$campaignId"
-
-  def identity(userId: Long, campaign: Campaign) = s"${edition(campaign.editionId)}-$userId"
-
-
-  def buildTrigger(userId: Long, campaign: Campaign): Trigger = {
+  def buildTrigger(userId: Long, c: Campaign): Trigger = {
     // Prefef.long2Long is nedded to avoid error: the result type of an implicit conversion must be more specific than AnyRef
     val jobDataMap = Map[String, AnyRef](
       "userId" -> Predef.long2Long(userId),
-      "editionId" -> Predef.long2Long(campaign.editionId),
-      "newsletterId" -> Predef.long2Long(campaign.newsletterId),
+      "editionId" -> Predef.long2Long(c.editionId),
+      "newsletterId" -> Predef.long2Long(c.newsletterId),
+      "sendTime" -> Predef.long2Long(c.sendTime.toEpochMilli),
+      "status" -> c.status.toString
     )
     import scala.collection.JavaConverters._
     val jobData = JobDataMapSupport.newJobDataMap(jobDataMap.asJava)
 
     TriggerBuilder.newTrigger()
-      .withIdentity(identity(userId, campaign), group)
+      .withIdentity(name(userId, c), CampaignJob.identity(c))
       .usingJobData(jobData)
       .startAt(Date.from(Instant.now().plus(1, ChronoUnit.MINUTES)))
       .build()
   }
 
   def buildJob(userId: Long, campaign: Campaign): JobDetail = {
-    JobBuilder.newJob(classOf[EditionSendJob])
-      .withIdentity(identity(userId, campaign), group)
+    JobBuilder.newJob(classOf[SendingJob])
+      .withIdentity(name(userId, campaign), CampaignJob.group)
       .requestRecovery
       .build
   }
 }
 
-class EditionSendJob @Inject()(quartz: Quartz,
-                               userService: UserService,
-                               newsletterService: NewsletterService,
-                               editionService: EditionService,
-                               mailer: Mailer,
-                               ph: CompilerService,
-                               urlUtils: UrlUtils,
-                               langs: Langs,
-                               messagesApi: MessagesApi)
-                              (implicit ec: ExecutionContext)
+class SendingJob @Inject()(quartz: Quartz,
+                           userService: UserService,
+                           newsletterService: NewsletterService,
+                           editionService: EditionService,
+                           mailer: Mailer,
+                           ph: CompilerService,
+                           urlUtils: UrlUtils,
+                           langs: Langs,
+                           messagesApi: MessagesApi)
+                          (implicit ec: ExecutionContext)
   extends RecoveringJob(quartz) {
 
   private val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())

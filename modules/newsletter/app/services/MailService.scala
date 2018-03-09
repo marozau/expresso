@@ -6,7 +6,7 @@ import models.Recipient
 import play.api.Logger
 import play.api.libs.mailer.{Email, MailerClient}
 import today.expresso.grpc.user.domain.User
-import utils.UrlUtils
+import today.expresso.utils.UrlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 

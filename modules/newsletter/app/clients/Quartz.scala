@@ -42,13 +42,15 @@ trait Quartz {
   def getPausedTriggerGroups: Future[Set[String]]
 
   def triggerJob(jobKey: JobKey, data: JobDataMap): Future[Unit]
+
+  def clear(): Future[Unit]
 }
 
 @Singleton
-class QuartzImpl @Inject()(appLifecycle: ApplicationLifecycle,
-                           config: Configuration,
-                           actorSystem: ActorSystem,
-                           jobFactory: JobFactory)(implicit ec: ExecutionContext) extends Quartz {
+class QuartzFutureImpl @Inject()(appLifecycle: ApplicationLifecycle,
+                                 config: Configuration,
+                                 actorSystem: ActorSystem,
+                                 jobFactory: JobFactory)(implicit ec: ExecutionContext) extends Quartz {
 
   private val blockingExecutionContext = actorSystem.dispatchers.lookup("quartz.blocking-dispatcher")
 
@@ -128,6 +130,8 @@ class QuartzImpl @Inject()(appLifecycle: ApplicationLifecycle,
   override def triggerJob(jobKey: JobKey, data: JobDataMap) = {
     Future(scheduler.triggerJob(jobKey, data))(blockingExecutionContext)
   }
+
+  override def clear() = Future(scheduler.clear())(blockingExecutionContext)
 }
 
 @Singleton

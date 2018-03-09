@@ -19,6 +19,7 @@ trait UserService {
 class UserServiceImpl @Inject()()(implicit ec: ExecutionContext) extends UserService {
 
   // TODO: must just create new user with status pending
+  //TODO: replace by create(u: User)
   // when user verify subscription it sends event that will be used as user verification email
   override def createReader(email: String): Future[User] = ???
 

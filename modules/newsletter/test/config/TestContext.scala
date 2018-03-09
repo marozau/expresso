@@ -1,6 +1,7 @@
 package config
 
 import api.GrpcServer
+import clients.{Quartz, QuartzFutureImpl}
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Span}
@@ -52,14 +53,17 @@ trait TestContext extends PlaySpec
   private val dbConfigProvider = app.injector.instanceOf[DatabaseConfigProvider]
   val database = new TestDatabase(dbConfigProvider)
 
+  private val quartz = app.injector.instanceOf[Quartz]
 
   override protected def beforeEach(): Unit = {
+    quartz.clear()
     database.cleanAll()
     super.beforeEach()
   }
 
   override protected def afterEach(): Unit = {
     super.afterEach()
+    quartz.clear()
     database.cleanAll()
   }
 }

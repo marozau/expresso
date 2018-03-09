@@ -1,13 +1,13 @@
-package jobs
+package jobs.api
 
 import java.time.Instant
 import java.util.Date
 import java.util.concurrent.ThreadLocalRandom
 
+import clients.Quartz
 import com.google.common.base.Joiner
 import org.quartz._
 import play.api.Logger
-import clients.Quartz
 
 /**
   * @author im.

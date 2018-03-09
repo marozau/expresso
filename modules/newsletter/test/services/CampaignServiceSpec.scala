@@ -5,22 +5,26 @@ import java.time.{Instant, LocalDate}
 import clients.Quartz
 import config.TestContext
 import exceptions.{AuthorizationException, InvalidCampaignScheduleException, InvalidCampaignStatusException}
-import jobs.CampaignJob
-import models.{Campaign, Edition, Locale, Newsletter}
+import jobs.campaign.{CampaignJob, PendingJob}
+import models.daos.RecipientDao
+import models._
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.runtime.BoxedUnit
 
 /**
   * @author im.
   */
 class CampaignServiceSpec extends TestContext {
+
   import TestContext._
 
   val campaignService = app.injector.instanceOf[CampaignService]
   val editionService = app.injector.instanceOf[EditionService]
   val newsletterService = app.injector.instanceOf[NewsletterService]
   val quartz = app.injector.instanceOf[Quartz]
+  val recipientDao = app.injector.instanceOf[RecipientDao]
 
   var newsletter: Newsletter = _
   var edition: Edition = _
@@ -59,8 +63,8 @@ class CampaignServiceSpec extends TestContext {
         Instant.now(),
         Some("preview"),
         None).failed
-      ){ error =>
-        error mustBe an [InvalidCampaignScheduleException]
+      ) { error =>
+        error mustBe an[InvalidCampaignScheduleException]
       }
     }
 
@@ -71,8 +75,8 @@ class CampaignServiceSpec extends TestContext {
         sendTime,
         Some("preview"),
         None).failed
-      ){ error =>
-        error mustBe an [AuthorizationException]
+      ) { error =>
+        error mustBe an[AuthorizationException]
       }
     }
 
@@ -85,55 +89,8 @@ class CampaignServiceSpec extends TestContext {
         sendTime,
         Some("preview"),
         None).failed
-      ){ error =>
-        error mustBe an [InvalidCampaignStatusException]
-      }
-    }
-
-    "change status" in {
-      val campaign = Await.result(campaignService.createOrUpdate(userId, edition.id, sendTime, None, None), 5.seconds)
-      whenReady(campaignService.setPendingStatus(userId, campaign.editionId)) { result =>
-        result.status mustBe Campaign.Status.PENDING
-      }
-
-      whenReady(campaignService.setPendingStatus(userId, campaign.editionId).failed) { error =>
-        error mustBe an [InvalidCampaignStatusException]
-      }
-
-      whenReady(campaignService.setSendingStatus(campaign.editionId)) { result =>
-        result.status mustBe Campaign.Status.SENDING
-      }
-
-      whenReady(campaignService.setSendingStatus(campaign.editionId).failed) { error =>
-        error mustBe an [InvalidCampaignStatusException]
-      }
-
-      whenReady(campaignService.setSentStatus(campaign.editionId)) { result =>
-        result.status mustBe Campaign.Status.SENT
-      }
-
-      whenReady(campaignService.setSentStatus(campaign.editionId).failed) { error =>
-        error mustBe an [InvalidCampaignStatusException]
-      }
-    }
-
-    "set suspended status" in {
-      val campaign = Await.result(campaignService.createOrUpdate(userId, edition.id, sendTime, None, None), 5.seconds)
-
-      whenReady(campaignService.setSuspendedStatus(userId, campaign.editionId).failed) { error =>
-        error mustBe an [InvalidCampaignStatusException]
-      }
-
-      whenReady(campaignService.setPendingStatus(userId, campaign.editionId)) { result =>
-        result.status mustBe Campaign.Status.PENDING
-      }
-
-      whenReady(campaignService.setSuspendedStatus(userId, campaign.editionId)) { result =>
-        result.status mustBe Campaign.Status.SUSPENDED_PENDING
-      }
-
-      whenReady(campaignService.setSuspendedStatus(userId, campaign.editionId).failed) { error =>
-        error mustBe an [InvalidCampaignStatusException]
+      ) { error =>
+        error mustBe an[InvalidCampaignStatusException]
       }
     }
 
@@ -145,10 +102,12 @@ class CampaignServiceSpec extends TestContext {
       }
 
       whenReady(campaignService.startCampaign(userId, campaign.editionId).failed) { error =>
-        error mustBe an [InvalidCampaignStatusException]
+        error mustBe an[InvalidCampaignStatusException]
       }
 
-      whenReady(quartz.checkExists(CampaignJob.buildTrigger(userId, campaign).getKey)) { _ mustBe true}
+      whenReady(quartz.checkExists(PendingJob.buildTrigger(userId, campaign).getKey)) {
+        _ mustBe true
+      }
     }
 
     "suspend started campaign and then resume it again" in {
@@ -160,11 +119,11 @@ class CampaignServiceSpec extends TestContext {
       }
 
       whenReady(campaignService.suspendCampaign(userId, campaign.editionId).failed) { error =>
-        error mustBe an [InvalidCampaignStatusException]
+        error mustBe an[InvalidCampaignStatusException]
       }
 
       whenReady(quartz.getPausedTriggerGroups) { groups =>
-        groups mustBe Set(s"campaign-${campaign.editionId}")
+        groups mustBe Set(CampaignJob.identity(campaign))
       }
 
       whenReady(campaignService.resumeCampaign(userId, campaign.editionId)) { campaign =>
@@ -172,7 +131,7 @@ class CampaignServiceSpec extends TestContext {
       }
 
       whenReady(campaignService.resumeCampaign(userId, campaign.editionId).failed) { error =>
-        error mustBe an [InvalidCampaignStatusException]
+        error mustBe an[InvalidCampaignStatusException]
       }
 
       whenReady(quartz.getPausedTriggerGroups) { groups =>
@@ -180,15 +139,48 @@ class CampaignServiceSpec extends TestContext {
       }
     }
 
-    "suspend started edition sending and then resume it again" in {
-      val campaign = Await.result(campaignService.createOrUpdate(userId, edition.id, sendTime, None, None), 5.seconds)
-      Await.result(campaignService.startCampaign(userId, campaign.editionId), 5.seconds)
+    "start edition sending then suspend it and then resume it again" in {
+      val recipient = Await.result(recipientDao.add(userId, newsletter.id, Some(Recipient.Status.SUBSCRIBED)), 1.seconds)
+      val campaign = Await.result(campaignService.createOrUpdate(userId, edition.id, sendTime, None, None), 1.seconds)
+      whenReady(campaignService.startCampaign(userId, campaign.editionId)) { _ => Unit }
 
-      val data = Map[String, AnyRef](
-        "editionId" -> Predef.long2Long(campaign.editionId),
-        "userId" -> Predef.long2Long(userId)
-      )
-      quartz.triggerJob(CampaignJob.buildJob(campaign).getKey, Quartz.newJobDataMap(data))
+      whenReady(campaignService.startSending(userId, campaign.editionId)) { campaign =>
+        campaign.status mustBe Campaign.Status.SENDING
+      }
+
+      whenReady(campaignService.suspendCampaign(userId, campaign.editionId)) { campaign =>
+        campaign.status mustBe Campaign.Status.SUSPENDED_SENDING
+      }
+
+      whenReady(campaignService.suspendCampaign(userId, campaign.editionId).failed) { error =>
+        error mustBe an[InvalidCampaignStatusException]
+      }
+
+      whenReady(quartz.getPausedTriggerGroups) { groups =>
+        groups mustBe Set(CampaignJob.identity(campaign))
+      }
+
+      whenReady(campaignService.resumeCampaign(userId, campaign.editionId)) { campaign =>
+        campaign.status mustBe Campaign.Status.SENDING
+      }
+
+      whenReady(campaignService.resumeCampaign(userId, campaign.editionId).failed) { error =>
+        error mustBe an[InvalidCampaignStatusException]
+      }
+
+      whenReady(quartz.getPausedTriggerGroups) { groups =>
+        groups.isEmpty mustBe true
+      }
+    }
+
+    "start campaign sending job" in {
+      val recipient = Await.result(recipientDao.add(userId, newsletter.id, Some(Recipient.Status.SUBSCRIBED)), 1.seconds)
+      val campaign = Await.result(campaignService.createOrUpdate(userId, edition.id, sendTime, None, None), 1.seconds)
+      whenReady(campaignService.startCampaign(userId, campaign.editionId)){ _ => Unit}
+
+      whenReady(quartz.triggerJob(PendingJob.buildJob(campaign).getKey, PendingJob.buildJobData(userId, campaign))) { result =>
+        result mustBe an [BoxedUnit]
+      }
 
       whenReady(campaignService.getByEditionId(userId, campaign.editionId)) { campaign =>
         campaign.status mustBe Campaign.Status.SENDING

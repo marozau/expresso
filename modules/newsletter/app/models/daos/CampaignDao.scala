@@ -42,7 +42,7 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
                      preview: Option[String],
                      options: Option[JsValue]): Future[Campaign] = {
     val query = sql"SELECT * FROM campaigns_create_or_update(${userId}, ${editionId}, ${sendTime}, ${preview}, ${options})".as[Campaign].head
-    db.run(query.transactionally.asTry).map{
+    db.run(query.transactionally.withPinnedSession.asTry).map{
       SqlUtils.tryException(
         AuthorizationException.throwException,
         EditionNotFoundException.throwException,
@@ -56,7 +56,7 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
       .flatMap { campaign =>
         DBIO.from(tx.tx(campaign)).map(_ => campaign)
       }
-    db.run(query.transactionally.asTry).map{
+    db.run(query.transactionally.withPinnedSession.asTry).map{
       SqlUtils.tryException(
         AuthorizationException.throwException,
         CampaignNotFoundException.throwException,
@@ -69,7 +69,7 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
       .flatMap { campaign =>
         DBIO.from(tx.tx(campaign)).map(_ => campaign)
       }
-    db.run(query.transactionally.asTry).map{
+    db.run(query.transactionally.withPinnedSession.asTry).map{
       SqlUtils.tryException(
         AuthorizationException.throwException,
         CampaignNotFoundException.throwException,
@@ -82,7 +82,7 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
       .flatMap { campaign =>
         DBIO.from(tx.tx(campaign)).map(_ => campaign)
       }
-    db.run(query.transactionally.asTry).map{
+    db.run(query.transactionally.withPinnedSession.asTry).map{
       SqlUtils.tryException(
         AuthorizationException.throwException,
         CampaignNotFoundException.throwException,
@@ -95,7 +95,7 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
       .flatMap { campaign =>
         DBIO.from(tx.tx(campaign)).map(_ => campaign)
       }
-    db.run(query.transactionally.asTry).map{
+    db.run(query.transactionally.withPinnedSession.asTry).map{
       SqlUtils.tryException(
         AuthorizationException.throwException,
         CampaignNotFoundException.throwException,
@@ -108,7 +108,7 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
       .flatMap { campaign =>
         DBIO.from(tx.tx(campaign)).map(_ => campaign)
       }
-    db.run(query.transactionally.asTry).map{
+    db.run(query.transactionally.withPinnedSession.asTry).map{
       SqlUtils.tryException(
         AuthorizationException.throwException,
         CampaignNotFoundException.throwException,
