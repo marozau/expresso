@@ -25,16 +25,21 @@ object SentJob {
 
   def name(c: Campaign) = s"${CampaignJob.identity(c)}-complete"
 
-  def buildTrigger(c: Campaign): Trigger = {
+  def buildJobData(userId: Long, c: Campaign) = {
     // Prefef.long2Long is nedded to avoid error: the result type of an implicit conversion must be more specific than AnyRef
     val jobDataMap = Map[String, AnyRef](
+      "userId" -> Predef.long2Long(userId),
       "editionId" -> Predef.long2Long(c.editionId),
       "newsletterId" -> Predef.long2Long(c.newsletterId),
       "sendTime" -> Predef.long2Long(c.sendTime.toEpochMilli),
       "status" -> c.status.toString,
     )
-    import scala.collection.JavaConverters._
-    val jobData = JobDataMapSupport.newJobDataMap(jobDataMap.asJava)
+    Quartz.newJobDataMap(jobDataMap)
+  }
+
+  def buildTrigger(userId: Long, c: Campaign): Trigger = {
+
+    val jobData = buildJobData(userId, c)
 
     //TODO: should be the same group for all CampaignJob, EditionJob and CampaignCompleteJob
     TriggerBuilder.newTrigger()
@@ -44,9 +49,9 @@ object SentJob {
       .build()
   }
 
-  def buildJob(c: Campaign) = {
+  def buildJob(userId: Long, c: Campaign) = {
     JobBuilder.newJob(classOf[SentJob])
-      .withIdentity(name(c), CampaignJob.group)
+      .withIdentity(name(c), CampaignJob.userGroup(userId))
       .requestRecovery
       .build
   }
@@ -58,18 +63,17 @@ class SentJob @Inject()(quartz: Quartz, campaignService: CampaignService) extend
 
   override protected def execute(context: JobExecutionContext, retry: Int): Unit = {
     val data = context.getMergedJobDataMap
+    val userId = data.get("userId").asInstanceOf[Long]
     val editionId = data.get("editionId").asInstanceOf[Long]
     val newsletterId = data.get("newsletterId").asInstanceOf[Long]
     val status = Campaign.Status.withName(data.get("status").asInstanceOf[String])
     val sendTime = Instant.ofEpochMilli(data.get("sendTime").asInstanceOf[Long])
-    val campaign = Campaign(editionId, newsletterId, sendTime, status, None, None)
+    val campaign = Campaign(userId, editionId, newsletterId, sendTime, status, None, None)
     logger.info(s"execute CampaignCompleteJob, editionId=$editionId")
-    val jobKeysFuture = quartz.getJobKeys(GroupMatcher.groupStartsWith(CampaignJob.identity(campaign)))
-    val jobKeys = Await.result(jobKeysFuture, Duration.Inf)
-    if (jobKeys.isEmpty) {
-      Await.result(campaignService.setSentStatus(editionId), Duration.Inf)
-    } else {
-      logger.warn(s"reschedule CampaignCompleteJob, editionId=$editionId, jobKeys.size=${jobKeys.size()}")
+    //TODO: forced campaign completion after timeout or N attempts
+    val result = Await.result(campaignService.completeCampaign(userId, editionId, forced = false), Duration.Inf)
+    if (result.status != Campaign.Status.SENT) {
+      logger.warn(s"reschedule CampaignCompleteJob, editionId=$editionId")
       val trigger = TriggerBuilder.newTrigger()
         .withIdentity(SentJob.name(campaign), CampaignJob.identity(campaign))
         .usingJobData(data)
@@ -77,7 +81,6 @@ class SentJob @Inject()(quartz: Quartz, campaignService: CampaignService) extend
         .build()
       quartz.rescheduleJobBlocking(trigger.getKey, trigger)
     }
-    //    quartz.pauseTriggers()
-    //    quartz.scheduler.pauseTriggers(new GroupMatcher[TriggerKey]("asdf", StringMatcher.StringOperatorName.STARTS_WITH))
+    logger.info("complete")
   }
 }

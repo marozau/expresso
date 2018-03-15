@@ -8,7 +8,7 @@ import slick.jdbc.{GetResult, JdbcType, SetParameter}
 /**
   * @author im.
   */
-trait RecipientComponent {
+trait RecipientComponent extends CampaignComponent {
   this: Repository =>
 
   import api._

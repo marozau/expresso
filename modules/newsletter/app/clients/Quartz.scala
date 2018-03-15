@@ -33,6 +33,10 @@ trait Quartz {
 
   def resumeTriggers(matcher: GroupMatcher[TriggerKey]): Future[Unit]
 
+  def pauseJobs(matcher: GroupMatcher[JobKey]): Future[Unit]
+
+  def resumeJobs(matcher: GroupMatcher[JobKey])
+
   def deleteJob(jobKey: JobKey): Future[Boolean]
 
   def checkExists(triggerKey: TriggerKey): Future[Boolean]
@@ -70,10 +74,10 @@ class QuartzFutureImpl @Inject()(appLifecycle: ApplicationLifecycle,
   scheduler.setJobFactory(jobFactory)
 
   scheduler.start()
-  Logger.info(s"$getClass: started")
+  Logger.info("started")
   appLifecycle.addStopHook { () =>
     Future {
-      Logger.info(s"$getClass: shutdown")
+      Logger.info("shutdown")
       scheduler.shutdown(true)
     }
   }
@@ -108,6 +112,14 @@ class QuartzFutureImpl @Inject()(appLifecycle: ApplicationLifecycle,
 
   override def resumeTriggers(matcher: GroupMatcher[TriggerKey]) = {
     Future(scheduler.resumeTriggers(matcher))(blockingExecutionContext)
+  }
+
+  override def pauseJobs(matcher: GroupMatcher[JobKey]) = {
+    Future(scheduler.pauseJobs(matcher))(blockingExecutionContext)
+  }
+
+  override def resumeJobs(matcher: GroupMatcher[JobKey]) = {
+    Future(scheduler.resumeJobs(matcher))(blockingExecutionContext)
   }
 
   override def deleteJob(jobKey: JobKey): Future[Boolean] = {

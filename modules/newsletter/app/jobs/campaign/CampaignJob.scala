@@ -10,4 +10,6 @@ object CampaignJob {
   def group = "campaign"
 
   def identity(c: Campaign) = s"$group-${c.newsletterId}-${c.editionId}"
+
+  def userGroup(userId: Long) = s"$group-$userId"
 }

@@ -15,5 +15,4 @@ case class Newsletter(id: Long,
                       locale: Lang,
                       logoUrl: Option[URL],
                       avatarUrl: Option[URL],
-                      options: Option[JsValue],
-                      createdTimestamp: Instant)
+                      options: Option[JsValue])

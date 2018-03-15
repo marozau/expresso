@@ -26,7 +26,7 @@ class UrlUtils @Inject() (configuration: Configuration) {
   protected def appendFragment(call: Call) =
     if (call.fragment != null && !call.fragment.trim.isEmpty) "#" + call.fragment else ""
 
-  lazy val mockRequestHeader = {
+  lazy val mockRequestHeader: RequestHeader = {
     val connection = new MockRemoveConnection(secure)
     val target = new MockRequestTarget(url)
     new MockRequestHeader(connection, target)

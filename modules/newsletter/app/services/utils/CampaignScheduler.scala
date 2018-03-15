@@ -23,18 +23,18 @@ class CampaignScheduler @Inject()(quartz: Quartz, recipientService: RecipientSer
 
   //TODO: personalized newsletter time
   def schedule(userId: Long, c: Campaign): Future[Date] = {
-    val job = PendingJob.buildJob(c)
+    val job = PendingJob.buildJob(userId, c)
     val trigger = PendingJob.buildTrigger(userId, c)
     quartz.scheduleJob(job, trigger)
       .flatMap { _ =>
-        val job = SentJob.buildJob(c)
-        val trigger = SentJob.buildTrigger(c)
+        val job = SentJob.buildJob(userId, c)
+        val trigger = SentJob.buildTrigger(userId, c)
         logger.info(s"schedule campaign, newsletterId=${c.newsletterId}, editionId=${c.editionId}, sendTime=${c.sendTime}")
         quartz.scheduleJob(job, trigger)
       }
   }
 
-  def scheduleSending(userId: Long, c: Campaign) = {
+  def startSending(userId: Long, c: Campaign) = {
     recipientService.getByNewsletterId(userId, c.newsletterId, Some(Recipient.Status.SUBSCRIBED))
       .flatMap { recipients =>
         Future.sequence(recipients
@@ -74,5 +74,13 @@ class CampaignScheduler @Inject()(quartz: Quartz, recipientService: RecipientSer
 
   def resume(campaign: Campaign) = {
     quartz.resumeTriggers(GroupMatcher.groupEquals(CampaignJob.identity(campaign)))
+  }
+
+  def suspendByUser(userId: Long) = {
+    quartz.pauseJobs(GroupMatcher.jobGroupEquals(CampaignJob.userGroup(userId)))
+  }
+
+  def resumeByUser(userId: Long) = {
+    quartz.resumeJobs(GroupMatcher.jobGroupEquals(CampaignJob.userGroup(userId)))
   }
 }

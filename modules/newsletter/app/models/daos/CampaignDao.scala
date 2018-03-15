@@ -31,7 +31,7 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
 
   def getByEditionId(userId: Long, editionId: Long): Future[Campaign] = {
     val query = sql"SELECT * FROM campaigns_get_by_edition_id(${userId}, ${editionId})".as[Campaign].head
-    db.run(query.asTry).map {
+    db.run(query.withPinnedSession.asTry).map {
       SqlUtils.tryException(CampaignNotFoundException.throwException)
     }
   }
@@ -42,7 +42,7 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
                      preview: Option[String],
                      options: Option[JsValue]): Future[Campaign] = {
     val query = sql"SELECT * FROM campaigns_create_or_update(${userId}, ${editionId}, ${sendTime}, ${preview}, ${options})".as[Campaign].head
-    db.run(query.transactionally.withPinnedSession.asTry).map{
+    db.run(query.transactionally.withPinnedSession.asTry).map {
       SqlUtils.tryException(
         AuthorizationException.throwException,
         EditionNotFoundException.throwException,
@@ -51,12 +51,12 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
     }
   }
 
-  def setPendingStatus(userId: Long, editionId: Long)(implicit tx: Tx[Campaign]): Future[Campaign] = {
-    val query = sql"SELECT * FROM campaigns_set_status_pending(${userId}, ${editionId})".as[Campaign].head
+  def start(userId: Long, editionId: Long)(implicit tx: Tx[Campaign]): Future[Campaign] = {
+    val query = sql"SELECT * FROM campaigns_start(${userId}, ${editionId})".as[Campaign].head
       .flatMap { campaign =>
         DBIO.from(tx.tx(campaign)).map(_ => campaign)
       }
-    db.run(query.transactionally.withPinnedSession.asTry).map{
+    db.run(query.transactionally.withPinnedSession.asTry).map {
       SqlUtils.tryException(
         AuthorizationException.throwException,
         CampaignNotFoundException.throwException,
@@ -64,12 +64,12 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
     }
   }
 
-  def setSendingStatus(editionId: Long)(implicit tx: Tx[Campaign]) = {
-    val query = sql"SELECT * FROM campaigns_set_status_sending(${editionId})".as[Campaign].head
+  def startSending(userId: Long, editionId: Long)(implicit tx: Tx[Campaign]) = {
+    val query = sql"SELECT * FROM campaigns_start_sending(${userId}, ${editionId})".as[Campaign].head
       .flatMap { campaign =>
         DBIO.from(tx.tx(campaign)).map(_ => campaign)
       }
-    db.run(query.transactionally.withPinnedSession.asTry).map{
+    db.run(query.transactionally.withPinnedSession.asTry).map {
       SqlUtils.tryException(
         AuthorizationException.throwException,
         CampaignNotFoundException.throwException,
@@ -77,12 +77,12 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
     }
   }
 
-  def setSentStatus(editionId: Long)(implicit tx: Tx[Campaign]) = {
-    val query = sql"SELECT * FROM campaigns_set_status_sent(${editionId})".as[Campaign].head
+  def complete(userId: Long, editionId: Long, forced: Boolean)(implicit tx: Tx[Campaign]) = {
+    val query = sql"SELECT * FROM campaigns_complete(${userId}, ${editionId}, ${forced})".as[Campaign].head
       .flatMap { campaign =>
         DBIO.from(tx.tx(campaign)).map(_ => campaign)
       }
-    db.run(query.transactionally.withPinnedSession.asTry).map{
+    db.run(query.transactionally.withPinnedSession.asTry).map {
       SqlUtils.tryException(
         AuthorizationException.throwException,
         CampaignNotFoundException.throwException,
@@ -90,12 +90,12 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
     }
   }
 
-  def suspend(userId: Long, editionId: Long)(implicit tx: Tx[Campaign]) ={
+  def suspend(userId: Long, editionId: Long)(implicit tx: Tx[Campaign]) = {
     val query = sql"SELECT * FROM campaigns_suspend(${userId}, ${editionId})".as[Campaign].head
       .flatMap { campaign =>
         DBIO.from(tx.tx(campaign)).map(_ => campaign)
       }
-    db.run(query.transactionally.withPinnedSession.asTry).map{
+    db.run(query.transactionally.withPinnedSession.asTry).map {
       SqlUtils.tryException(
         AuthorizationException.throwException,
         CampaignNotFoundException.throwException,
@@ -103,16 +103,27 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
     }
   }
 
-  def resume(userId: Long, editionId: Long)(implicit tx: Tx[Campaign]) ={
+  def resume(userId: Long, editionId: Long)(implicit tx: Tx[Campaign]) = {
     val query = sql"SELECT * FROM campaigns_resume(${userId}, ${editionId})".as[Campaign].head
       .flatMap { campaign =>
         DBIO.from(tx.tx(campaign)).map(_ => campaign)
       }
-    db.run(query.transactionally.withPinnedSession.asTry).map{
+    db.run(query.transactionally.withPinnedSession.asTry).map {
       SqlUtils.tryException(
         AuthorizationException.throwException,
         CampaignNotFoundException.throwException,
         InvalidCampaignStatusException.throwException)
+    }
+  }
+
+  def suspendByUser(userId: Long, forced: Boolean)(implicit tx: Tx[Vector[Campaign]]) = {
+    val query = sql"SELECT * FROM campaigns_suspend_by_user_id(${userId}, ${forced})".as[Campaign]
+      .flatMap { campaigns =>
+        DBIO.from(tx.tx(campaigns)).map(_ => campaigns)
+      }
+    db.run(query.transactionally.withPinnedSession.asTry).map {
+      SqlUtils.tryException(
+        AuthorizationException.throwException)
     }
   }
 }

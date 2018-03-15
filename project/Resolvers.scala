@@ -6,11 +6,13 @@ object Resolvers {
   val atlassian = "Atlassian Releases" at "https://maven.atlassian.com/public/"
   val kamonRelease: MavenRepository = Resolver.bintrayRepo("kamon-io", "releases")
   val kamonSbt: URLRepository = Resolver.bintrayIvyRepo("kamon-io", "sbt-plugins")
+  val confluentRepo: MavenRepository = "confluent" at "http://packages.confluent.io/maven/"
 
   val commonResolvers = Seq(
     Opts.resolver.sonatypeSnapshots,
     atlassian,
     kamonRelease,
-    Resolver.jcenterRepo
+    Resolver.jcenterRepo,
+    confluentRepo
   )
 }

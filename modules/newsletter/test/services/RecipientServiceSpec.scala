@@ -58,51 +58,31 @@ class RecipientServiceSpec extends TestContext {
       val recipient = Await.result(recipientDao.add(userId, newsletter.id, Some(Recipient.Status.PENDING)), 1.seconds)
       recipient.status mustBe Recipient.Status.PENDING
 
-      whenReady(recipientService.verify(recipient.id)) { recipient =>
+      whenReady(recipientService.updateStatus(recipient.id, Recipient.Status.SUBSCRIBED)) { recipient =>
         recipient.userId mustBe userId
         recipient.newsletterId mustBe newsletter.id
         recipient.status mustBe Recipient.Status.SUBSCRIBED
       }
-    }
 
-    "unsubscribe recipient" in {
-      val recipient = Await.result(recipientDao.add(userId, newsletter.id, Some(Recipient.Status.SUBSCRIBED)), 1.seconds)
-      recipient.status mustBe Recipient.Status.SUBSCRIBED
-
-      whenReady(recipientService.unsubscribe(recipient.id)) { recipient =>
+      whenReady(recipientService.updateStatus(recipient.id, Recipient.Status.UNSUBSCRIBED)) { recipient =>
         recipient.userId mustBe userId
         recipient.newsletterId mustBe newsletter.id
         recipient.status mustBe Recipient.Status.UNSUBSCRIBED
       }
-    }
 
-    "clean recipient" in {
-      val recipient = Await.result(recipientDao.add(userId, newsletter.id, Some(Recipient.Status.SUBSCRIBED)), 1.seconds)
-      recipient.status mustBe Recipient.Status.SUBSCRIBED
-
-      whenReady(recipientService.clean(recipient.id)) { recipient =>
+      whenReady(recipientService.updateStatus(recipient.id, Recipient.Status.CLEANED)) { recipient =>
         recipient.userId mustBe userId
         recipient.newsletterId mustBe newsletter.id
         recipient.status mustBe Recipient.Status.CLEANED
       }
-    }
 
-    "remove recipient" in {
-      val recipient = Await.result(recipientDao.add(userId, newsletter.id, Some(Recipient.Status.SUBSCRIBED)), 1.seconds)
-      recipient.status mustBe Recipient.Status.SUBSCRIBED
-
-      whenReady(recipientService.remove(recipient.id)) { recipient =>
+      whenReady(recipientService.updateStatus(recipient.id, Recipient.Status.REMOVED)) { recipient =>
         recipient.userId mustBe userId
         recipient.newsletterId mustBe newsletter.id
         recipient.status mustBe Recipient.Status.REMOVED
       }
-    }
 
-    "spam recipient" in {
-      val recipient = Await.result(recipientDao.add(userId, newsletter.id, Some(Recipient.Status.SUBSCRIBED)), 1.seconds)
-      recipient.status mustBe Recipient.Status.SUBSCRIBED
-
-      whenReady(recipientService.spam(recipient.id)) { recipient =>
+      whenReady(recipientService.updateStatus(recipient.id, Recipient.Status.SPAM)) { recipient =>
         recipient.userId mustBe userId
         recipient.newsletterId mustBe newsletter.id
         recipient.status mustBe Recipient.Status.SPAM

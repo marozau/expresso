@@ -16,5 +16,4 @@ case class Edition(id: Long,
                    posts: List[Post],
                    header: Option[JsValue],
                    footer: Option[JsValue],
-                   options: Option[JsValue],
-                   createdTimestamp: Instant)
+                   options: Option[JsValue])

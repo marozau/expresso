@@ -5,7 +5,7 @@ import javax.inject.{Inject, Singleton}
 
 import today.expresso.common.db.Repository
 import today.expresso.common.exceptions._
-import models.Recipient
+import models.{Campaign, Recipient}
 import models.components.{CommonComponent, RecipientComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
@@ -45,8 +45,8 @@ class RecipientDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(imp
     db.run(query.transactionally)
   }
 
-  def verify(recipientId: UUID): Future[Recipient] = {
-    val query = sql"SELECT * FROM recipients_update_status(${recipientId}, ${Recipient.Status.SUBSCRIBED})".as[Recipient].head
+  def updateStatus(recipientId: UUID, status: Recipient.Status.Value) = {
+    val query = sql"SELECT * FROM recipients_update_status(${recipientId}, ${status})".as[Recipient].head
     db.run(query.transactionally.asTry).map {
       SqlUtils.tryException {
         RecipientNotFoundException.throwException
@@ -54,8 +54,9 @@ class RecipientDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(imp
     }
   }
 
-  def unsubscribe(recipientId: UUID): Future[Recipient] = {
-    val query = sql"SELECT * FROM recipients_update_status(${recipientId}, ${Recipient.Status.UNSUBSCRIBED})".as[Recipient].head
+  //TODO: move to separate service
+  def startCampaign(userId: Long, campaignId: Long) = {
+    val query = sql"SELECT * FROM campaign_recipients_create_users(${userId}, ${campaignId})".as[Unit].head
     db.run(query.transactionally.asTry).map {
       SqlUtils.tryException {
         RecipientNotFoundException.throwException
@@ -63,30 +64,7 @@ class RecipientDao @Inject()(databaseConfigProvider: DatabaseConfigProvider)(imp
     }
   }
 
-  def remove(recipientId: UUID): Future[Recipient] = {
-    val query = sql"SELECT * FROM recipients_update_status(${recipientId}, ${Recipient.Status.REMOVED})".as[Recipient].head
-    db.run(query.transactionally.asTry).map {
-      SqlUtils.tryException {
-        RecipientNotFoundException.throwException
-      }
-    }
-  }
+  def completeCampaign(userId: Long, campaignId: Long) = {
 
-  def clean(recipientId: UUID): Future[Recipient] = {
-    val query = sql"SELECT * FROM recipients_update_status(${recipientId}, ${Recipient.Status.CLEANED})".as[Recipient].head
-    db.run(query.transactionally.asTry).map {
-      SqlUtils.tryException {
-        RecipientNotFoundException.throwException
-      }
-    }
-  }
-
-  def spam(recipientId: UUID): Future[Recipient] = {
-    val query = sql"SELECT * FROM recipients_update_status(${recipientId}, ${Recipient.Status.SPAM})".as[Recipient].head
-    db.run(query.transactionally.asTry).map {
-      SqlUtils.tryException {
-        RecipientNotFoundException.throwException
-      }
-    }
   }
 }

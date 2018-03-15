@@ -18,6 +18,7 @@ trait CampaignComponent {
     Campaign(
       r.nextLong(),
       r.nextLong(),
+      r.nextLong(),
       r.nextTimestamp().toInstant,
       campaignStatusMapper.getValue(r.rs, r.skip.currentPos),
       r.nextStringOption(),

@@ -17,7 +17,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * @author im.
   */
 @Singleton
-class CampaignService @Inject()(campaignDao: CampaignDao, campaignSchedulerService: CampaignScheduler)(implicit ec: ExecutionContext) {
+class CampaignService @Inject()(campaignDao: CampaignDao, campaignScheduler: CampaignScheduler)(implicit ec: ExecutionContext) {
 
   private val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
 
@@ -30,50 +30,47 @@ class CampaignService @Inject()(campaignDao: CampaignDao, campaignSchedulerServi
     campaignDao.createOrUpdate(userId, editionId, sendTime, preview, options) //TODO: event
   }
 
-  def setPendingStatus(userId: Long, editionId: Long) = {
-    campaignDao.setPendingStatus(userId, editionId) //TODO: event
-  }
-
-  def setSendingStatus(editionId: Long) = {
-    campaignDao.setSendingStatus(editionId) //TODO: event
-  }
-
-  def setSentStatus(editionId: Long) = {
-    campaignDao.setSentStatus(editionId) //TODO: event
-  }
-
-  def setSuspendedStatus(userId: Long, editionId: Long) = {
-    campaignDao.suspend(userId, editionId) //TODO: event
-  }
-
   def startCampaign(userId: Long, editionId: Long) = {
     logger.info(s"startCampaign, userId=$userId, editionId=$editionId")
-    campaignDao.setPendingStatus(userId, editionId) { campaign =>
-      campaignSchedulerService.schedule(userId, campaign)
+    campaignDao.start(userId, editionId) { campaign =>
+      campaignScheduler.schedule(userId, campaign)
     }
   }
 
-  def startSending(userId: Long, editionId: Long) = {
-    logger.info(s"startSending, userId=$userId, editionId=$editionId")
-    campaignDao.setSendingStatus(editionId) { campaign =>
-      campaignSchedulerService.scheduleSending(userId, campaign)
+  def startSendingCampaign(userId: Long, editionId: Long) = {
+    logger.info(s"startSendingCampaign, userId=$userId, editionId=$editionId")
+    campaignDao.startSending(userId, editionId) { campaign =>
+      campaignScheduler.startSending(userId, campaign)
     }
   }
 
   def suspendCampaign(userId: Long, editionId: Long) = {
     logger.info(s"suspendCampaign, userId=$userId, editionId=$editionId")
     campaignDao.suspend(userId, editionId) { campaign =>
-      campaignSchedulerService.suspend(campaign)
+      campaignScheduler.suspend(campaign)
     }
   }
 
   def resumeCampaign(userId: Long, editionId: Long) = {
     logger.info(s"resumeCampaign, userId=$userId, editionId=$editionId")
     campaignDao.resume(userId, editionId) { campaign =>
-      campaignSchedulerService.resume(campaign)
+      campaignScheduler.resume(campaign)
     }
   }
 
-  def stopCampaign() = {
+  def stopCampaign(userId: Long, editionId: Long) = {
+    logger.info(s"stopCampaign, userId=$userId, editionId=$editionId")
+  }
+
+  def completeCampaign(userId: Long, editionId: Long, forced: Boolean) = {
+    logger.info(s"completeCampaign, userId=$userId, editionId=$editionId, forced=$forced")
+    campaignDao.complete(userId, editionId, forced) //TODO: event
+  }
+
+  def suspendUserCampaigns(userId: Long, forced: Boolean) = {
+    logger.info(s"suspendUserCampaigns, userId=$userId")
+    campaignDao.suspendByUser(userId, forced) { campaigns =>
+      campaignScheduler.suspendByUser(userId).map(_ => campaigns)
+    } //TODO: event
   }
 }

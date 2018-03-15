@@ -4,7 +4,7 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import today.expresso.common.exceptions.InvalidUserStatusException
-import models.Recipient
+import models.{Campaign, Recipient}
 import models.daos.RecipientDao
 import today.expresso.grpc.user.domain.User
 
@@ -46,23 +46,15 @@ class RecipientService @Inject()(recipientsDao: RecipientDao, userService: UserS
       }
   }
 
-  def verify(recipientId: UUID) = {
-    recipientsDao.verify(recipientId) //TODO: event
+  def updateStatus(recipientId: UUID, status: Recipient.Status.Value) = {
+    recipientsDao.updateStatus(recipientId, status) //TODO: event
   }
 
-  def unsubscribe(recipientId: UUID) = {
-    recipientsDao.unsubscribe(recipientId) //TODO: event
+  def startCampaign(userId: Long, campaignId: Long) = {
+    recipientsDao.startCampaign(userId, campaignId)
   }
 
-  def remove(recipientId: UUID) = {
-    recipientsDao.remove(recipientId) //TODO: event
-  }
-
-  def clean(recipientId: UUID) = {
-    recipientsDao.clean(recipientId) //TODO: event
-  }
-
-  def spam(recipientId: UUID) = {
-    recipientsDao.spam(recipientId) //TODO: event
+  def completeCampaign(userId: Long, campaignId: Long) = {
+    recipientsDao.completeCampaign(userId, campaignId)
   }
 }

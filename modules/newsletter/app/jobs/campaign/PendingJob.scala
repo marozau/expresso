@@ -44,9 +44,9 @@ object PendingJob {
       .build()
   }
 
-  def buildJob(campaign: Campaign) = {
+  def buildJob(userId: Long, campaign: Campaign) = {
     JobBuilder.newJob(classOf[PendingJob])
-      .withIdentity(identity(campaign), CampaignJob.group)
+      .withIdentity(identity(campaign), CampaignJob.userGroup(userId))
       .requestRecovery
       .build
   }
@@ -64,11 +64,11 @@ class PendingJob @Inject()(quartz: Quartz, campaignService: CampaignService)(imp
     val newsletterId = data.get("newsletterId").asInstanceOf[Long]
     val status = Campaign.Status.withName(data.get("status").asInstanceOf[String])
     val sendTime = Instant.ofEpochMilli(data.get("sendTime").asInstanceOf[Long])
-    val campaign = Campaign(editionId, newsletterId, sendTime, status, None, None)
+    val campaign = Campaign(userId, editionId, newsletterId, sendTime, status, None, None)
     logger.info(s"execute, userId=$userId, editionId=$editionId")
     try {
       import scala.concurrent.duration._
-      Await.result(campaignService.startSending(userId, editionId), 1.minutes)
+      Await.result(campaignService.startSendingCampaign(userId, editionId), 1.minutes)
       //TODO: retry schedule for failed user ids
       logger.info("complete")
     } catch {

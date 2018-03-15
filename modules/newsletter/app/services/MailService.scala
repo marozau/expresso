@@ -2,6 +2,8 @@ package services
 
 import javax.inject.{Inject, Singleton}
 
+import clients.Mailer
+import clients.Mailer.EmailHtml
 import models.Recipient
 import play.api.Logger
 import play.api.libs.mailer.{Email, MailerClient}
@@ -15,11 +17,14 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 trait MailService {
   def sendVerification(email: String, user: User, recipient: Recipient): Future[Unit]
+
+  def send(email: EmailHtml): Future[String]
 }
 
 @Singleton
 class MailServiceImpl @Inject()(
                                  mailerClient: MailerClient,
+                                 mailer: Mailer,
                                  newsletterService: NewsletterService,
                                  urlUtils: UrlUtils)(implicit ex: ExecutionContext)
   extends MailService {
@@ -50,5 +55,9 @@ class MailServiceImpl @Inject()(
     //          //                bodyHtml = Some(views.html.emails.signUp(user, url).body)
     //        ))
     //      }
+  }
+
+  override def send(email: EmailHtml): Future[String] = {
+      mailer.send(email)
   }
 }

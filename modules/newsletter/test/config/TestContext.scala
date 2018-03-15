@@ -34,11 +34,11 @@ trait TestContext extends PlaySpec
   with WordSpecLike
   with Eventually {
 
-  override implicit val patienceConfig: PatienceConfig = PatienceConfig(scaled(Span(1000, Millis)), scaled(Span(100, Millis)))
+  override implicit val patienceConfig: PatienceConfig = PatienceConfig(scaled(Span(10000, Millis)), scaled(Span(100, Millis)))
 
   val mockGrpcServer = mock[GrpcServer]
-  val mockUserService = mock[UserService]
-  val mockMailService = mock[MailService]
+  val mockUserService = mock[UserService] //TODO: mock UserServiceGrpc instead
+  val mockMailService = mock[MailService] //TODO: mock MailClient instead
 
   override def fakeApplication() = {
 

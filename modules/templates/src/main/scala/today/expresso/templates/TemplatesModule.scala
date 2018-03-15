@@ -8,7 +8,7 @@ import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import play.api.{Configuration, Environment}
 import play.api.inject._
 import today.expresso.templates.api.HtmlCompiler
-import today.expresso.templates.impl.HtmlCompilerImpl
+import today.expresso.templates.impl.{CompilerCache, CompilerCacheImpl, HtmlCompilerImpl}
 
 import scala.concurrent.ExecutionContext
 
@@ -19,7 +19,10 @@ import scala.concurrent.ExecutionContext
 class TemplatesModule extends Module {
 
   override def bindings(environment: Environment, configuration: Configuration) = {
-      Seq(bind[HtmlCompiler].toProvider[HtmlCompilerProvider])
+      Seq(
+        bind[HtmlCompiler].toProvider[HtmlCompilerProvider],
+        bind[CompilerCache].to(classOf[CompilerCacheImpl])
+      )
   }
 }
 

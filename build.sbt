@@ -89,6 +89,7 @@ lazy val newsletter = (project in file("modules/newsletter"))
 
 lazy val templates = (project in file("modules/templates"))
   .enablePlugins(SbtTwirl)
+  .dependsOn(common)
   .settings(Common.settings: _*)
   .settings(
     libraryDependencies += play % Provided,
@@ -112,6 +113,21 @@ lazy val templates = (project in file("modules/templates"))
     ),
     TwirlKeys.constructorAnnotations += "@javax.inject.Inject()"
   )
+
+lazy val cqrs = (project in file("modules/sqrs"))
+  .enablePlugins(SbtTwirl)
+  .dependsOn(common)
+  .settings(Common.settings: _*)
+  .settings(
+    libraryDependencies += play % Provided,
+    libraryDependencies += ficus,
+    libraryDependencies += scalaGuice,
+    libraryDependencies += avro4sCore,
+    libraryDependencies ++= kafkaAll,
+
+    libraryDependencies ++= testAll
+  )
+
 
 lazy val expresso = (project in file("."))
   .settings(Common.settings: _*)

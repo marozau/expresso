@@ -29,7 +29,7 @@ object Dependency {
     lazy val scalaGuice = "4.1.0"
     lazy val ficus = "1.4.3"
     lazy val silhouette = "5.0.2"
-    lazy val avro4s = "1.8.0"
+    lazy val avro4s = "1.8.3"
     lazy val sangria = "1.3.3"
     lazy val sangriaPlayJson = "1.0.4"
     lazy val sangriaSlowlog = "0.1.4"
@@ -37,6 +37,8 @@ object Dependency {
     lazy val scalapbGrpc = "0.6.7"
     lazy val flyway = "4.0.0"
     lazy val akka = "2.5.8"
+    lazy val kafka = "1.0.1"
+    lazy val confluent = "4.0.0"
 
     // Tests
     lazy val scalatestplus = "3.1.2"
@@ -111,6 +113,9 @@ object Dependency {
 
   lazy val akkaRemote: ModuleID = "com.typesafe.akka" %% "akka-remote" % v.akka
 
+  lazy val kafka: ModuleID = "org.apache.kafka" %% "kafka" % v.kafka excludeAll(ExclusionRule("org.slf4j"), ExclusionRule("log4j"))
+  lazy val kafkaAvroSerializer: ModuleID = "io.confluent" % "kafka-avro-serializer" % v.confluent
+
   // Tests
   lazy val scalatestplus: ModuleID = "org.scalatestplus.play" %% "scalatestplus-play" % v.scalatestplus % Test
   lazy val mokito: ModuleID = "org.mockito" % "mockito-core" % v.mokito % Test
@@ -123,6 +128,7 @@ object Dependency {
   lazy val sangriaAll = Seq(sangria, sangriaRelay, snagriaPlayJson, sangriaSlowlog)
   lazy val bootstrapAll = Seq(bootstrap, bootstrapPlay, webjars)
   lazy val grcpAll = Seq(grpcNetty, grpcProtobuf, grpcStub, scalapbRuntime, scalapbRuntimeGrpc)
+  lazy val kafkaAll = Seq(kafka, kafkaAvroSerializer)
 
   lazy val testAll = Seq(scalatestplus, mokito)
 }

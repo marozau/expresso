@@ -6,18 +6,21 @@ import java.time.temporal.ChronoUnit
 import java.util.Date
 import javax.inject.Inject
 
-import today.expresso.common.utils.UrlUtils
-import clients.{Mailer, Quartz}
+import clients.Mailer.EmailHtml
+import clients.Quartz
 import jobs.api.RecoveringJob
 import models.Campaign
 import org.quartz._
-import org.quartz.core.jmx.JobDataMapSupport
 import org.slf4j.LoggerFactory
 import play.api.i18n._
-import services.{EditionService, NewsletterService, UserService}
-import today.expresso.templates.impl.CompilerService
+import services._
+import today.expresso.common.exceptions.RecipientNotFoundException
+import today.expresso.common.utils.UrlUtils
+import today.expresso.templates.api.domain.{Edition, Newsletter, Target}
+import today.expresso.templates.impl.TemplateService
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext}
 
 /**
   * @author im.
@@ -26,7 +29,7 @@ object SendingJob {
 
   def name(userId: Long, c: Campaign) = s"${CampaignJob.identity(c)}-$userId"
 
-  def buildTrigger(userId: Long, c: Campaign): Trigger = {
+  def buildJobData(userId: Long, c: Campaign) = {
     // Prefef.long2Long is nedded to avoid error: the result type of an implicit conversion must be more specific than AnyRef
     val jobDataMap = Map[String, AnyRef](
       "userId" -> Predef.long2Long(userId),
@@ -35,8 +38,12 @@ object SendingJob {
       "sendTime" -> Predef.long2Long(c.sendTime.toEpochMilli),
       "status" -> c.status.toString
     )
-    import scala.collection.JavaConverters._
-    val jobData = JobDataMapSupport.newJobDataMap(jobDataMap.asJava)
+    Quartz.newJobDataMap(jobDataMap)
+  }
+
+  def buildTrigger(userId: Long, c: Campaign): Trigger = {
+
+    val jobData = buildJobData(userId, c)
 
     TriggerBuilder.newTrigger()
       .withIdentity(name(userId, c), CampaignJob.identity(c))
@@ -47,7 +54,7 @@ object SendingJob {
 
   def buildJob(userId: Long, campaign: Campaign): JobDetail = {
     JobBuilder.newJob(classOf[SendingJob])
-      .withIdentity(name(userId, campaign), CampaignJob.group)
+      .withIdentity(name(userId, campaign), CampaignJob.userGroup(userId))
       .requestRecovery
       .build
   }
@@ -55,10 +62,11 @@ object SendingJob {
 
 class SendingJob @Inject()(quartz: Quartz,
                            userService: UserService,
-                           newsletterService: NewsletterService,
                            editionService: EditionService,
-                           mailer: Mailer,
-                           ph: CompilerService,
+                           newsletterService: NewsletterService,
+                           templateService: TemplateService,
+                           campaignRecipientService: CampaignRecipientService,
+                           mailService: MailService,
                            urlUtils: UrlUtils,
                            langs: Langs,
                            messagesApi: MessagesApi)
@@ -67,34 +75,59 @@ class SendingJob @Inject()(quartz: Quartz,
 
   private val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
 
-  val DEFAULT_LOCALE = "ru"
-
   override protected def execute(context: JobExecutionContext, retry: Int): Unit = {
     val data = context.getMergedJobDataMap
     val userId = data.get("userId").asInstanceOf[Long]
     val editionId = data.get("editionId").asInstanceOf[Long]
     val newsletterId = data.get("newsletterId").asInstanceOf[Long]
-    logger.info(s"execute EditionSendJob: userId=$userId, newsletterId=$newsletterId, editionId=$editionId")
-//    editionService.getById(editionId)
-//      .flatMap(edition => ph.doEdition(edition, Target.EMAIL))
-//      .flatMap(edition => userService.getById(userId).map((_, edition)))
-//      .map { case (user, edition) =>
-//          implicit val requestHeader = urlUtils.mockRequestHeader
-//          implicit val messages: Messages = MessagesImpl(edition.newsletter.locale, messagesApi)
-//          val newsletterBody = views.html.email.newsletter(edition).body
-//
-//          val email = EmailHtml(
-//            editionId,
-//            userId,
-//            edition.title.getOrElse(edition.newsletter.name),
-//            Seq(user.email),
-//            edition.newsletter.name,
-//            "reply_here@expresso.today", //TODO: centralized email answer service. Possibly its better to integrate with Slack
-//            newsletterBody
-//          )
-//          mailer.send(email).map(Some(_))
-//      }
-
-    //    quartz.scheduler.pauseTriggers(new GroupMatcher[TriggerKey]("asdf", StringMatcher.StringOperatorName.STARTS_WITH))
+    val status = Campaign.Status.withName(data.get("status").asInstanceOf[String])
+    val sendTime = Instant.ofEpochMilli(data.get("sendTime").asInstanceOf[Long])
+    val campaign = Campaign(userId, editionId, newsletterId, sendTime, status, None, None)
+    logger.info(s"execute, userId=$userId, newsletterId=$newsletterId, editionId=$editionId")
+    val sending = (for {
+      user <- userService.getById(userId)
+      newsletter <- newsletterService.getById(userId, newsletterId)
+      edition <- editionService.getById(userId, editionId)
+    } yield (user, newsletter, edition))
+      .flatMap { case (user, newsletter, edition) =>
+        //TODO: validate edition before scheduling
+        val templateEdition = Edition(
+          edition.id,
+          edition.url.map(_.toString).get,
+          Newsletter(newsletter.id, newsletter.userId, newsletter.name, Lang(newsletter.locale.toString), newsletter.logoUrl, newsletter.avatarUrl, newsletter.options),
+          edition.date,
+          edition.title.get,
+          List.empty,
+          edition.header,
+          edition.footer,
+          edition.options
+        )
+        templateService.getNewsletterTemplate(templateEdition, Target.EMAIL)
+          .map((user, newsletter, edition, _))
+      }
+      .flatMap { case (user, newsletter, edition, template) =>
+        val email = EmailHtml(
+          editionId,
+          userId,
+          edition.title.getOrElse(newsletter.name),
+          Seq(user.email),
+          newsletter.name,
+          "reply_here@expresso.today", //TODO: centralized email answer service. Possibly its better to integrate with Slack
+          template.body
+        )
+        mailService.send(email)
+      }
+      .flatMap { _ =>
+        campaignRecipientService.markSent(userId, editionId)
+      }
+      .recover {
+        case e: RecipientNotFoundException =>
+          logger.warn(s"failed to send email, user=${userId}, editionId=${editionId}", e)
+        case t: Throwable =>
+          logger.error(s"failed to send email, user=${userId}, editionId=${editionId}", t)
+          campaignRecipientService.markFailed(userId, editionId, Some(t.getMessage)).map(_ => throw t)
+      }
+    Await.result(sending, Duration.Inf)
+    logger.info("complete")
   }
 }
