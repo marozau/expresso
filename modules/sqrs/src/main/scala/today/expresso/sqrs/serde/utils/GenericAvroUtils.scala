@@ -10,7 +10,7 @@ import org.apache.avro.io.{DecoderFactory, EncoderFactory}
 /**
   * @author im.
   */
-object GenericRecordAvroUtils {
+object GenericAvroUtils {
 
   def serialize(record: GenericRecord) = {
     val writer = new GenericDatumWriter[GenericRecord](record.getSchema)
@@ -27,12 +27,14 @@ object GenericRecordAvroUtils {
     }
   }
 
-  def deserialize(bytes: Array[Byte], schema: Schema): GenericRecord = try {
+  def deserialize(bytes: Array[Byte], offset: Int, length: Int, schema: Schema): GenericRecord = try {
     val reader = new GenericDatumReader[GenericRecord](schema)
-    val decoder = DecoderFactory.get.binaryDecoder(bytes, null)
+    val decoder = DecoderFactory.get.binaryDecoder(bytes, offset, length, null)
     reader.read(null, decoder)
   } catch {
     case e: Exception =>
       throw new RuntimeException("Cannot deserialize bytes as object of class " + schema.getFullName, e)
   }
+
+  def deserialize(bytes: Array[Byte], schema: Schema): GenericRecord = deserialize(bytes, 0, bytes.length, schema)
 }
