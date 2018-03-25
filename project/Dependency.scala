@@ -43,6 +43,7 @@ object Dependency {
     // Tests
     lazy val scalatestplus = "3.1.2"
     lazy val mokito = "2.13.0"
+    lazy val embeddedKafka = "1.1.0"
   }
 
   lazy val play: ModuleID = "com.typesafe.play" %% "play" % v.play
@@ -119,6 +120,7 @@ object Dependency {
   // Tests
   lazy val scalatestplus: ModuleID = "org.scalatestplus.play" %% "scalatestplus-play" % v.scalatestplus % Test
   lazy val mokito: ModuleID = "org.mockito" % "mockito-core" % v.mokito % Test
+  lazy val embeddedKafka: ModuleID = "net.manub" %% "scalatest-embedded-kafka" % v.embeddedKafka % Test
 
 
   lazy val slickAll = Seq(postgresql, slickPlay, slickPlayEvolutions, slickPg, slickPgPlayJson, gcpPostgresSocketFactory)
@@ -130,5 +132,5 @@ object Dependency {
   lazy val grcpAll = Seq(grpcNetty, grpcProtobuf, grpcStub, scalapbRuntime, scalapbRuntimeGrpc)
   lazy val kafkaAll = Seq(kafka, kafkaAvroSerializer)
 
-  lazy val testAll = Seq(scalatestplus, mokito)
+  lazy val testAll = Seq(scalatestplus, mokito, embeddedKafka)
 }
