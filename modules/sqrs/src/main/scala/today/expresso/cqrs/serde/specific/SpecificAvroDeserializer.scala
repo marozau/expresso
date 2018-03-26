@@ -13,7 +13,7 @@ import today.expresso.cqrs.api.ToCaseClass
   */
 class SpecificAvroDeserializer[T](implicit toCaseClass: ToCaseClass[T]) extends AbstractKafkaAvroDeserializer with Deserializer[T] {
 
-  val inner = new GenericAvroDeserilaizer
+  val inner = new GenericAvroDeserializer
 
   override def close() = {
   }

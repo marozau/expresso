@@ -18,14 +18,11 @@ import today.expresso.cqrs.serde.utils.GenericAvroUtils
 class GenericAvroSerializer extends AbstractKafkaAvroSerializer with KeySerializer with ValueSerializer {
 
   var schemaRegistryOption: Option[SchemaRegistryClient] = None
-  var postfix: String = "-value"
   var includeTopicInSubject: Boolean = false
 
   override def configure(configs: util.Map[String, _], isKey: Boolean): Unit = {
     import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
     configure(new KafkaAvroSerializerConfig(configs))
-    this.postfix = if (isKey) "-key" else "-value"
-    //TODO: must be false or empty
     this.includeTopicInSubject = Option(configs.get("subject.topic.include").asInstanceOf[Boolean]).getOrElse(false)
   }
 
@@ -41,9 +38,9 @@ class GenericAvroSerializer extends AbstractKafkaAvroSerializer with KeySerializ
     */
   def getSubject(topic: String, data: GenericRecord): String = {
       if (includeTopicInSubject)
-        topic + "-" + data.getSchema.getFullName + postfix
+        topic + "-" + data.getSchema.getFullName
       else
-        data.getSchema.getFullName + postfix
+        data.getSchema.getFullName
   }
 
   override def serialize(topic: String, data: GenericRecord): Array[Byte] = {

@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException
-import io.confluent.kafka.serializers.AbstractKafkaAvroDeserializer
+import io.confluent.kafka.serializers.{AbstractKafkaAvroDeserializer, AbstractKafkaAvroSerDe}
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.common.errors.SerializationException
 import org.apache.kafka.common.serialization.Deserializer
@@ -16,47 +16,31 @@ import today.expresso.cqrs.serde.utils.GenericAvroUtils
 /**
   * @author im.
   */
-class GenericAvroDeserilaizer extends AbstractKafkaAvroDeserializer with Deserializer[GenericRecord] {
+class GenericAvroDeserializer extends AbstractKafkaAvroDeserializer with Deserializer[GenericRecord] {
 
   var schemaRegistryOption: Option[SchemaRegistryClient] = None
-  private var postfix: String = "-value"
   var includeTopicInSubject: Boolean = false
 
   override def configure(configs: util.Map[String, _], isKey: Boolean): Unit = {
     import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
     configure(new KafkaAvroDeserializerConfig(configs))
-    this.postfix = if(isKey) "-key" else "-value"
     this.includeTopicInSubject = Option(configs.get("subject.topic.include").asInstanceOf[Boolean]).getOrElse(false)
-  }
-
-  /**
-    * Overwrite in SpecificRecordDeserializer<Any>
-    * @param topic
-    * @return
-    */
-  def getSubject(topic: String): String = {
-    topic + postfix
-  }
-
-  def getSubject(topic: String, clazz: Class[_]): String = {
-    if (includeTopicInSubject)
-      topic + "-" + clazz.getCanonicalName + postfix
-    else
-      clazz.getCanonicalName + postfix
   }
 
   private def getByteBuffer(payload: Array[Byte]) = {
     val buffer = ByteBuffer.wrap(payload)
-    if (buffer.get != 0) throw new SerializationException("Unknown magic byte!")
+    if (buffer.get != AbstractKafkaAvroSerDe.MAGIC_BYTE) throw new SerializationException("Unknown magic byte!")
     else buffer
   }
 
-  override def deserialize(topic: String, data: Array[Byte]) = {
-    val subject = getSubject(topic)
-    val buffer = getByteBuffer(data)
-    val id = buffer.getInt
+  override def deserialize(topic: String, data: Array[Byte]): GenericRecord = {
+    if (data == null) return null
+
+    var id = -1
     try {
-      val schema = schemaRegistryOption.getOrElse(schemaRegistry).getBySubjectAndId(subject, id)
+      val buffer = getByteBuffer(data)
+      id = buffer.getInt
+      val schema = schemaRegistryOption.getOrElse(schemaRegistry).getBySubjectAndId(null, id)
       val start = buffer.position + buffer.arrayOffset
       val length = buffer.limit - 1 - 4
       val record = GenericAvroUtils.deserialize(buffer.array(), start, length, schema)
