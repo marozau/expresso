@@ -39,9 +39,11 @@ object Dependency {
     lazy val akka = "2.5.8"
     lazy val kafka = "1.0.1"
     lazy val confluent = "4.0.0"
+    lazy val guava = "22.0"
 
     // Tests
     lazy val scalatestplus = "3.1.2"
+    lazy val scalatest = "3.1.2"
     lazy val mokito = "2.13.0"
     lazy val embeddedKafka = "1.1.0"
   }
@@ -117,10 +119,13 @@ object Dependency {
   lazy val kafka: ModuleID = "org.apache.kafka" %% "kafka" % v.kafka excludeAll(ExclusionRule("org.slf4j"), ExclusionRule("log4j"))
   lazy val kafkaAvroSerializer: ModuleID = "io.confluent" % "kafka-avro-serializer" % v.confluent
 
+  lazy val guava: ModuleID = "com.google.guava" % "guava" % v.guava
+
   // Tests
-  lazy val scalatestplus: ModuleID = "org.scalatestplus.play" %% "scalatestplus-play" % v.scalatestplus % Test
-  lazy val mokito: ModuleID = "org.mockito" % "mockito-core" % v.mokito % Test
-  lazy val embeddedKafka: ModuleID = "net.manub" %% "scalatest-embedded-kafka" % v.embeddedKafka % Test
+  lazy val scalatestplus: ModuleID = "org.scalatestplus.play" %% "scalatestplus-play" % v.scalatestplus
+  lazy val scalaTest: ModuleID = "org.scalatest" %% "scalatest" % v.scalatest
+  lazy val mokito: ModuleID = "org.mockito" % "mockito-core" % v.mokito
+  lazy val embeddedKafka: ModuleID = "net.manub" %% "scalatest-embedded-kafka" % v.embeddedKafka
 
 
   lazy val slickAll = Seq(postgresql, slickPlay, slickPlayEvolutions, slickPg, slickPgPlayJson, gcpPostgresSocketFactory)
@@ -132,5 +137,6 @@ object Dependency {
   lazy val grcpAll = Seq(grpcNetty, grpcProtobuf, grpcStub, scalapbRuntime, scalapbRuntimeGrpc)
   lazy val kafkaAll = Seq(kafka, kafkaAvroSerializer)
 
-  lazy val testAll = Seq(scalatestplus, mokito, embeddedKafka)
+  lazy val testAll = Seq(scalatestplus % Test, mokito % Test, embeddedKafka % Test)
+  lazy val testAllWithIT = Seq(scalatestplus % "it, test", mokito % "it, test", embeddedKafka % "it, test")
 }

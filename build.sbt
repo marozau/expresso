@@ -114,9 +114,11 @@ lazy val templates = (project in file("modules/templates"))
     TwirlKeys.constructorAnnotations += "@javax.inject.Inject()"
   )
 
-lazy val cqrs = (project in file("modules/sqrs"))
+lazy val stream = (project in file("modules/stream"))
   .enablePlugins(SbtTwirl)
   .dependsOn(common)
+  .configs(IntegrationTest)
+  .settings(Defaults.itSettings: _*)
   .settings(Common.settings: _*)
   .settings(
     libraryDependencies += play % Provided,
@@ -125,7 +127,9 @@ lazy val cqrs = (project in file("modules/sqrs"))
     libraryDependencies += avro4sCore,
     libraryDependencies ++= kafkaAll,
 
-    libraryDependencies ++= testAll
+    libraryDependencies ++= testAllWithIT,
+    libraryDependencies += reflections % "it",
+    libraryDependencies += guava % "it"
   )
 
 
