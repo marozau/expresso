@@ -1,11 +1,13 @@
 package today.expresso.cqrs
 
 import java.lang.invoke.MethodHandles
+import java.util.Properties
 import javax.inject.Inject
 
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
 import org.slf4j.LoggerFactory
+import play.api.Logger
 import today.expresso.cqrs.api.{ToKeyRecord, ToValueRecord}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -14,6 +16,9 @@ import scala.concurrent.{ExecutionContext, Future}
   * @author im.
   */
 trait Producer {
+
+  val name: String
+
   def send[V](topic: String, data: V)(implicit toKey: ToKeyRecord[V], toValue: ToValueRecord[V]): Future[RecordMetadata]
 
   def beginTransaction(): Future[Unit]
@@ -32,15 +37,19 @@ object Producer {
       .flatMap(result => p.commitTransaction().map(_ => result))
       .recover {
         case t: Throwable =>
-          logger.error("producer transaction failed", t)
+          logger.error(s"[Producer ${p.name}] transaction failed", t)
           p.abortTransaction()
           throw t
       }
   }
 }
 
-class ProducerImpl @Inject()(kafkaProducer: KafkaProducer[GenericRecord, GenericRecord])(implicit ec: ExecutionContext)
+class ProducerImpl @Inject()(kafkaProducer: KafkaProducer[GenericRecord, GenericRecord], props: Properties)(implicit ec: ExecutionContext)
   extends Producer {
+
+  kafkaProducer.initTransactions()
+
+  override lazy val name = s"clientId=${props.get("client.id")}, transactionalId=${props.get("transactional.id")}"
 
   override def send[V](topic: String, data: V)(implicit toKey: ToKeyRecord[V], toValue: ToValueRecord[V]): Future[RecordMetadata] = Future {
     val keyRecord = toKey(data)
@@ -59,5 +68,10 @@ class ProducerImpl @Inject()(kafkaProducer: KafkaProducer[GenericRecord, Generic
 
   override def commitTransaction(): Future[Unit] = Future {
     kafkaProducer.commitTransaction()
+  }
+
+  def close(): Future[Unit] = Future {
+    Logger.info(s"[Producer $name] close")
+    kafkaProducer.close()
   }
 }

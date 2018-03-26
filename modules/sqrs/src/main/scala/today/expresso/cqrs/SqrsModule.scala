@@ -1,5 +1,6 @@
 package today.expresso.cqrs
 
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.{Inject, Provider, Singleton}
 
 import akka.actor.ActorSystem
@@ -21,43 +22,65 @@ class SqrsModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration) = {
     Seq(
       bind[KeySerializer].to(classOf[GenericAvroSerializer]),
-      bind[ValueSerializer].to(classOf[GenericAvroSerializer]),
-      bind[KafkaProducer[GenericRecord, GenericRecord]].toProvider[KafkaProducerProvider],
-      bind[Producer].toProvider[ProducerProvider]
+      bind[ValueSerializer].to(classOf[GenericAvroSerializer])
     )
   }
 }
 
+/**
+  * Producer provider creates new instance of producer with unique instance of kafka producer
+  * Each producer has unique transactional id that atomically increments using counter
+  *
+  * @param configuration
+  * @param appLifecycle
+  * @param actorSystem
+  * @param keySerializer
+  * @param valueSerializer
+  * @param counter
+  * @param ec
+  */
 class ProducerProvider @Inject()(configuration: Configuration,
-                                 actorSystem: ActorSystem,
-                                 KafkaProducerProvider: KafkaProducerProvider)
+                                 keySerializer: KeySerializer,
+                                 valueSerializer: ValueSerializer,
+                                 counter: KafkaProducerTransactionalCounter)
+                                (implicit ec: ExecutionContext, appLifecycle: ApplicationLifecycle, actorSystem: ActorSystem)
   extends Provider[Producer] {
 
   override def get(): Producer = {
-    new ProducerImpl(KafkaProducerProvider.get())(actorSystem.dispatchers.lookup("stream.kafka.producer.blocking-dispatcher"))
+    val config = configuration.get[Configuration]("stream.kafka.producer")
+    ProducerProvider(config, keySerializer, valueSerializer, counter.get().toString)
   }
 }
 
-class KafkaProducerProvider @Inject()(configuration: Configuration,
-                                      appLifecycle: ApplicationLifecycle,
-                                      actorSystem: ActorSystem,
-                                      keySerializer: KeySerializer,
-                                      valueSerializer: ValueSerializer)(implicit ec: ExecutionContext)
-  extends Provider[KafkaProducer[GenericRecord, GenericRecord]] {
+object ProducerProvider {
 
-  override def get(): KafkaProducer[GenericRecord, GenericRecord] = {
-    val props = ConfigUtils.getProperties(configuration.get[Configuration]("stream.kafka.producer"))
+  def apply(config: Configuration,
+            keySerializer: KeySerializer,
+            valueSerializer: ValueSerializer,
+            qualifier: String)
+           (implicit ec: ExecutionContext, appLifecycle: ApplicationLifecycle, actorSystem: ActorSystem): Producer =
+  {
+    val props = ConfigUtils.getProperties(config)
+    props.put("transactional.id", config.get[String]("transactional.id") + "-" + qualifier)
+    props.put("client.id", config.get[String]("client.id") + "-" + qualifier)
 
     val kafkaProducer = new KafkaProducer[GenericRecord, GenericRecord](props, keySerializer, valueSerializer)
-    kafkaProducer.initTransactions()
+    val producer = new ProducerImpl(kafkaProducer, props)(actorSystem.dispatchers.lookup("stream.kafka.producer.blocking-dispatcher"))
 
     appLifecycle.addStopHook { () =>
-      Future {
-        Logger.info(s"[Producer clientId=${props.get("client.id")}, transactionalId=${props.get("transactional.id")}] shutdown")
-        kafkaProducer.close()
-      }
+      producer.close()
     }
 
-    kafkaProducer
+    producer
+  }
+}
+
+@Singleton
+class KafkaProducerTransactionalCounter {
+
+  val counter = new AtomicInteger
+
+  def get(): Int = {
+    counter.incrementAndGet()
   }
 }

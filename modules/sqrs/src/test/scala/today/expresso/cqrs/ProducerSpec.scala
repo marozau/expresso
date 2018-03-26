@@ -95,6 +95,7 @@ class ProducerSpec extends WordSpec
     .overrides(bind[KeySerializer].toInstance(keySerializer))
     .overrides(bind[ValueSerializer].toInstance(valueSerializer))
     .bindings(new SqrsModule)
+    .bindings(bind[Producer].toProvider[ProducerProvider])
     .injector()
 
   override protected def afterAll(): Unit = {
