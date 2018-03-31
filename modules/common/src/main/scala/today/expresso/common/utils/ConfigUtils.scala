@@ -19,4 +19,13 @@ object ConfigUtils {
     props.putAll(map.asJava)
     props
   }
+
+  def getJavaConfigMap(configuration: Configuration) = {
+    import scala.collection.JavaConverters._
+    val map: Map[String, Object] = configuration.underlying.entrySet().asScala
+      .map({ entry =>
+        entry.getKey -> entry.getValue.unwrapped()
+      })(collection.breakOut)
+    map.asJava
+  }
 }

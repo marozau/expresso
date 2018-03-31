@@ -1,7 +1,7 @@
 package config
 
 import api.GrpcServer
-import clients.{Quartz, QuartzFutureImpl}
+import clients.Quartz
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Span}
@@ -12,7 +12,9 @@ import play.api.db.slick.DatabaseConfigProvider
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import services.{MailService, UserService}
+import streams.Names
 import today.expresso.grpc.user.domain.User
+import today.expresso.stream.Producer
 
 /**
   * @author im.
@@ -26,7 +28,7 @@ object TestContext {
   val user = User(userId, userEmail, User.Status.VERIFIED, Seq(User.Role.EDITOR))
 }
 
-trait TestContext extends PlaySpec
+trait TestContext extends PlaySpec with StreamSpec
   with GuiceOneAppPerSuite
   with BeforeAndAfterEach
   with MockitoSugar
@@ -47,6 +49,9 @@ trait TestContext extends PlaySpec
       .overrides(bind[GrpcServer].toInstance(mockGrpcServer))
       .overrides(bind[UserService].toInstance(mockUserService))
       .overrides(bind[MailService].toInstance(mockMailService))
+      .overrides(bind[Producer].qualifiedWith(Names.newsletter).toInstance(mockProducer))
+      .overrides(bind[Producer].qualifiedWith(Names.campaign).toInstance(mockProducer))
+      .overrides(bind[Producer].qualifiedWith(Names.edition).toInstance(mockProducer))
       .build()
   }
 

@@ -94,7 +94,7 @@ class ProducerSpec extends WordSpec
   val injector = new GuiceApplicationBuilder()
     .overrides(bind[KeySerializer].toInstance(keySerializer))
     .overrides(bind[ValueSerializer].toInstance(valueSerializer))
-    .bindings(new SqrsModule)
+    .bindings(new StreamModule)
     .bindings(bind[Producer].toProvider[ProducerProvider])
     .injector()
 

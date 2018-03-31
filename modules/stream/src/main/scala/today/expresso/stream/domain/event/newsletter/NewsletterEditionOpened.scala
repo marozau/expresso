@@ -1,8 +1,8 @@
-package today.expresso.stream.event.newsletter
+package today.expresso.stream.domain.event.newsletter
 
 import com.sksamuel.avro4s._
 import today.expresso.stream.api.Key
-import today.expresso.stream.event.Event
+import today.expresso.stream.domain.Event
 
 
 /**

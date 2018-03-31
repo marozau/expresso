@@ -2,38 +2,48 @@ package services
 
 import java.lang.invoke.MethodHandles
 import java.time.Instant
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Named, Singleton}
 import models.Campaign
 import models.daos.CampaignDao
 import org.slf4j.LoggerFactory
 import play.api.libs.json.JsValue
-import today.expresso.common.utils.Tx
-import utils.CampaignScheduler
+import services.utils.CampaignScheduler
+import streams.Names
+import today.expresso.stream.Producer
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 /**
   * @author im.
   */
 @Singleton
-class CampaignService @Inject()(campaignDao: CampaignDao, campaignScheduler: CampaignScheduler)(implicit ec: ExecutionContext) {
+class CampaignService @Inject()(campaignDao: CampaignDao, campaignScheduler: CampaignScheduler)
+                               (implicit ec: ExecutionContext, @Named(Names.campaign) producer: Producer) {
+
+  import Campaign._
 
   private val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
-
-  implicit val tx: Tx[Campaign] = c => Future.successful(c)
 
   def getByEditionId(userId: Long, editionId: Long) = campaignDao.getByEditionId(userId, editionId)
 
   def createOrUpdate(userId: Long, editionId: Long, sendTime: Instant, preview: Option[String], options: Option[JsValue]) = {
     logger.info(s"createOrUpdate, userId=$userId, editionId=$editionId")
-    campaignDao.createOrUpdate(userId, editionId, sendTime, preview, options) //TODO: event
+    campaignDao.createOrUpdate(userId, editionId, sendTime, preview, options) { campaign =>
+      producer.send(ToCampaignUpdated(campaign))
+    }
   }
 
-  def startCampaign(userId: Long, editionId: Long) = {
+  def startCampaign(userId: Long, editionId: Long) = Producer.transactionally {
     logger.info(s"startCampaign, userId=$userId, editionId=$editionId")
     campaignDao.start(userId, editionId) { campaign =>
       campaignScheduler.schedule(userId, campaign)
+        .map { _ =>
+          for {
+            _ <- producer.send(ToCampaignUpdated(campaign))
+            _ <- producer.send(ToCampaignStarted(campaign))
+          } yield ()
+        }
     }
   }
 
@@ -41,6 +51,7 @@ class CampaignService @Inject()(campaignDao: CampaignDao, campaignScheduler: Cam
     logger.info(s"startSendingCampaign, userId=$userId, editionId=$editionId")
     campaignDao.startSending(userId, editionId) { campaign =>
       campaignScheduler.startSending(userId, campaign)
+        .map(_ => producer.send(ToCampaignUpdated(campaign)))
     }
   }
 
@@ -48,6 +59,7 @@ class CampaignService @Inject()(campaignDao: CampaignDao, campaignScheduler: Cam
     logger.info(s"suspendCampaign, userId=$userId, editionId=$editionId")
     campaignDao.suspend(userId, editionId) { campaign =>
       campaignScheduler.suspend(campaign)
+        .map(_ => producer.send(ToCampaignUpdated(campaign)))
     }
   }
 
@@ -55,6 +67,7 @@ class CampaignService @Inject()(campaignDao: CampaignDao, campaignScheduler: Cam
     logger.info(s"resumeCampaign, userId=$userId, editionId=$editionId")
     campaignDao.resume(userId, editionId) { campaign =>
       campaignScheduler.resume(campaign)
+        .map(_ => producer.send(ToCampaignUpdated(campaign)))
     }
   }
 
@@ -64,13 +77,16 @@ class CampaignService @Inject()(campaignDao: CampaignDao, campaignScheduler: Cam
 
   def completeCampaign(userId: Long, editionId: Long, forced: Boolean) = {
     logger.info(s"completeCampaign, userId=$userId, editionId=$editionId, forced=$forced")
-    campaignDao.complete(userId, editionId, forced) //TODO: event
+    campaignDao.complete(userId, editionId, forced) { campaign =>
+      producer.send(ToCampaignUpdated(campaign))
+    }
   }
 
   def suspendUserCampaigns(userId: Long, forced: Boolean) = {
     logger.info(s"suspendUserCampaigns, userId=$userId")
     campaignDao.suspendByUser(userId, forced) { campaigns =>
-      campaignScheduler.suspendByUser(userId).map(_ => campaigns)
-    } //TODO: event
+      campaignScheduler.suspendByUser(userId)
+        .map(_ => campaigns.map(c => producer.send(ToCampaignUpdated(c))))
+    }
   }
 }

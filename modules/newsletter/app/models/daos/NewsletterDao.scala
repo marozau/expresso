@@ -2,21 +2,25 @@ package models.daos
 
 import javax.inject.{Inject, Singleton}
 
-import today.expresso.common.db.Repository
-import today.expresso.common.exceptions.{AuthorizationException, NewsletterAlreadyExistException, NewsletterNotFoundException}
-import models.components.{CommonComponent, NewsletterComponent}
+import models.components.NewsletterComponent
 import models.{Locale, Newsletter}
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json.JsValue
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
-import today.expresso.common.utils.SqlUtils
+import today.expresso.common.db.Repository
+import today.expresso.common.exceptions.{AuthorizationException, NewsletterAlreadyExistException, NewsletterNotFoundException}
+import today.expresso.common.utils.{SqlUtils, Tx}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * @author im.
   */
+object NewsletterDao {
+  implicit val tx: Tx[Newsletter] = c => Future.successful(c)
+}
+
 @Singleton
 class NewsletterDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
   extends Repository with NewsletterComponent {
@@ -26,8 +30,11 @@ class NewsletterDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
   import api._
   import dbConfig._
 
-  def create(userId: Long, name: String, locale: Locale.Value): Future[Newsletter] = {
+  def create(userId: Long, name: String, locale: Locale.Value)(implicit tx: Tx[Newsletter]): Future[Newsletter] = {
     val query = sql"SELECT * FROM newsletters_create(${userId}, ${name}, ${locale})".as[Newsletter].head
+      .flatMap { campaign =>
+        DBIO.from(tx.tx(campaign)).map(_ => campaign)
+      }
     db.run(query.transactionally.asTry).map {
       SqlUtils.tryException(
         NewsletterAlreadyExistException.throwException
@@ -40,8 +47,11 @@ class NewsletterDao @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
              locale: Option[Locale.Value],
              logoUrl: Option[String],
              avatarUrl: Option[String],
-             options: Option[JsValue]): Future[Newsletter] = {
+             options: Option[JsValue])(implicit tx: Tx[Newsletter]): Future[Newsletter] = {
     val query = sql"SELECT * FROM newsletters_update(${userId}, ${newsletterId}, ${locale}, ${logoUrl}, ${avatarUrl}, ${options})".as[Newsletter].head
+      .flatMap { campaign =>
+        DBIO.from(tx.tx(campaign)).map(_ => campaign)
+      }
     db.run(query.transactionally.asTry).map {
       SqlUtils.tryException(
         AuthorizationException.throwException,

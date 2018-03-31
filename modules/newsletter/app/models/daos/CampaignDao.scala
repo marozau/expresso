@@ -18,6 +18,10 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
   * @author im.
   */
+object CampaignDao {
+  implicit val tx: Tx[Campaign] = c => Future.successful(c)
+}
+
 @Singleton
 class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
                             newsletterDao: EditionDao,
@@ -40,7 +44,7 @@ class CampaignDao @Inject()(databaseConfigProvider: DatabaseConfigProvider,
                      editionId: Long,
                      sendTime: Instant,
                      preview: Option[String],
-                     options: Option[JsValue]): Future[Campaign] = {
+                     options: Option[JsValue])(implicit tx: Tx[Campaign]): Future[Campaign] = {
     val query = sql"SELECT * FROM campaigns_create_or_update(${userId}, ${editionId}, ${sendTime}, ${preview}, ${options})".as[Campaign].head
     db.run(query.transactionally.withPinnedSession.asTry).map {
       SqlUtils.tryException(

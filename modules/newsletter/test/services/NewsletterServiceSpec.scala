@@ -33,7 +33,7 @@ class NewsletterServiceSpec extends TestContext {
       }
     }
 
-    "don't create newsletter duplicate" in {
+    "not create newsletter duplicate" in {
       Await.result(newsletterService.create(userId, "test", Locale.en), 5.seconds)
       whenReady(newsletterService.create(userId, "test", Locale.en).failed) { error =>
         error mustBe an[NewsletterAlreadyExistException]

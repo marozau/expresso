@@ -63,7 +63,7 @@ lazy val newsletter = (project in file("modules/newsletter"))
   .enablePlugins(PlayScala)
   .settings(Common.settings: _*)
   .settings(PlayKeys.devSettings := Seq("play.server.http.port" -> "9002"))
-  .dependsOn(common, grpc, templates)
+  .dependsOn(common, grpc, templates, stream)
   .settings(
     libraryDependencies ++= Seq(guice, filters, ws, cacheApi),
     libraryDependencies ++= silhouetteAll,

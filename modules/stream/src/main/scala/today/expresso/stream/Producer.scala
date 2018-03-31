@@ -19,6 +19,8 @@ trait Producer {
 
   val name: String
 
+  def send[V](data: V)(implicit toKey: ToKeyRecord[V], toValue: ToValueRecord[V]): Future[RecordMetadata]
+
   def send[V](topic: String, data: V)(implicit toKey: ToKeyRecord[V], toValue: ToValueRecord[V]): Future[RecordMetadata]
 
   def beginTransaction(): Future[Unit]
@@ -37,7 +39,7 @@ object Producer {
       .flatMap(result => p.commitTransaction().map(_ => result))
       .recover {
         case t: Throwable =>
-          logger.error(s"[Producer ${p.name}] transaction failed", t)
+          logger.warn(s"[Producer ${p.name}] transaction failed, message={}", t.getMessage)
           p.abortTransaction()
           throw t
       }
@@ -50,6 +52,14 @@ class ProducerImpl @Inject()(kafkaProducer: KafkaProducer[GenericRecord, Generic
   kafkaProducer.initTransactions()
 
   override lazy val name = s"clientId=${props.get("client.id")}, transactionalId=${props.get("transactional.id")}"
+
+  override def send[V](data: V)(implicit toKey: ToKeyRecord[V], toValue: ToValueRecord[V]): Future[RecordMetadata] = Future {
+    val keyRecord = toKey(data)
+    val valueRecord = toValue(data)
+    val topic = valueRecord.getSchema.getFullName
+    val record = new ProducerRecord[GenericRecord, GenericRecord](topic, null, keyRecord, valueRecord)
+    kafkaProducer.send(record).get()
+  }
 
   override def send[V](topic: String, data: V)(implicit toKey: ToKeyRecord[V], toValue: ToValueRecord[V]): Future[RecordMetadata] = Future {
     val keyRecord = toKey(data)

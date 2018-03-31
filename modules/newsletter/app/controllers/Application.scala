@@ -10,7 +10,7 @@ import play.api.routing._
   * @author im.
   */
 @Singleton
-class Application @Inject()(cc: ControllerComponents)
+class Application @Inject()(cc: ControllerComponents, app: models.Application)
   extends AbstractController(cc) {
 
   //TODO: add healthcehck endpoint with all systems status - database, message bus, external services etc

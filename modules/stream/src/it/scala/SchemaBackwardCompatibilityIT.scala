@@ -3,7 +3,7 @@ import org.apache.avro.Schema
 import org.apache.avro.generic.GenericRecord
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import today.expresso.stream.api.ToValueRecord
-import today.expresso.stream.event.newsletter.{NewsletterEditionOpened, NewsletterEditionSent}
+import today.expresso.stream.domain.event.newsletter.{NewsletterEditionOpened, NewsletterEditionSent}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
