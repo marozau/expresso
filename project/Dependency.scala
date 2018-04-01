@@ -11,7 +11,7 @@ object Dependency {
 
     lazy val twirl = "1.3.12"
     lazy val slick = "3.0.3"
-    lazy val postgresql = "42.1.4"
+    lazy val postgresql = "42.2.2"
     lazy val slickPg = "0.16.0"
     lazy val gcpPostgresSocketFactory = "1.0.4"
     lazy val quartz = "2.3.0"
