@@ -11,9 +11,15 @@ import today.expresso.stream.utils.TopicUtils
   * @author im.
   */
 @Singleton
-class NewsletterStream @Inject() (builder: StreamsBuilder, newsletterService: NewsletterService) {
+class NewsletterStream @Inject()(builder: StreamsBuilder, newsletterService: NewsletterService) {
 
   Logger.info("starting NewsletterStream")
 
   val newsletterCreatedStream = builder.stream(TopicUtils.singleObjectTopic[NewsletterCreated])
+    .mapValues {
+      (value: NewsletterCreated) =>
+        Logger.info(value.toString)
+        value
+    }
+
 }

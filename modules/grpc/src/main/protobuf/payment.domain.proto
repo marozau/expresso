@@ -1,0 +1,74 @@
+syntax = "proto3";
+package today.expresso.grpc.payment.domain;
+
+enum PaymentSystem {
+    YANDEX = 0;
+}
+
+enum PaymentOption {
+    BANK_CARD = 0;
+    YANDEX_WALLET = 1;
+    APPLE_PAY = 2;
+    SBERBANK = 3;
+    QIWI = 4;
+    WEBMONEY = 5;
+    CASH = 6;
+    MOBILE_BALANCE = 7;
+    ALFABANK = 8;
+}
+
+message PaymentPageReference {
+    string url = 1;
+    string params = 2;
+}
+
+message WithdrawalResult {
+
+    enum WithdrawalAction {
+        DECLINE = 0;
+        APPROVE = 1;
+        POSTPONE = 2;
+    }
+
+    string orderId = 1;
+    WithdrawalAction action = 2;
+    string message = 3;
+}
+
+message PaymentMethod {
+
+    enum Status {
+        OK = 0;
+        INREVIEW = 1;
+        INCOMPLETE = 2;
+        BLOCKED = 3;
+    }
+
+    int64 id = 1;
+    int64 userId = 2;
+    PaymentOption paymentOption = 3;
+    PaymentSystem paymentSystem = 4;
+    int64 expirationDate = 5;
+    string displayName = 6;
+    string color = 7;
+    bool deleted = 8;
+    bool isDefault = 9;
+
+    int64 createdDate = 10;
+    int64 firstPaymentDate = 11;
+    int64 lastPaymentDate = 12;
+    int64 lastFailedDate = 13;
+
+    map<string, string> other = 14;
+
+    Status status = 15;
+}
+
+message PaymentPageInfo {
+    int64 userId = 1;
+    int64 accountId = 2;
+    string currency = 3;
+    string locale = 4;
+
+
+}

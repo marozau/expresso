@@ -132,6 +132,22 @@ lazy val stream = (project in file("modules/stream"))
     libraryDependencies += guava % "it"
   )
 
+lazy val payment = (project in file("modules/payment"))
+  .enablePlugins(PlayScala)
+  .settings(Common.settings: _*)
+  .settings(PlayKeys.devSettings := Seq("play.server.http.port" -> "9003"))
+  .dependsOn(common, grpc, stream)
+  .settings(
+    libraryDependencies ++= Seq(guice, filters, ws, cacheApi),
+    libraryDependencies ++= slickAll,
+    libraryDependencies += ficus,
+    libraryDependencies += scalaGuice,
+    libraryDependencies += quartz,
+    libraryDependencies += flyway,
+
+    libraryDependencies ++= testAll
+  )
+
 
 lazy val expresso = (project in file("."))
   .settings(Common.settings: _*)

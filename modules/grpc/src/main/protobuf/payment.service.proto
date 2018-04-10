@@ -1,0 +1,41 @@
+syntax = "proto3";
+package today.expresso.grpc.payment.service;
+
+import "common.proto";
+import "payment.domain.proto";
+
+message DepositRequest {
+    Header header = 1;
+
+    int64 userId = 2;
+    int64 accountId = 3;
+    double amount = 4;
+    double commission = 5;
+    string currency = 6;
+    domain.PaymentOption paymentOption = 7;
+    string ip = 8;
+}
+
+message DepositResponse {
+    Header header = 1;
+    domain.PaymentPageReference paymentPageReference = 2;
+}
+
+message WithdwawalRequest {
+    Header header = 1;
+
+    domain.PaymentSystem paymentSystem = 2;
+}
+
+message WithdwawalResponse {
+    Header header = 1;
+}
+
+service PaymentGatewayService {
+
+    rpc Deposit (DepositRequest) returns (DepositResponse) {
+    }
+    rpc Withdrawal (WithdwawalRequest) returns (WithdwawalResponse) {
+    }
+}
+

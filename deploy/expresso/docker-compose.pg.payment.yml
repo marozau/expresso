@@ -1,0 +1,16 @@
+version: '2'
+services:
+  postgres_payment:
+    image: postgres:9.6
+    ports:
+      - 5439:5432
+    environment:
+      - POSTGRES_USER=expresso_payment
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - pbdata_payment:/var/lib/postgresql/data
+
+volumes:
+  pbdata_payment:
+    driver: local
+
