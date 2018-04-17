@@ -1,3 +1,4 @@
+-- TODO: remove it
 CREATE OR REPLACE FUNCTION user_profiles_is_email_exist(_email TEXT)
   RETURNS BOOLEAN AS $$
 DECLARE

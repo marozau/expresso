@@ -41,6 +41,8 @@ object BaseException {
 
     val EDITION_NOT_FOUND = Value
     val EDITION_ALREADY_EXISTS = Value
+
+    val PAYMENT_METHOD_NOT_FOUND = Value
   }
 }
 

@@ -17,6 +17,21 @@ enum PaymentOption {
     ALFABANK = 8;
 }
 
+enum PaymentStatus {
+    SUCCESSFUL = 0;
+    DECLINED = 1;
+    CANCELLED = 2;
+}
+
+enum PaymentType {
+    DEPOSIT = 0;
+    WITHDRAWAL = 1;
+    REFUND = 2;
+    AUTH = 3;
+    SETTLE = 4;
+    VOID = 5;
+}
+
 message PaymentPageReference {
     string url = 1;
     string params = 2;
@@ -48,20 +63,19 @@ message PaymentMethod {
     int64 userId = 2;
     PaymentOption paymentOption = 3;
     PaymentSystem paymentSystem = 4;
-    int64 expirationDate = 5;
-    string displayName = 6;
-    string color = 7;
-    bool deleted = 8;
-    bool isDefault = 9;
+    Status status = 5;
+    int64 expirationDate = 6;
+    string displayName = 7;
+    string color = 8;
+    bool deleted = 9;
+    bool isDefault = 10;
 
-    int64 createdDate = 10;
-    int64 firstPaymentDate = 11;
-    int64 lastPaymentDate = 12;
-    int64 lastFailedDate = 13;
+    int64 createdDate = 11;
+    int64 firstPaymentDate = 12;
+    int64 lastPaymentDate = 13;
+    int64 lastFailedDate = 14;
 
-    map<string, string> other = 14;
-
-    Status status = 15;
+    string details = 15; // json
 }
 
 message PaymentPageInfo {

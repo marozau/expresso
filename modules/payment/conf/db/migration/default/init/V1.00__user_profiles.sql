@@ -1,19 +1,18 @@
---TODO: remove this from here
+--TODO: encrypt this table
 
-CREATE TYPE user_sex AS ENUM ('MALE', 'FEMALE', 'UNKNOWN');
+CREATE TYPE user_status AS ENUM ('NEW', 'VERIFIED', 'BLOCKED');
 
 CREATE TABLE user_profiles (
-  user_id            BIGINT PRIMARY KEY REFERENCES users (id),
+  user_id            BIGINT PRIMARY KEY,
+
+  status             user_status,
 
   first_name         TEXT,
   last_name          TEXT,
-  sex                user_sex,
   date_of_birth      DATE,
   country            CHAR(2),
   city               TEXT,
   postcode           TEXT,
-
-  rating             DECIMAL,
 
   modified_timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );

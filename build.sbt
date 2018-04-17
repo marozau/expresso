@@ -114,9 +114,10 @@ lazy val templates = (project in file("modules/templates"))
     TwirlKeys.constructorAnnotations += "@javax.inject.Inject()"
   )
 
+// TODO: move all domain protobuf and avro models to the separate module
 lazy val stream = (project in file("modules/stream"))
   .enablePlugins(SbtTwirl)
-  .dependsOn(common)
+  .dependsOn(common, grpc)
   .configs(IntegrationTest)
   .settings(Defaults.itSettings: _*)
   .settings(Common.settings: _*)

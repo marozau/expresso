@@ -33,7 +33,10 @@ trait Producer {
 object Producer {
   private final val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
 
-  def transactionally[A](f: => Future[A])(implicit p: Producer, ec: ExecutionContext): Future[A] = {
+  //TODO: recursive transaction without lock.
+  //TODO: producer pool???
+  //TODO: dispatcher with only 1 thread
+  def transactionally[A](f: => Future[A])(implicit ec: ExecutionContext, p: Producer): Future[A] = {
     p.beginTransaction()
       .flatMap(_ => f)
       .flatMap(result => p.commitTransaction().map(_ => result))
