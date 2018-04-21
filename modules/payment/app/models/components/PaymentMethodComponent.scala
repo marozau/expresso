@@ -1,5 +1,6 @@
 package models.components
 
+import com.github.tminglei.slickpg.utils.PlainSQLUtils
 import models.PaymentMethod
 import slick.jdbc.GetResult
 import today.expresso.common.db.Repository
@@ -18,6 +19,12 @@ trait PaymentMethodComponent {
   implicit val paymentMethodStatusTypeMapper = createEnumJdbcType("payment_method_status", PaymentMethod.Status)
   implicit val paymentMethodStatusListTypeMapper = createEnumListJdbcType("payment_method_status", PaymentMethod.Status)
 
+  implicit val paymentOptionSet = PlainSQLUtils.mkSetParameter[PaymentMethod.PaymentOption.Value]("payment_option")
+  implicit val paymentOptionOptionSet = PlainSQLUtils.mkOptionSetParameter[PaymentMethod.PaymentOption.Value]("payment_option")
+  implicit val paymentSystemSet = PlainSQLUtils.mkSetParameter[PaymentMethod.PaymentSystem.Value]("payment_system")
+  implicit val paymentSystemOptionSet = PlainSQLUtils.mkOptionSetParameter[PaymentMethod.PaymentSystem.Value]("payment_system")
+  implicit val paymentMethodStatusSet = PlainSQLUtils.mkSetParameter[PaymentMethod.Status.Value]("payment_method_status")
+  implicit val paymentMethodStatusOptionSet = PlainSQLUtils.mkOptionSetParameter[PaymentMethod.Status.Value]("payment_method_status")
 
   implicit val getResultPaymentMethod: GetResult[PaymentMethod] = GetResult { r =>
     PaymentMethod(

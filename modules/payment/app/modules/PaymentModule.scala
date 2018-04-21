@@ -7,7 +7,7 @@ import org.apache.kafka.streams.StreamsConfig
 import play.api.Configuration
 import play.api.inject.ApplicationLifecycle
 import services.PaymentSystemNames
-import services.yandex.PaymentServiceYandex
+import services.yandex.{PaymentServiceYandex, YandexService}
 import streams.Names
 import today.expresso.common.utils.ConfigUtils
 import today.expresso.stream.{Producer, ProducerProvider}
@@ -25,7 +25,7 @@ class PaymentModule extends AbstractModule {
 
   @Provides
   @Named(PaymentSystemNames.YANDEX)
-  def providePaymentServiceYandex()(implicit ec: ExecutionContext) = new PaymentServiceYandex
+  def providePaymentServiceYandex(yandexService: YandexService)(implicit ec: ExecutionContext) = new PaymentServiceYandex(yandexService)
 
 
   @Provides

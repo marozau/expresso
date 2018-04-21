@@ -11,6 +11,7 @@ object UserProfile {
 }
 
 case class UserProfile(userId: Long,
+                       status: Option[UserProfile.Status.Value],
                        firstName: Option[String],
                        lastName: Option[String],
                        dateOfBirth: Option[LocalDate],

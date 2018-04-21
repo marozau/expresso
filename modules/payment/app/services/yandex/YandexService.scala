@@ -3,6 +3,7 @@ package services.yandex
 import java.lang.invoke.MethodHandles
 
 import javax.inject.{Inject, Singleton}
+import models.Currency
 import org.slf4j.LoggerFactory
 import play.api.Configuration
 import play.api.libs.ws.{WSClient, WSResponse}
@@ -32,11 +33,12 @@ class YandexService @Inject()(configuration: Configuration, ws: WSClient, curren
   def depositRef(userId: Long,
                  accountId: Long,
                  amount: BigDecimal,
-                 currency: String,
+                 currencyCode: String,
                  clientIp: String) = {
 
+    implicit val currency: Currency = currencyService.get(currencyCode)
     val builder = new DepositWsRequestYandexBuilder(config, ws)
-      .amount_=(amount, currency, currencyService.get(currency).unit)
+      .amount_=(amount)
       .clientIp_=(clientIp)
       .metadata_=(Map("userId" -> userId.toString, "accountId" -> accountId.toString))
 

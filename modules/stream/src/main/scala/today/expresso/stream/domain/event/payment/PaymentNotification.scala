@@ -20,5 +20,5 @@ case class PaymentNotification(externalTxId: String,
                                status: PaymentStatus,
                                note: String,
                                timestamp: Long,
-                               details: Option[JsValue])
+                               details: Option[String])
   extends Event

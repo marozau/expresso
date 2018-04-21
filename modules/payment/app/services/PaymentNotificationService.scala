@@ -18,7 +18,7 @@ class PaymentNotificationService @Inject()(paymentNotificationDao: PaymentNotifi
     paymentNotificationDao.saveNotification(key, userId, paymentSystem, data)
   }
 
-  def getPaymentNotification((key: String, userId: Long, paymentSystem: PaymentSystem) = {
+  def getPaymentNotification(key: String, userId: Long, paymentSystem: PaymentSystem) = {
     paymentNotificationDao.getNotification(key, userId, paymentSystem)
   }
 

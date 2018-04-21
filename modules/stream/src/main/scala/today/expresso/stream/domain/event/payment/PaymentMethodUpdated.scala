@@ -3,6 +3,7 @@ package today.expresso.stream.domain.event.payment
 import java.time.LocalDate
 
 import com.sksamuel.avro4s.AvroDoc
+import play.api.libs.json.JsValue
 import today.expresso.grpc.payment.domain.PaymentMethod.Status
 import today.expresso.grpc.payment.domain.{PaymentOption, PaymentSystem}
 import today.expresso.stream.api.Key

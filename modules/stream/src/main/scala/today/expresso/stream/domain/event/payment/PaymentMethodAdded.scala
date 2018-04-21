@@ -23,5 +23,5 @@ case class PaymentMethodAdded(id: Long,
                               lastPaymentDate: Option[LocalDate],
                               lastFailedDate: Option[LocalDate],
                               //TODO: create converter for JsValue
-                              details: Option[JsValue])
+                              details: Option[String])
   extends Event

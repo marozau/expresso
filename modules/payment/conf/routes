@@ -5,7 +5,3 @@
 
 GET         /manifest                          controllers.ManifestController.get()
 GET         /healthz                           controllers.Application.healthz()
-
-->          /webjars                           webjars.Routes
-
-

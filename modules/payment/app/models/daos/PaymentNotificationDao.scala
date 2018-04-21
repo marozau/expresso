@@ -2,6 +2,7 @@ package models.daos
 
 import javax.inject.{Inject, Singleton}
 import models.PaymentMethod.PaymentSystem.PaymentSystem
+import models.components.{CommonComponent, PaymentMethodComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json.JsValue
 import slick.basic.DatabaseConfig
@@ -12,7 +13,7 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class PaymentNotificationDao @Inject() (databaseConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
-  extends Repository {
+  extends Repository with PaymentMethodComponent with CommonComponent {
 
   protected val dbConfig: DatabaseConfig[JdbcProfile] = databaseConfigProvider.get[JdbcProfile]
 

@@ -53,7 +53,7 @@ object PaymentMethod {
         t.firstPaymentDate,
         t.lastPaymentDate,
         t.lastFailedDate,
-        t.details.map(_.toString()))
+        t.details.map(_.toString))
   }
 
   implicit object ToPaymentMethodUpdated extends ToEvent[PaymentMethod, PaymentMethodUpdated] {
@@ -72,7 +72,7 @@ object PaymentMethod {
         t.firstPaymentDate,
         t.lastPaymentDate,
         t.lastFailedDate,
-        t.details.map(_.toString()))
+        t.details.map(_.toString))
   }
 
   implicit object ToPaymentMethodRemoved extends ToEvent[PaymentMethod, PaymentMethodRemoved] {

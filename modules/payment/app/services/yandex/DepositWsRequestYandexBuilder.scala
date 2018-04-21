@@ -2,9 +2,11 @@ package services.yandex
 
 import java.util.UUID
 
+import models.Currency
 import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.libs.ws.{WSAuthScheme, WSClient, WSResponse}
+import services.yandex.YandexDomain.Amount
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.math.BigDecimal.RoundingMode
@@ -21,17 +23,15 @@ class DepositWsRequestYandexBuilder(config: Configuration, ws: WSClient)(implici
     .withHttpHeaders("content-type" -> "application/json")
     .withAuth(shopId, secretKey, WSAuthScheme.BASIC)
 
-  private var _currency: String = _
-  private var _amount: BigDecimal = _
+  private var _amount: Amount = _
   private var _description: Option[String] = None
   private var _clientIp: Option[String] = None
   private var _paymentMethodId: Option[String] = None
   private var _save_payment_method = true
   private var _metadata: Option[Map[String, String]] = None
 
-  def amount_=(amount: BigDecimal, currency: String, scale: Int) = {
-    _amount = amount.setScale(scale, RoundingMode.DOWN)
-    _currency = currency
+  def amount_=(amount: BigDecimal)(implicit currency: Currency) = {
+    _amount = Amount.create(amount)
     this
   }
 
@@ -60,7 +60,7 @@ class DepositWsRequestYandexBuilder(config: Configuration, ws: WSClient)(implici
     import YandexDomain._
 
     val depositRequest = DepositRequest(
-      Amount(_amount, _currency),
+      _amount,
       _description,
       None,
       None,

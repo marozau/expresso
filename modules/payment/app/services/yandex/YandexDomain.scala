@@ -1,5 +1,9 @@
 package services.yandex
 
+import models.Currency
+
+import scala.math.BigDecimal.RoundingMode
+
 object YandexDomain {
 
   object ConfirmationType extends Enumeration {
@@ -9,7 +13,12 @@ object YandexDomain {
     val external = Value
   }
 
-  case class Amount(value: BigDecimal, currency: String)
+  case class Amount(value: String, currency: String)
+  object Amount {
+    def create(value: String, currency: String): Amount = Amount(value, currency)
+    def create(value: BigDecimal)(implicit currency: Currency): Amount =
+      Amount(value.setScale(currency.unit, RoundingMode.DOWN).underlying().toPlainString, currency.code)
+  }
 
   case class Item(description: String, quantity: String, amount: Amount, vatCode: Int)
 
@@ -82,7 +91,7 @@ object YandexDomain {
       (__ \ "quantity").write[String] and
       (__ \ "amount").write[Amount] and
       (__ \ "vat_code").write[Int]
-    ) (Item.apply _)
+    ) (unlift(Item.unapply))
 
   implicit val receiptReads: Reads[Receipt] = (
     (__ \ "items").read[Seq[Item]] and
@@ -96,7 +105,7 @@ object YandexDomain {
       (__ \ "tax_system_code").writeNullable[Int] and
       (__ \ "phone").writeNullable[String] and
       (__ \ "email").writeNullable[String]
-    ) (Receipt.apply _)
+    ) (unlift(Receipt.unapply))
 
   implicit val recipientReads: Reads[Recipient] = (JsPath \ "gateway_id").read[String].map(Recipient.apply)
 
@@ -119,25 +128,10 @@ object YandexDomain {
 
   implicit val confirmationWrites: Writes[Confirmation] = (
     (__ \ "type").write[String] and
-      (__ \ "enforce").write[Boolean] and
+      (__ \ "enforce").writeNullable[Boolean] and
       (__ \ "return_url").writeNullable[String] and
       (__ \ "confirmation_url").writeNullable[String]
-    ) (Confirmation.apply _)
-
-
-  implicit val depositRequestWrites: Writes[DepositRequest] = (
-    (__ \ "amount").write[Amount] and
-      (__ \ "description").writeNullable[String] and
-      (__ \ "receipt").writeNullable[Receipt] and
-      (__ \ "recipient").writeNullable[Recipient] and
-      (__ \ "payment_token").writeNullable[String] and
-      (__ \ "payment_method_id").writeNullable[String] and
-      (__ \ "confirmation").writeNullable[Confirmation] and
-      (__ \ "save_payment_method").writeNullable[Boolean] and
-      (__ \ "capture").writeNullable[Boolean] and
-      (__ \ "client_ip").writeNullable[String] and
-      (__ \ "metadata").writeNullable[Map[String, String]]
-    ) (DepositRequest.apply _)
+    ) (unlift(Confirmation.unapply))
 
   implicit val depositResponseReads: Reads[DepositResponse] = (
     (__ \ "id").read[String] and
@@ -151,12 +145,25 @@ object YandexDomain {
       (__ \ "expires_at").readNullable[String] and
       (__ \ "confirmation").readNullable[Confirmation] and
       (__ \ "test").read[Boolean] and
-      (__ \ "refunded_amount").read[Amount] and
+      (__ \ "refunded_amount").readNullable[Amount] and
       (__ \ "paid").read[Boolean] and
       (__ \ "receipt_registration").readNullable[String] and
       (__ \ "metadata").readNullable[Map[String, String]]
     ) (DepositResponse.apply _)
 
+  implicit val depositRequestWrites: Writes[DepositRequest] = (
+    (__ \ "amount").write[Amount] and
+      (__ \ "description").writeNullable[String] and
+      (__ \ "receipt").writeNullable[Receipt] and
+      (__ \ "recipient").writeNullable[Recipient] and
+      (__ \ "payment_token").writeNullable[String] and
+      (__ \ "payment_method_id").writeNullable[String] and
+      (__ \ "confirmation").writeNullable[Confirmation] and
+      (__ \ "save_payment_method").writeNullable[Boolean] and
+      (__ \ "capture").writeNullable[Boolean] and
+      (__ \ "client_ip").writeNullable[String] and
+      (__ \ "metadata").writeNullable[Map[String, String]]
+    ) (unlift(DepositRequest.unapply))
 
   implicit val errorReads: Reads[DepositResponse] = (
     (__ \ "type").readNullable[String] and
