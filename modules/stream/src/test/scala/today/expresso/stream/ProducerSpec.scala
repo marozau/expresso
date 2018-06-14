@@ -4,6 +4,7 @@ import com.sksamuel.avro4s.AvroDoc
 import io.confluent.kafka.schemaregistry.client.MockSchemaRegistryClient
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
+import org.apache.kafka.streams.StreamsConfig
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
@@ -95,7 +96,7 @@ class ProducerSpec extends WordSpec
     .overrides(bind[KeySerializer].toInstance(keySerializer))
     .overrides(bind[ValueSerializer].toInstance(valueSerializer))
     .bindings(new StreamModule)
-    .bindings(bind[Producer].toProvider[ProducerProvider])
+    .bindings(bind[StreamsConfig].toProvider[KafkaStreamConfigProvider])
     .injector()
 
   override protected def afterAll(): Unit = {
@@ -125,9 +126,9 @@ class ProducerSpec extends WordSpec
 
     "send message in transaction and consume" in {
 
-      implicit val producer: Producer = injector.instanceOf[Producer]
+      implicit val pp: ProducerPool = injector.instanceOf[ProducerPool]
 
-      whenReady(Producer.transactionally(producer.send("test", testObject))) { res =>
+      whenReady(pp.transaction(producer => producer.send("test", testObject))) { res =>
         res.topic() should be("test")
       }
 
@@ -138,10 +139,10 @@ class ProducerSpec extends WordSpec
 
     "send message in transaction and fail" in {
 
-      implicit val producer: Producer = injector.instanceOf[Producer]
+      implicit val pp: ProducerPool = injector.instanceOf[ProducerPool]
 
       whenReady(
-        Producer.transactionally(producer.send("test", testObject)
+        pp.transaction(producer => producer.send("test", testObject)
           .map { result => throw new RuntimeException; result }).failed //throws fake exception to emulate failure
       ) { error =>
         error.isInstanceOf[RuntimeException] should be(true)

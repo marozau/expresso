@@ -1,13 +1,12 @@
 package services
 
 import java.net.URL
-import javax.inject.{Inject, Named, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import models.Locale
 import models.daos.NewsletterDao
 import play.api.libs.json.JsValue
-import streams.Names
-import today.expresso.stream.Producer
+import today.expresso.stream.ProducerPool
 
 import scala.concurrent.ExecutionContext
 
@@ -15,12 +14,12 @@ import scala.concurrent.ExecutionContext
   * @author im.
   */
 @Singleton
-class NewsletterService @Inject()(newsletterDao: NewsletterDao)
-                                 (implicit ec: ExecutionContext, @Named(Names.newsletter) producer: Producer) {
+class NewsletterService @Inject()(newsletterDao: NewsletterDao, pp: ProducerPool)
+                                 (implicit ec: ExecutionContext) {
 
   import models.Newsletter._
 
-  def create(userId: Long, name: String, locale: Locale.Value) = Producer.transactionally {
+  def create(userId: Long, name: String, locale: Locale.Value) = pp.transaction { producer =>
     newsletterDao.create(userId, name, locale) { newsletter =>
       producer.send(ToNewsletterCreated(newsletter))
     }
@@ -31,13 +30,13 @@ class NewsletterService @Inject()(newsletterDao: NewsletterDao)
              locale: Option[Locale.Value],
              logoUrl: Option[URL],
              avatarUrl: Option[URL],
-             options: Option[JsValue]) = Producer.transactionally {
+             options: Option[JsValue]) =  pp.transaction { producer =>
     newsletterDao.update(userId, newsletterId, locale, logoUrl.map(_.toString), avatarUrl.map(_.toString), options) { newsletter =>
       producer.send(ToNewsletterUpdated(newsletter))
     }
   }
 
-  def getById(userId: Long, newsletterId: Long) = Producer.transactionally {
+  def getById(userId: Long, newsletterId: Long) = {
     newsletterDao.getById(userId, newsletterId)
   }
 

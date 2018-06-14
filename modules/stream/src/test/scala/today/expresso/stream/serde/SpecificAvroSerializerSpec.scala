@@ -122,7 +122,7 @@ class SpecificAvroSerializerSpec extends WordSpec
       implicit val schemaFor = SchemaFor[TestObject]
       val mockSchemaRegistryClient = mock[SchemaRegistryClient]
       when(mockSchemaRegistryClient.register(anyString(), any(classOf[Schema]))).thenReturn(1)
-      when(mockSchemaRegistryClient.getBySubjectAndId(anyString(), anyInt())).thenReturn(AvroSchema[TestObject])
+      when(mockSchemaRegistryClient.getBySubjectAndId(isNull[String], anyInt())).thenReturn(AvroSchema[TestObject])
 
       val specificSerializer = new SpecificAvroSerializer[TestObject]()
       val props = Map(

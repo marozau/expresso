@@ -2,8 +2,9 @@ package today.expresso.stream
 
 import java.lang.invoke.MethodHandles
 import java.util.Properties
-import javax.inject.Inject
+import java.util.concurrent.{ArrayBlockingQueue, TimeUnit}
 
+import javax.inject.Inject
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
 import org.slf4j.LoggerFactory
@@ -28,30 +29,6 @@ trait Producer {
   def abortTransaction(): Future[Unit]
 
   def commitTransaction(): Future[Unit]
-}
-
-object Producer {
-  private final val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
-
-  //TODO: recursive transaction without lock.
-  //TODO: producer pool???
-  //TODO: dispatcher with only 1 thread
-  def transactionally[A](f: => Future[A])(implicit ec: ExecutionContext, p: Producer): Future[A] = stubImpl(f)
-
-  // implementation
-  private def transactionallyImpl[A](f: => Future[A])(implicit ec: ExecutionContext, p: Producer): Future[A] = {
-    p.beginTransaction()
-      .flatMap(_ => f)
-      .flatMap(result => p.commitTransaction().map(_ => result))
-      .recover {
-        case t: Throwable =>
-          logger.warn(s"[Producer ${p.name}] transaction failed, message={}", t.getMessage)
-          p.abortTransaction()
-          throw t
-      }
-  }
-
-  private def stubImpl[A](f: => Future[A])(implicit ec: ExecutionContext, p: Producer): Future[A] = f
 }
 
 class ProducerImpl @Inject()(kafkaProducer: KafkaProducer[GenericRecord, GenericRecord], props: Properties)(implicit ec: ExecutionContext)
@@ -91,5 +68,51 @@ class ProducerImpl @Inject()(kafkaProducer: KafkaProducer[GenericRecord, Generic
   def close(): Future[Unit] = Future {
     Logger.info(s"[Producer $name] close")
     kafkaProducer.close()
+  }
+}
+
+trait ProducerPool {
+  def transaction[A](f: Producer => Future[A]): Future[A]
+
+  def nontransaction[A](f: Producer => Future[A]): Future[A]
+}
+
+class ProducerPoolArrayBlockingQueueImpl(queue: ArrayBlockingQueue[Producer])(implicit ec: ExecutionContext) extends ProducerPool {
+
+  private final val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
+
+  override def transaction[A](f: Producer => Future[A]): Future[A] = {
+    Future(queue.poll(5000, TimeUnit.MILLISECONDS))
+      .flatMap { producer =>
+        producer.beginTransaction()
+          .flatMap(_ => f(producer))
+          .flatMap(result =>
+            producer.commitTransaction().map { _ =>
+              queue.add(producer)
+              result
+            }
+          )
+          .recover {
+            case t: Throwable =>
+              logger.warn(s"[Producer ${producer.name}] transaction failed, message=${t.getMessage}", t)
+              producer.abortTransaction()
+              queue.add(producer)
+              throw t
+          }
+      }
+  }
+
+  override def nontransaction[A](f: Producer => Future[A]): Future[A] = {
+    //TODO: move timeout to config
+    Future(queue.poll(5000, TimeUnit.MILLISECONDS))
+      .flatMap { producer =>
+        f(producer).map { result => queue.add(producer); result }
+          .recover {
+            case t: Throwable =>
+              logger.warn(s"[Producer ${producer.name}] failed, message=${t.getMessage}", t)
+              queue.add(producer)
+              throw t
+          }
+      }
   }
 }

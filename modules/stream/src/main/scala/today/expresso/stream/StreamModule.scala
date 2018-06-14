@@ -1,5 +1,6 @@
 package today.expresso.stream
 
+import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.atomic.AtomicInteger
 
 import akka.actor.ActorSystem
@@ -25,12 +26,14 @@ class StreamModule extends Module {
       bind[KeySerializer].toProvider[KeySerializerProvider],
       bind[ValueSerializer].toProvider[ValueSerializerProvider],
 
+      bind[ProducerPool].toProvider[ProducerPoolProvider],
+
       bind[KafkaStreams].toProvider[KafkaStreamsProvider]
     )
   }
 }
 
-class KeySerializerProvider @Inject() (configuration: Configuration) extends Provider[KeySerializer] {
+class KeySerializerProvider @Inject()(configuration: Configuration) extends Provider[KeySerializer] {
   override def get() = {
     val serializer = new GenericAvroSerializer
     val config = configuration.get[Configuration]("stream.kafka.producer")
@@ -40,13 +43,23 @@ class KeySerializerProvider @Inject() (configuration: Configuration) extends Pro
   }
 }
 
-class ValueSerializerProvider @Inject() (configuration: Configuration) extends Provider[ValueSerializer] {
+class ValueSerializerProvider @Inject()(configuration: Configuration) extends Provider[ValueSerializer] {
   override def get() = {
     val serializer = new GenericAvroSerializer
     val config = configuration.get[Configuration]("stream.kafka.producer")
     val configMap = ConfigUtils.getJavaConfigMap(config)
     serializer.configure(configMap, isKey = false)
     serializer
+  }
+}
+
+@Singleton
+class KafkaProducerTransactionalCounter {
+
+  val counter = new AtomicInteger
+
+  def get(): Int = {
+    counter.incrementAndGet()
   }
 }
 
@@ -75,6 +88,21 @@ class ProducerProvider @Inject()(configuration: Configuration,
   }
 }
 
+class ProducerPoolProvider @Inject()(configuration: Configuration,
+                                     keySerializer: KeySerializer,
+                                     valueSerializer: ValueSerializer)
+                                    (implicit ec: ExecutionContext, appLifecycle: ApplicationLifecycle, actorSystem: ActorSystem)
+  extends Provider[ProducerPool] {
+
+  override def get(): ProducerPool = {
+    val config = configuration.get[Configuration]("stream.kafka.producer")
+    val size = config.get[Int]("pool.size")
+    val queue = new ArrayBlockingQueue[Producer](size)
+    (1 to size).map(i => queue.add(ProducerProvider(config, keySerializer, valueSerializer, i.toString)))
+    new ProducerPoolArrayBlockingQueueImpl(queue)(actorSystem.dispatchers.lookup("stream.kafka.producer.blocking-dispatcher"))
+  }
+}
+
 object ProducerProvider {
 
   def apply(config: Configuration,
@@ -97,13 +125,12 @@ object ProducerProvider {
   }
 }
 
-@Singleton
-class KafkaProducerTransactionalCounter {
-
-  val counter = new AtomicInteger
-
-  def get(): Int = {
-    counter.incrementAndGet()
+class KafkaStreamConfigProvider @Inject()(configuration: Configuration) extends Provider[StreamsConfig] {
+  def get(): StreamsConfig = {
+    val config = configuration.get[Configuration]("stream.kafka.streams")
+    val props = ConfigUtils.getProperties(config)
+    //    props.put("application.id", config.get[String]("application.id")) //TODO: add qualifier if needed
+    new StreamsConfig(props)
   }
 }
 

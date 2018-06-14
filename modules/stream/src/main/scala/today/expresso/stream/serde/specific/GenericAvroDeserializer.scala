@@ -40,7 +40,7 @@ class GenericAvroDeserializer extends AbstractKafkaAvroDeserializer with Deseria
       id = buffer.getInt
       val schema = schemaRegistryOption.getOrElse(schemaRegistry).getBySubjectAndId(null, id)
       val start = buffer.position + buffer.arrayOffset
-      val length = buffer.limit - 1 - 4
+      val length = buffer.limit - 1 - AbstractKafkaAvroSerDe.idSize
       val record = GenericAvroUtils.deserialize(buffer.array(), start, length, schema)
       record
     } catch {

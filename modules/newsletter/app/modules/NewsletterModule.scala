@@ -15,7 +15,7 @@ import services.{MailService, MailServiceImpl, UserService, UserServiceImpl}
 import streams.{Names, NewsletterStream}
 import today.expresso.common.utils.ConfigUtils
 import today.expresso.stream.api.{KeySerializer, ValueSerializer}
-import today.expresso.stream.{Producer, ProducerProvider}
+import today.expresso.stream.{Producer, ProducerPool, ProducerPoolImpl, ProducerProvider}
 
 import scala.concurrent.ExecutionContext
 
@@ -38,32 +38,32 @@ class NewsletterModule extends AbstractModule with AkkaGuiceSupport {
     bind(classOf[NewsletterStream]).asEagerSingleton()
   }
 
-  @Provides
-  @Named(Names.campaign)
-  def provideCampaignProducer(config: Configuration,
-                                keySerializer: KeySerializer,
-                                valueSerializer: ValueSerializer)
-                               (implicit ec: ExecutionContext, appLifecycle: ApplicationLifecycle, actorSystem: ActorSystem): Producer = {
-    ProducerProvider(config.get[Configuration]("stream.kafka.producer"), keySerializer, valueSerializer, Names.campaign)
-  }
-
-  @Provides
-  @Named(Names.newsletter)
-  def provideNewsletterProducer(config: Configuration,
-                                keySerializer: KeySerializer,
-                                valueSerializer: ValueSerializer)
-                               (implicit ec: ExecutionContext, appLifecycle: ApplicationLifecycle, actorSystem: ActorSystem): Producer = {
-    ProducerProvider(config.get[Configuration]("stream.kafka.producer"), keySerializer, valueSerializer, Names.newsletter)
-  }
-
-  @Provides
-  @Named(Names.edition)
-  def provideEditionProducer(configuration: Configuration,
-                             keySerializer: KeySerializer,
-                             valueSerializer: ValueSerializer)
-                            (implicit ec: ExecutionContext, appLifecycle: ApplicationLifecycle, actorSystem: ActorSystem): Producer = {
-    ProducerProvider(configuration.get[Configuration]("stream.kafka.producer"), keySerializer, valueSerializer, Names.edition)
-  }
+//  @Provides
+//  @Named(Names.campaign)
+//  def provideCampaignProducer(config: Configuration,
+//                                keySerializer: KeySerializer,
+//                                valueSerializer: ValueSerializer)
+//                               (implicit ec: ExecutionContext, appLifecycle: ApplicationLifecycle, actorSystem: ActorSystem): Producer = {
+//    ProducerProvider(config.get[Configuration]("stream.kafka.producer"), keySerializer, valueSerializer, Names.campaign)
+//  }
+//
+//  @Provides
+//  @Named(Names.newsletter)
+//  def provideNewsletterProducer(config: Configuration,
+//                                keySerializer: KeySerializer,
+//                                valueSerializer: ValueSerializer)
+//                               (implicit ec: ExecutionContext, appLifecycle: ApplicationLifecycle, actorSystem: ActorSystem): Producer = {
+//    ProducerProvider(config.get[Configuration]("stream.kafka.producer"), keySerializer, valueSerializer, Names.newsletter)
+//  }
+//
+//  @Provides
+//  @Named(Names.edition)
+//  def provideEditionProducer(configuration: Configuration,
+//                             keySerializer: KeySerializer,
+//                             valueSerializer: ValueSerializer)
+//                            (implicit ec: ExecutionContext, appLifecycle: ApplicationLifecycle, actorSystem: ActorSystem): Producer = {
+//    ProducerProvider(configuration.get[Configuration]("stream.kafka.producer"), keySerializer, valueSerializer, Names.edition)
+//  }
 
   @Provides
   def provideStreamsConfig(configuration: Configuration): StreamsConfig = {
