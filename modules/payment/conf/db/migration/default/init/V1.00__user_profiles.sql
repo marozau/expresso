@@ -23,8 +23,9 @@ CREATE INDEX user_profiles_modified_timestamp_idx
 DROP TRIGGER IF EXISTS user_profiles_modified
 ON user_profiles;
 CREATE TRIGGER user_profiles_modified
-BEFORE UPDATE ON user_profiles
-FOR EACH ROW
+  BEFORE UPDATE
+  ON user_profiles
+  FOR EACH ROW
 EXECUTE PROCEDURE update_last_modified_timestamp();
 
 

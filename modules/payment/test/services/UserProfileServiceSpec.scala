@@ -12,7 +12,7 @@ class UserProfileServiceSpec extends TestContext {
   val userProfileService = app.injector.instanceOf[UserProfileService]
 
   val pass = "test"
-  var userId: Long = _
+  var userId: Long = 1L
   override protected def beforeEach(): Unit = {
     super.beforeEach()
   }
@@ -21,7 +21,7 @@ class UserProfileServiceSpec extends TestContext {
 
     "update and get user profile" in {
 
-      whenReady(userProfileService.update(1, Some(UserProfile.Status.VERIFIED), None, None, None, None, None, None)) { res =>
+      whenReady(userProfileService.update(userId, Some(UserProfile.Status.VERIFIED), None, None, None, None, None, None)) { res =>
         res.userId mustBe userId
       }
 

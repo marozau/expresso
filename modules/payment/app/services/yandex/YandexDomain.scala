@@ -70,7 +70,7 @@ object YandexDomain {
   import play.api.libs.functional.syntax._
 
   implicit val amountReads: Reads[Amount] = (
-    (__ \ "value").read[BigDecimal] and
+    (__ \ "value").read[String] and
       (__ \ "currency").read[String]
     ) (Amount.apply _)
 
@@ -165,10 +165,10 @@ object YandexDomain {
       (__ \ "metadata").writeNullable[Map[String, String]]
     ) (unlift(DepositRequest.unapply))
 
-  implicit val errorReads: Reads[DepositResponse] = (
+  implicit val errorReads: Reads[Error] = (
     (__ \ "type").readNullable[String] and
       (__ \ "id").readNullable[String] and
-      (__ \ "code").readNullable[Amount] and
+      (__ \ "code").readNullable[String] and
       (__ \ "description").readNullable[String] and
       (__ \ "parameter").readNullable[String] and
       (__ \ "retry_after").readNullable[String]

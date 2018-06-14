@@ -36,7 +36,10 @@ object Producer {
   //TODO: recursive transaction without lock.
   //TODO: producer pool???
   //TODO: dispatcher with only 1 thread
-  def transactionally[A](f: => Future[A])(implicit ec: ExecutionContext, p: Producer): Future[A] = {
+  def transactionally[A](f: => Future[A])(implicit ec: ExecutionContext, p: Producer): Future[A] = stubImpl(f)
+
+  // implementation
+  private def transactionallyImpl[A](f: => Future[A])(implicit ec: ExecutionContext, p: Producer): Future[A] = {
     p.beginTransaction()
       .flatMap(_ => f)
       .flatMap(result => p.commitTransaction().map(_ => result))
@@ -47,6 +50,8 @@ object Producer {
           throw t
       }
   }
+
+  private def stubImpl[A](f: => Future[A])(implicit ec: ExecutionContext, p: Producer): Future[A] = f
 }
 
 class ProducerImpl @Inject()(kafkaProducer: KafkaProducer[GenericRecord, GenericRecord], props: Properties)(implicit ec: ExecutionContext)

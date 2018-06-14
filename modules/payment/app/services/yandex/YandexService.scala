@@ -16,7 +16,7 @@ object YandexService {
 
   case class YandexServiceException(status: Int, error: Option[YandexDomain.Error]) extends Exception
 
-  case class YandexServiceRetriableException(status: Int, error: Option[YandexDomain.Error]) extends YandexServiceException(status, error)
+  case class YandexServiceRetriableException(status: Int, error: Option[YandexDomain.Error]) extends Exception
 }
 
 @Singleton

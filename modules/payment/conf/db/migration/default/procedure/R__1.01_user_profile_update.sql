@@ -8,9 +8,10 @@ create or replace function user_profile_update(
   _city          TEXT,
   _postcode      TEXT
 )
-  returns user_profiles as $$
-BEGIN
+  returns setof user_profiles as $$
+begin
 
+  return query
   insert into user_profiles (user_id, status, first_name, last_name, date_of_birth, country, city, postcode)
   values (_user_id, _status, _first_name, _last_name, _date_of_birth, _country, _city, _postcode)
   on conflict (user_id)
