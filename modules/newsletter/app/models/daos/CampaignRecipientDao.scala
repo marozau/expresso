@@ -1,8 +1,6 @@
 package models.daos
 
 import javax.inject.{Inject, Singleton}
-
-import models.{CampaignRecipient, CampaignRecipientStatistics}
 import models.components.{CampaignRecipientComponent, CommonComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
@@ -10,6 +8,7 @@ import slick.jdbc.JdbcProfile
 import today.expresso.common.db.Repository
 import today.expresso.common.exceptions.RecipientNotFoundException
 import today.expresso.common.utils.SqlUtils
+import today.expresso.stream.domain.model.newsletter.{CampaignRecipient, CampaignRecipientStatistics}
 
 import scala.concurrent.ExecutionContext
 

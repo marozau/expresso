@@ -29,7 +29,7 @@ object Dependency {
     lazy val scalaGuice = "4.1.0"
     lazy val ficus = "1.4.3"
     lazy val silhouette = "5.0.2"
-    lazy val avro4s = "1.8.3"
+    lazy val avro4s = "1.9.0"
     lazy val sangria = "1.3.3"
     lazy val sangriaPlayJson = "1.0.4"
     lazy val sangriaSlowlog = "0.1.4"
@@ -38,7 +38,7 @@ object Dependency {
     lazy val flyway = "4.0.0"
     lazy val akka = "2.5.8"
     lazy val kafka = "1.1.0"
-    lazy val kafkaAlpakka = "0.21"
+    lazy val kafkaAlpakka = "0.21.1"
     lazy val confluent = "4.0.0"
     lazy val guava = "22.0"
 

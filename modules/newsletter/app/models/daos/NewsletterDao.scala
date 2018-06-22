@@ -1,9 +1,7 @@
 package models.daos
 
 import javax.inject.{Inject, Singleton}
-
 import models.components.NewsletterComponent
-import models.{Locale, Newsletter}
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json.JsValue
 import slick.basic.DatabaseConfig
@@ -11,6 +9,7 @@ import slick.jdbc.JdbcProfile
 import today.expresso.common.db.Repository
 import today.expresso.common.exceptions.{AuthorizationException, NewsletterAlreadyExistException, NewsletterNotFoundException}
 import today.expresso.common.utils.{SqlUtils, Tx}
+import today.expresso.stream.domain.model.newsletter.{Locale, Newsletter}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -18,7 +17,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * @author im.
   */
 object NewsletterDao {
-  implicit val tx: Tx[Newsletter] = c => Future.successful(c)
+  implicit val tx: Tx[Any] = c => Future.successful(c)
 }
 
 @Singleton

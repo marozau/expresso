@@ -1,7 +1,7 @@
 package services
 
-import today.expresso.grpc.payment.domain.PaymentSystem
-import today.expresso.grpc.payment.service.PaymentGatewayServiceGrpc.PaymentGatewayService
+import gateways.PaymentGatewayService
+import today.expresso.stream.domain.model.payment.PaymentSystem.PaymentSystem
 
 /**
   * @author im.

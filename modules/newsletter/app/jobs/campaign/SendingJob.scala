@@ -4,18 +4,20 @@ import java.lang.invoke.MethodHandles
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Date
-import javax.inject.Inject
 
+import akka.actor.ActorSystem
+import javax.inject.Inject
 import clients.Mailer.EmailHtml
 import clients.Quartz
 import jobs.api.RecoveringJob
-import models.Campaign
 import org.quartz._
 import org.slf4j.LoggerFactory
 import play.api.i18n._
 import services._
 import today.expresso.common.exceptions.RecipientNotFoundException
 import today.expresso.common.utils.UrlUtils
+import today.expresso.stream.domain.event.newsletter.{NewsletterEditionSent, NewsletterEditionSentFailed}
+import today.expresso.stream.domain.model.newsletter.Campaign
 import today.expresso.templates.api.domain.{Edition, Newsletter, Target}
 import today.expresso.templates.impl.TemplateService
 
@@ -70,10 +72,13 @@ class SendingJob @Inject()(quartz: Quartz,
                            urlUtils: UrlUtils,
                            langs: Langs,
                            messagesApi: MessagesApi)
-                          (implicit ec: ExecutionContext)
+                          (implicit ec: ExecutionContext,
+                           system: ActorSystem)
   extends RecoveringJob(quartz) {
 
   private val logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass())
+
+  val stream = system.eventStream
 
   override protected def execute(context: JobExecutionContext, retry: Int): Unit = {
     val data = context.getMergedJobDataMap
@@ -118,16 +123,22 @@ class SendingJob @Inject()(quartz: Quartz,
         mailService.send(email)
       }
       .flatMap { _ =>
-        campaignRecipientService.markSent(userId, editionId)
+        campaignRecipientService.markSent(userId, editionId).map { recipient =>
+          stream.publish(NewsletterEditionSent(userId, newsletterId, editionId, System.currentTimeMillis()))
+        }
       }
       .recover {
         case e: RecipientNotFoundException =>
           logger.warn(s"failed to send email, user=${userId}, editionId=${editionId}", e)
+          stream.publish(NewsletterEditionSentFailed(userId, newsletterId, editionId, 1, Some(e.getMessage)))
         case t: Throwable =>
           logger.error(s"failed to send email, user=${userId}, editionId=${editionId}", t)
-          campaignRecipientService.markFailed(userId, editionId, Some(t.getMessage)).map(_ => throw t)
+          campaignRecipientService.markFailed(userId, editionId, Some(t.getMessage)).map { recipient =>
+            stream.publish(NewsletterEditionSentFailed(userId, newsletterId, editionId, recipient.attempts, Some(t.getMessage)))
+            throw t
+          }
       }
     Await.result(sending, Duration.Inf)
-    logger.info("complete")
+    logger.info(s"complete, userId=$userId, newsletterId=$newsletterId, editionId=$editionId")
   }
 }

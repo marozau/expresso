@@ -6,7 +6,7 @@ import com.mohiva.play.silhouette.impl.exceptions.{IdentityNotFoundException, In
 import config.TestContext
 import today.expresso.common.exceptions.UserNotFoundException
 import models.{ApplicationContext, User}
-import utils.HashUtils
+import today.expresso.common.utils.HashUtils
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

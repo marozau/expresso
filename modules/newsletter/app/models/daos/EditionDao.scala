@@ -2,11 +2,10 @@ package models.daos
 
 import java.net.URL
 import java.time.LocalDate
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import today.expresso.common.db.Repository
 import today.expresso.common.exceptions._
-import models.Edition
 import models.components.EditionComponent
 import org.postgresql.util.PSQLException
 import play.api.db.slick.DatabaseConfigProvider
@@ -14,6 +13,7 @@ import play.api.libs.json.JsValue
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import today.expresso.common.utils.SqlUtils
+import today.expresso.stream.domain.model.newsletter.Edition
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}

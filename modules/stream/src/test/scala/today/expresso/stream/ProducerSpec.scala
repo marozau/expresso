@@ -12,11 +12,12 @@ import org.scalatest.time.{Millis, Span}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.inject.{ApplicationLifecycle, bind}
 import today.expresso.stream.api.{Key, KeyRecord, KeySerializer, ValueSerializer}
+import today.expresso.stream.domain.Event
 import today.expresso.stream.serde.specific.{GenericAvroSerializer, SpecificAvroDeserializer}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.TimeoutException
 import scala.concurrent.duration._
+import scala.concurrent.{Future, TimeoutException}
 
 /**
   * @author im.
@@ -24,7 +25,7 @@ import scala.concurrent.duration._
 object ProducerSpec {
 
   @AvroDoc("test class")
-  case class TestObject(@Key userId: Long, v1: Long, @AvroDoc("optional string field") v2: Option[String])
+  case class TestObject(@Key userId: Long, v1: Long, @AvroDoc("optional string field") v2: Option[String]) extends Event
 
   val testObject = TestObject(1, 2, Some("test2"))
 }
@@ -126,9 +127,9 @@ class ProducerSpec extends WordSpec
 
     "send message in transaction and consume" in {
 
-      implicit val pp: ProducerPool = injector.instanceOf[ProducerPool]
+      val producer = injector.instanceOf[Producer]
 
-      whenReady(pp.transaction(producer => producer.send("test", testObject))) { res =>
+      whenReady(producer.send("test", testObject)) { res =>
         res.topic() should be("test")
       }
 
@@ -139,10 +140,21 @@ class ProducerSpec extends WordSpec
 
     "send message in transaction and fail" in {
 
-      implicit val pp: ProducerPool = injector.instanceOf[ProducerPool]
+      val producer = injector.instanceOf[ProducerTransactional]
+
+      def transaction[A](f: => Future[A]): Future[A] = {
+        producer.beginTransaction()
+          .flatMap(_ => f)
+          .flatMap(result => producer.commitTransaction().map(_ => result))
+          .recover {
+            case t: Throwable =>
+              producer.abortTransaction()
+              throw t
+          }
+      }
 
       whenReady(
-        pp.transaction(producer => producer.send("test", testObject)
+        transaction(producer.send("test", testObject)
           .map { result => throw new RuntimeException; result }).failed //throws fake exception to emulate failure
       ) { error =>
         error.isInstanceOf[RuntimeException] should be(true)

@@ -3,9 +3,9 @@ package models.components
 import java.net.URL
 
 import today.expresso.common.db.Repository
-import models.Newsletter
 import play.api.i18n.Lang
 import slick.jdbc.GetResult
+import today.expresso.stream.domain.model.newsletter.Newsletter
 
 /**
   * @author im.

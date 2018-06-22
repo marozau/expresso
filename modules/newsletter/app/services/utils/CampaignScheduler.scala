@@ -2,14 +2,14 @@ package services.utils
 
 import java.lang.invoke.MethodHandles
 import java.util.Date
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import clients.Quartz
 import jobs.campaign.{CampaignJob, PendingJob, SendingJob, SentJob}
-import models.{Campaign, Recipient}
 import org.quartz.impl.matchers.GroupMatcher
 import org.slf4j.LoggerFactory
 import services.RecipientService
+import today.expresso.stream.domain.model.newsletter.{Campaign, Recipient}
 
 import scala.concurrent.{ExecutionContext, Future}
 

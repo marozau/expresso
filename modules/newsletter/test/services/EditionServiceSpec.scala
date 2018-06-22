@@ -5,8 +5,8 @@ import java.time.LocalDate
 
 import config.TestContext
 import today.expresso.common.exceptions.{AuthorizationException, NewsletterNotFoundException}
-import models.{Locale, Newsletter}
 import play.api.libs.json.Json
+import today.expresso.stream.domain.model.newsletter.{Locale, Newsletter}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

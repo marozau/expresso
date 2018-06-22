@@ -2,11 +2,11 @@ package services.yandex
 
 import java.lang.invoke.MethodHandles
 
+import controllers.dto.{DepositRequest, DepositResponse, PaymentPageReference, WithdrawalRequest}
 import javax.inject.Inject
 import org.slf4j.LoggerFactory
 import services.PaymentService
-import today.expresso.grpc.payment.domain.{PaymentPageReference, PaymentSystem}
-import today.expresso.grpc.payment.service._
+import today.expresso.stream.domain.model.payment.PaymentSystem
 
 import scala.concurrent.ExecutionContext
 
@@ -30,8 +30,7 @@ class PaymentServiceYandex @Inject()(yandexService: YandexService)(implicit ec: 
       request.ip
     ).map { response =>
       DepositResponse(
-        request.header,
-        Some(PaymentPageReference(response.confirmation.get.confirmationUrl.get)))
+        PaymentPageReference(response.confirmation.get.confirmationUrl.get))
     }.recover {
       case e: Throwable =>
         logger.error("deposit request failed", e)
@@ -39,5 +38,5 @@ class PaymentServiceYandex @Inject()(yandexService: YandexService)(implicit ec: 
     }
   }
 
-  override def withdrawal(request: WithdwawalRequest) = ???
+  override def withdrawal(request: WithdrawalRequest) = ???
 }

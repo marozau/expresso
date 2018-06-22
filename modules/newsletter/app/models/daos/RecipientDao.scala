@@ -1,16 +1,16 @@
 package models.daos
 
 import java.util.UUID
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import today.expresso.common.db.Repository
 import today.expresso.common.exceptions._
-import models.{Campaign, Recipient}
 import models.components.{CommonComponent, RecipientComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import today.expresso.common.utils.SqlUtils
+import today.expresso.stream.domain.model.newsletter.Recipient
 
 import scala.concurrent.{ExecutionContext, Future}
 

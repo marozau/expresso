@@ -7,20 +7,34 @@ import org.apache.avro.Schema
 import org.apache.avro.generic.GenericRecord
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
+import org.objenesis.instantiator.sun.UnsafeFactoryInstantiator
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, Matchers, WordSpec, WordSpecLike}
 import today.expresso.stream.api._
+import today.expresso.stream.domain.{Domain, Message, Serializer}
+import today.expresso.stream.serde.akka.AvroSerializer
 import today.expresso.stream.serde.specific.{GenericAvroSerializer, SpecificAvroDeserializer, SpecificAvroSerializer}
 import today.expresso.stream.serde.utils.{GenericAvroUtils, SpecificAvroUtils}
+
+import scala.reflect.ClassTag
 
 /**
   * @author im.
   */
 object SpecificAvroSerializerSpec {
 
+  trait Timestampt {
+    val t = System.currentTimeMillis()
+  }
+
   @AvroDoc("test class")
-  case class TestObject(@Key userId: Long, v1: Long, @AvroDoc("optional string field") v2: Option[String])
+  final case class TestObject(@Key userId: Long, v1: Long, @AvroDoc("optional string field") v2: Option[String]) extends Domain with Timestampt
+
+  object TestObject extends Serializer[TestObject] {
+    override def toBinary(t: TestObject) = SpecificAvroUtils.serialize[TestObject](t)
+    override def fromBinary(bytes: Array[Byte]) = SpecificAvroUtils.deserialize[TestObject](bytes)
+  }
 
   val testObject = TestObject(1, 2, Some("test2"))
 }
@@ -143,6 +157,43 @@ class SpecificAvroSerializerSpec extends WordSpec
 
       println(testObject)
       println(testObjectRestored)
+    }
+
+    "test class[T]" in {
+
+      val testObject = TestObject(1, 3, Some("avro1"))
+
+      val manifest: Class[_] = classOf[TestObject]
+      import scala.reflect.runtime._
+      val rootMirror = universe.runtimeMirror(manifest.getClassLoader)
+      var classSymbol = rootMirror.classSymbol(manifest)
+      val classMirror = rootMirror.reflectClass(classSymbol)
+      import scala.reflect.runtime.{currentMirror => cm}
+      val companionModule: universe.ModuleSymbol = classSymbol.companion.asModule
+      val instance = cm.reflectModule(companionModule).instance
+
+      val methodSerialize = instance.getClass.getDeclaredMethod("toBinary", classOf[TestObject])
+      val methodDeserialize = instance.getClass.getDeclaredMethod("fromBinary", classOf[Array[Byte]])
+
+      val bytes = methodSerialize.invoke(instance, testObject)
+      val testObjectRestored = methodDeserialize.invoke(instance, bytes)
+
+      println("hello world of deserialization")
+      println(testObject)
+      println(testObjectRestored)
+    }
+
+    "test akka AvroServizer" in {
+
+      val serde  = new AvroSerializer
+
+      val testObject = TestObject(1, 87, Some("hello akka serialization"))
+      val bytes = serde.toBinary(testObject)
+      val restored = serde.fromBinary(bytes, Some(classOf[TestObject]))
+
+      println("hello world of deserialization")
+      println(testObject)
+      println(restored)
     }
   }
 }

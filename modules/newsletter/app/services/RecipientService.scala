@@ -1,12 +1,12 @@
 package services
 
 import java.util.UUID
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import today.expresso.common.exceptions.InvalidUserStatusException
-import models.{Campaign, Recipient}
 import models.daos.RecipientDao
-import today.expresso.grpc.user.domain.User
+import today.expresso.stream.domain.model.newsletter.Recipient
+import today.expresso.stream.domain.model.user.User
 
 import scala.concurrent.{ExecutionContext, Future}
 

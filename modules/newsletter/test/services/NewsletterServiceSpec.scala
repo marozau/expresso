@@ -4,8 +4,8 @@ import java.net.URL
 
 import config.TestContext
 import today.expresso.common.exceptions.{AuthorizationException, NewsletterAlreadyExistException}
-import models.Locale
 import play.api.i18n.Lang
+import today.expresso.stream.domain.model.newsletter.Locale
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global

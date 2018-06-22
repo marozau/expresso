@@ -1,8 +1,8 @@
 package models.components
 
 import today.expresso.common.db.Repository
-import models.Post
 import slick.jdbc.GetResult
+import today.expresso.stream.domain.model.newsletter.Post
 
 /**
   * @author im.

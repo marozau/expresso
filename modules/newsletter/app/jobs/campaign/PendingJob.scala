@@ -3,15 +3,15 @@ package jobs.campaign
 import java.lang.invoke.MethodHandles
 import java.time.Instant
 import java.util.Date
-import javax.inject.Inject
 
+import javax.inject.Inject
 import clients.Quartz
 import today.expresso.common.exceptions.InvalidCampaignStatusException
 import jobs.api.RecoveringJob
-import models.Campaign
 import org.quartz.{JobBuilder, JobExecutionContext, Trigger, TriggerBuilder}
 import org.slf4j.LoggerFactory
 import services.CampaignService
+import today.expresso.stream.domain.model.newsletter.Campaign
 
 import scala.concurrent.{Await, ExecutionContext}
 

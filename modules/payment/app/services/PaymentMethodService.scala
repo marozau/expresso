@@ -2,20 +2,22 @@ package services
 
 import java.time.LocalDate
 
+import akka.actor.ActorSystem
 import javax.inject.{Inject, Singleton}
-import models.PaymentMethod.PaymentOption.PaymentOption
-import models.PaymentMethod.PaymentSystem.PaymentSystem
-import models.PaymentMethod.Status.Status
-import models.PaymentMethod.{ToPaymentMethodAdded, ToPaymentMethodFailed, ToPaymentMethodRemoved, ToPaymentMethodSuccess, ToPaymentMethodUpdated}
 import models.daos.PaymentMethodDao
 import play.api.libs.json.JsValue
-import today.expresso.stream.ProducerPool
+import today.expresso.stream.domain.event.payment._
+import today.expresso.stream.domain.model.payment.PaymentMethod.Status.Status
+import today.expresso.stream.domain.model.payment.PaymentOption.PaymentOption
+import today.expresso.stream.domain.model.payment.PaymentSystem.PaymentSystem
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PaymentMethodService @Inject() (paymentMethodDao: PaymentMethodDao)
-                                     (implicit ec: ExecutionContext, pp: ProducerPool) {
+                                     (implicit ec: ExecutionContext, system: ActorSystem) {
+
+  val stream = system.eventStream
 
   def addPaymentMethod(userId: Long,
                        paymentOption: PaymentOption,
@@ -27,7 +29,7 @@ class PaymentMethodService @Inject() (paymentMethodDao: PaymentMethodDao)
                        firstPaymentDate: Option[LocalDate],
                        lastPaymentDate: Option[LocalDate],
                        lastFailedDate: Option[LocalDate],
-                       details: Option[JsValue]) = pp.transaction { producer =>
+                       details: Option[JsValue]) = {
     paymentMethodDao.add(
       userId,
       paymentOption,
@@ -40,13 +42,13 @@ class PaymentMethodService @Inject() (paymentMethodDao: PaymentMethodDao)
       lastPaymentDate,
       lastFailedDate,
       details) { paymentMethod =>
-        producer.send(ToPaymentMethodAdded(paymentMethod))
+        Future.successful(stream.publish(PaymentMethodAdded(paymentMethod)))
     }
   }
 
-  def removePaymentMethod(userId: Long, paymentMethodId: Long) = pp.transaction { producer =>
+  def removePaymentMethod(userId: Long, paymentMethodId: Long) = {
     paymentMethodDao.remove(userId, paymentMethodId) { paymentMethod =>
-      producer.send(ToPaymentMethodRemoved(paymentMethod))
+      Future.successful(stream.publish(PaymentMethodRemoved(paymentMethod)))
     }
   }
 
@@ -56,7 +58,7 @@ class PaymentMethodService @Inject() (paymentMethodDao: PaymentMethodDao)
              details: Option[JsValue],
              displayName: Option[String],
              expirationDate: Option[LocalDate],
-             isDefault: Option[Boolean]) = pp.transaction { producer =>
+             isDefault: Option[Boolean]) = {
     paymentMethodDao.update(
       userId,
       paymentMethodId,
@@ -66,19 +68,19 @@ class PaymentMethodService @Inject() (paymentMethodDao: PaymentMethodDao)
       expirationDate,
       isDefault
     ) { paymentMethod =>
-      producer.send(ToPaymentMethodUpdated(paymentMethod))
+      Future.successful(stream.publish(PaymentMethodUpdated(paymentMethod)))
     }
   }
 
-  def successPayment(paymentMethodId: Long, date: LocalDate) = pp.transaction { producer =>
+  def successPayment(paymentMethodId: Long, date: LocalDate) = {
     paymentMethodDao.successPayment(paymentMethodId, date) { paymentMethod =>
-      producer.send(ToPaymentMethodSuccess(paymentMethod))
+      Future.successful(stream.publish(PaymentMethodSuccess(paymentMethod)))
     }
   }
 
-  def failedPayment(paymentMethodId: Long, date: LocalDate) = pp.transaction { producer =>
+  def failedPayment(paymentMethodId: Long, date: LocalDate) = {
     paymentMethodDao.failedPayment(paymentMethodId, date) { paymentMethod =>
-      producer.send(ToPaymentMethodFailed(paymentMethod))
+      Future.successful(stream.publish(PaymentMethodFailed(paymentMethod)))
     }
   }
 

@@ -1,10 +1,11 @@
 package gateways
 
+import controllers.dto.{DepositRequest, WithdrawalRequest}
 import javax.inject.{Inject, Named, Singleton}
 import services.{PaymentService, PaymentSystemNames, UserProfileService}
-import today.expresso.common.grpc.GrpcErrorHandler
-import today.expresso.grpc.payment.domain.{PaymentOption, PaymentSystem}
-import today.expresso.grpc.payment.service.{DepositRequest, PaymentGatewayServiceGrpc, WithdwawalRequest}
+import today.expresso.stream.domain.model.payment.{PaymentOption, PaymentSystem}
+import today.expresso.stream.domain.model.payment.PaymentOption.PaymentOption
+import today.expresso.stream.domain.model.payment.PaymentSystem.PaymentSystem
 
 import scala.concurrent.ExecutionContext
 
@@ -15,7 +16,7 @@ import scala.concurrent.ExecutionContext
 class PaymentGatewayServiceImpl @Inject()(userProfileService: UserProfileService,
                                           @Named(PaymentSystemNames.YANDEX) paymentServiceYandex: PaymentService)
                                          (implicit ec: ExecutionContext)
-  extends PaymentGatewayServiceGrpc.PaymentGatewayService {
+  extends PaymentGatewayService {
 
   val depositDispatcher = Map[PaymentOption, PaymentService](
     PaymentOption.BANK_CARD -> paymentServiceYandex
@@ -25,11 +26,11 @@ class PaymentGatewayServiceImpl @Inject()(userProfileService: UserProfileService
     PaymentSystem.YANDEX -> paymentServiceYandex
   )
 
-  override def deposit(request: DepositRequest) = GrpcErrorHandler {
+  override def deposit(request: DepositRequest) = {
     depositDispatcher(request.paymentOption).deposit(request)
   }
 
-  override def withdrawal(request: WithdwawalRequest) = GrpcErrorHandler {
+  override def withdrawal(request: WithdrawalRequest) = {
     withdrawalDispatcher(request.paymentSystem).withdrawal(request)
   }
 }

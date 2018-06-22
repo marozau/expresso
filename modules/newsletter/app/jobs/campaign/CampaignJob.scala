@@ -1,6 +1,6 @@
 package jobs.campaign
 
-import models.Campaign
+import today.expresso.stream.domain.model.newsletter.Campaign
 
 /**
   * @author im.

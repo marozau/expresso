@@ -1,8 +1,8 @@
 package models.components
 
-import models.{CampaignRecipient, CampaignRecipientStatistics, Recipient}
 import slick.jdbc.GetResult
 import today.expresso.common.db.Repository
+import today.expresso.stream.domain.model.newsletter.{CampaignRecipient, CampaignRecipientStatistics}
 
 /**
   * @author im.

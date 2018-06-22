@@ -1,4 +1,4 @@
-package models
+package today.expresso.stream.domain.model.newsletter
 
 import java.time.Instant
 
@@ -23,16 +23,6 @@ object Campaign {
     FORCED_SUSPENDED_PENDING,
     FORCED_SUSPENDED_SENDING
     = Value
-  }
-
-
-  implicit object ToCampaignStarted extends ToEvent[Campaign, CampaignStarted] {
-    override def apply(t: Campaign) = CampaignStarted(t.editionId, t.userId, t.newsletterId, t.sendTime.toEpochMilli)
-  }
-
-  implicit object ToCampaignUpdated extends ToEvent[Campaign, CampaignUpdated] {
-    override def apply(t: Campaign) = CampaignUpdated(
-      t.editionId, t.userId, t.newsletterId, t.sendTime.toEpochMilli, t.status.toString, t.preview, t.options.map(_.toString))
   }
 }
 

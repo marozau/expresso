@@ -1,27 +1,29 @@
 package services
 
+import akka.actor.ActorSystem
 import javax.inject.{Inject, Singleton}
-import models.PaymentMethod.PaymentSystem.PaymentSystem
 import models.daos.PaymentNotificationDao
 import play.api.libs.json.JsValue
-import today.expresso.stream.ProducerPool
 import today.expresso.stream.domain.event.payment.PaymentNotification
+import today.expresso.stream.domain.model.payment.PaymentSystem.PaymentSystem
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class PaymentNotificationService @Inject()(paymentNotificationDao: PaymentNotificationDao)
-                                          (implicit ec: ExecutionContext,pp: ProducerPool) {
+                                          (implicit ec: ExecutionContext, system: ActorSystem) {
 
-  def savePaymentNotification(key: String, userId: Long, paymentSystem: PaymentSystem, data: JsValue) = {
-    paymentNotificationDao.saveNotification(key, userId, paymentSystem, data)
+  val stream = system.eventStream
+
+  def savePaymentNotification(key: String, userId: Long, system: PaymentSystem, data: JsValue) = {
+    paymentNotificationDao.saveNotification(key, userId, system, data)
   }
 
-  def getPaymentNotification(key: String, userId: Long, paymentSystem: PaymentSystem) = {
-    paymentNotificationDao.getNotification(key, userId, paymentSystem)
+  def getPaymentNotification(key: String, userId: Long, system: PaymentSystem) = {
+    paymentNotificationDao.getNotification(key, userId, system)
   }
 
-  def sendPaymentNotification(paymentNotification: PaymentNotification) = pp.transaction { producer =>
-    producer.send(paymentNotification)
+  def sendPaymentNotification(paymentNotification: PaymentNotification) = {
+    stream.publish(paymentNotification)
   }
 }

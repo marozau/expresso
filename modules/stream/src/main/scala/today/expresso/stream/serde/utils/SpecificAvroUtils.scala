@@ -9,7 +9,7 @@ import com.sksamuel.avro4s._
   */
 object SpecificAvroUtils {
 
-  def serialize[T](t: T)(implicit r: ToRecord[T], s: SchemaFor[T]): Array[Byte] = {
+  def serialize[T : SchemaFor : ToRecord](t: T): Array[Byte] = {
     val baos = new ByteArrayOutputStream()
     val output = AvroOutputStream.binary[T](baos)
     output.write(t)
@@ -17,7 +17,7 @@ object SpecificAvroUtils {
     baos.toByteArray
   }
 
-  def deserialize[T](bytes: Array[Byte])(implicit r: FromRecord[T], s: SchemaFor[T]): T = {
+  def deserialize[T : SchemaFor : FromRecord](bytes: Array[Byte]): T = {
     val in = new ByteArrayInputStream(bytes)
     val input = AvroInputStream.binary[T](in)
     input.iterator.toSeq.head

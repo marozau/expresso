@@ -1,4 +1,4 @@
-package models
+package today.expresso.stream.domain.model.newsletter
 
 import java.time.Instant
 import java.util.UUID

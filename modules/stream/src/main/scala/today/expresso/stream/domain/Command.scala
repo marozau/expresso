@@ -3,4 +3,4 @@ package today.expresso.stream.domain
 /**
   * @author im.
   */
-trait Command
+trait Command extends Domain

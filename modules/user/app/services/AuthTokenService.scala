@@ -25,7 +25,9 @@ class AuthTokenService @Inject()(
                                 )(implicit ex: ExecutionContext) {
 
 
-  system.scheduler.schedule(1.hour, 1.hour, () => clean)
+  system.scheduler.schedule(1.hour, 1.hour, new Runnable {
+    override def run(): Unit = clean
+  })
 
   /**
     * Creates a new auth token and saves it in the backing store.

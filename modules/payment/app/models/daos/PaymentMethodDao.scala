@@ -3,10 +3,6 @@ package models.daos
 import java.time.LocalDate
 
 import javax.inject.{Inject, Singleton}
-import models.PaymentMethod
-import models.PaymentMethod.PaymentOption.PaymentOption
-import models.PaymentMethod.PaymentSystem.PaymentSystem
-import models.PaymentMethod.Status.Status
 import models.components.PaymentMethodComponent
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json.JsValue
@@ -15,6 +11,10 @@ import slick.jdbc.JdbcProfile
 import today.expresso.common.db.Repository
 import today.expresso.common.exceptions.PaymentMethodNotFoundException
 import today.expresso.common.utils.{SqlUtils, Tx}
+import today.expresso.stream.domain.model.payment.PaymentMethod
+import today.expresso.stream.domain.model.payment.PaymentMethod.Status.Status
+import today.expresso.stream.domain.model.payment.PaymentOption.PaymentOption
+import today.expresso.stream.domain.model.payment.PaymentSystem.PaymentSystem
 
 import scala.concurrent.{ExecutionContext, Future}
 

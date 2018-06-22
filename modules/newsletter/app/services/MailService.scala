@@ -1,14 +1,13 @@
 package services
 
 import javax.inject.{Inject, Singleton}
-
 import clients.Mailer
 import clients.Mailer.EmailHtml
-import models.Recipient
 import play.api.Logger
 import play.api.libs.mailer.{Email, MailerClient}
-import today.expresso.grpc.user.domain.User
 import today.expresso.common.utils.UrlUtils
+import today.expresso.stream.domain.model.newsletter.Recipient
+import today.expresso.stream.domain.model.user.User
 
 import scala.concurrent.{ExecutionContext, Future}
 

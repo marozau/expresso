@@ -4,8 +4,8 @@ import java.net.URL
 
 import com.fasterxml.jackson.core.`type`.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import models.Post
 import play.api.libs.json.{JsSuccess, JsValue, Json, Reads}
+import today.expresso.stream.domain.model.newsletter.Post
 
 /**
   * @author im.

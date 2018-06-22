@@ -1,4 +1,4 @@
-package models
+package today.expresso.stream.domain.model.newsletter
 
 import java.net.URL
 import java.time.{Instant, LocalDate}

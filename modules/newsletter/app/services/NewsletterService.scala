@@ -2,26 +2,27 @@ package services
 
 import java.net.URL
 
+import akka.actor.ActorSystem
 import javax.inject.{Inject, Singleton}
-import models.Locale
 import models.daos.NewsletterDao
 import play.api.libs.json.JsValue
-import today.expresso.stream.ProducerPool
+import today.expresso.stream.domain.event.newsletter.{NewsletterCreated, NewsletterUpdated}
+import today.expresso.stream.domain.model.newsletter.Locale
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * @author im.
   */
 @Singleton
-class NewsletterService @Inject()(newsletterDao: NewsletterDao, pp: ProducerPool)
-                                 (implicit ec: ExecutionContext) {
+class NewsletterService @Inject()(newsletterDao: NewsletterDao)
+                                 (implicit ec: ExecutionContext, system: ActorSystem) {
 
-  import models.Newsletter._
+  val stream = system.eventStream
 
-  def create(userId: Long, name: String, locale: Locale.Value) = pp.transaction { producer =>
+  def create(userId: Long, name: String, locale: Locale.Value) = {
     newsletterDao.create(userId, name, locale) { newsletter =>
-      producer.send(ToNewsletterCreated(newsletter))
+      Future.successful(stream.publish(NewsletterCreated(newsletter)))
     }
   }
 
@@ -30,9 +31,9 @@ class NewsletterService @Inject()(newsletterDao: NewsletterDao, pp: ProducerPool
              locale: Option[Locale.Value],
              logoUrl: Option[URL],
              avatarUrl: Option[URL],
-             options: Option[JsValue]) =  pp.transaction { producer =>
+             options: Option[JsValue]) =  {
     newsletterDao.update(userId, newsletterId, locale, logoUrl.map(_.toString), avatarUrl.map(_.toString), options) { newsletter =>
-      producer.send(ToNewsletterUpdated(newsletter))
+      Future.successful(stream.publish(NewsletterUpdated(newsletter)))
     }
   }
 

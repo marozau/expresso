@@ -1,10 +1,9 @@
 package services
 
 import javax.inject.{Inject, Singleton}
-
-import models.NewsletterWriter
 import models.daos.WriterDao
 import today.expresso.common.utils.Tx
+import today.expresso.stream.domain.model.newsletter.NewsletterWriter
 
 import scala.concurrent.{ExecutionContext, Future}
 

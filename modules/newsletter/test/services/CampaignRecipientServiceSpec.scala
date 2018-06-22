@@ -4,6 +4,7 @@ import java.time.{Instant, LocalDate}
 
 import config.TestContext
 import models._
+import today.expresso.stream.domain.model.newsletter._
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

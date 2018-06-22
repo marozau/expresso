@@ -3,8 +3,8 @@ package models.components
 import java.net.URL
 
 import today.expresso.common.db.Repository
-import models.Edition
 import slick.jdbc.GetResult
+import today.expresso.stream.domain.model.newsletter.Edition
 
 /**
   * @author im.

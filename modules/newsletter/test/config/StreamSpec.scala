@@ -5,7 +5,7 @@ import org.apache.kafka.clients.producer.RecordMetadata
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import today.expresso.stream.Producer
+import today.expresso.stream.{Producer, ProducerTransactional}
 import today.expresso.stream.api.{ToKeyRecord, ToValueRecord}
 import today.expresso.stream.domain.event.newsletter.{CampaignStarted, CampaignUpdated, NewsletterCreated, NewsletterUpdated}
 
@@ -29,7 +29,8 @@ trait StreamSpec extends MockitoSugar {
   when(mockProducer.send(any(classOf[CampaignUpdated]))(any(classOf[ToKeyRecord[CampaignUpdated]]), any(classOf[ToValueRecord[CampaignUpdated]])))
     .thenReturn(Future.successful(null.asInstanceOf[RecordMetadata]))
 
-  when(mockProducer.beginTransaction()).thenReturn(Future.unit)
-  when(mockProducer.commitTransaction()).thenReturn(Future.unit)
-  when(mockProducer.abortTransaction()).thenReturn(Future.unit)
+  val mockProducerTransactional = mock[ProducerTransactional]
+  when(mockProducerTransactional.beginTransaction()).thenReturn(Future.unit)
+  when(mockProducerTransactional.commitTransaction()).thenReturn(Future.unit)
+  when(mockProducerTransactional.abortTransaction()).thenReturn(Future.unit)
 }

@@ -1,13 +1,15 @@
 package today.expresso.stream.domain.event.payment
 
 import com.sksamuel.avro4s.AvroDoc
-import play.api.libs.json.JsValue
-import today.expresso.grpc.payment.domain.{PaymentStatus, PaymentSystem, PaymentType}
 import today.expresso.stream.api.Key
-import today.expresso.stream.domain.Event
+import today.expresso.stream.domain.model.payment.PaymentStatus.PaymentStatus
+import today.expresso.stream.domain.model.payment.PaymentSystem.PaymentSystem
+import today.expresso.stream.domain.model.payment.PaymentType.PaymentType
+import today.expresso.stream.domain.{Event, Serializer}
+import today.expresso.stream.serde.utils.SpecificAvroUtils
 
 case class PaymentNotification(externalTxId: String,
-                               paymentSystem: PaymentSystem,
+                               system: PaymentSystem,
                                ptype: PaymentType,
                                @AvroDoc("key") @Key userId: Long,
                                accountId: Long,
@@ -22,3 +24,8 @@ case class PaymentNotification(externalTxId: String,
                                timestamp: Long,
                                details: Option[String])
   extends Event
+
+object PaymentNotification extends Serializer[PaymentNotification] {
+  override def toBinary(t: PaymentNotification) = SpecificAvroUtils.serialize[PaymentNotification](t)
+  override def fromBinary(bytes: Array[Byte]) = SpecificAvroUtils.deserialize[PaymentNotification](bytes)
+}

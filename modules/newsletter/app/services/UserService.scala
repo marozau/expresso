@@ -1,8 +1,7 @@
 package services
 
 import javax.inject.{Inject, Singleton}
-
-import today.expresso.grpc.user.domain.User
+import today.expresso.stream.domain.model.user.User
 
 import scala.concurrent.{ExecutionContext, Future}
 

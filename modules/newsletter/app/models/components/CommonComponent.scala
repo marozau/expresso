@@ -4,8 +4,8 @@ import java.util.UUID
 
 import com.github.tminglei.slickpg.utils.PlainSQLUtils
 import today.expresso.common.db.Repository
-import models.Locale
 import slick.jdbc.{GetResult, JdbcType, SetParameter}
+import today.expresso.stream.domain.model.newsletter.Locale
 
 import scala.concurrent.duration.FiniteDuration
 

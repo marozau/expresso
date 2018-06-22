@@ -2,8 +2,8 @@ package services
 
 import config.TestContext
 import models.daos.RecipientDao
-import models.{Locale, Newsletter, Recipient}
-import today.expresso.grpc.user.domain.User
+import today.expresso.stream.domain.model.newsletter.{Locale, Newsletter, Recipient}
+import today.expresso.stream.domain.model.user.User
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._

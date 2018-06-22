@@ -42,7 +42,7 @@ lazy val user = (project in file("modules/user"))
   .enablePlugins(PlayScala)
   .settings(Common.settings: _*)
   .settings(PlayKeys.devSettings := Seq("play.server.http.port" -> "9001"))
-  .dependsOn(common, grpc)
+  .dependsOn(common, grpc, stream)
   .settings(
     libraryDependencies ++= Seq(guice, filters, ws, cacheApi),
     libraryDependencies ++= silhouetteAll,
@@ -63,7 +63,7 @@ lazy val newsletter = (project in file("modules/newsletter"))
   .enablePlugins(PlayScala)
   .settings(Common.settings: _*)
   .settings(PlayKeys.devSettings := Seq("play.server.http.port" -> "9002"))
-  .dependsOn(common, grpc, templates, stream)
+  .dependsOn(common, templates, stream)
   .settings(
     libraryDependencies ++= Seq(guice, filters, ws, cacheApi),
     libraryDependencies ++= silhouetteAll,
@@ -117,7 +117,7 @@ lazy val templates = (project in file("modules/templates"))
 // TODO: move all domain protobuf and avro models to the separate module
 lazy val stream = (project in file("modules/stream"))
   .enablePlugins(SbtTwirl)
-  .dependsOn(common, grpc)
+  .dependsOn(common)
   .configs(IntegrationTest)
   .settings(Defaults.itSettings: _*)
   .settings(Common.settings: _*)
@@ -137,7 +137,7 @@ lazy val payment = (project in file("modules/payment"))
   .enablePlugins(PlayScala)
   .settings(Common.settings: _*)
   .settings(PlayKeys.devSettings := Seq("play.server.http.port" -> "9003"))
-  .dependsOn(common, grpc, stream)
+  .dependsOn(common, stream)
   .settings(
     libraryDependencies ++= Seq(guice, filters, ws, cacheApi),
     libraryDependencies ++= slickAll,

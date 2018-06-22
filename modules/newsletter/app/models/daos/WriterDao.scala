@@ -1,15 +1,14 @@
 package models.daos
 
 import javax.inject.{Inject, Singleton}
-
 import today.expresso.common.db.Repository
 import today.expresso.common.exceptions.AuthorizationException
-import models.{EditionWriter, NewsletterWriter}
 import models.components.{EditionWriterComponent, NewsletterWriterComponent}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 import today.expresso.common.utils.{SqlUtils, Tx}
+import today.expresso.stream.domain.model.newsletter.{EditionWriter, NewsletterWriter}
 
 import scala.concurrent.{ExecutionContext, Future}
 

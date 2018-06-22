@@ -11,7 +11,7 @@ import jobs.campaign.{CampaignJob, PendingJob, SendingJob, SentJob}
 import models.daos.RecipientDao
 import models._
 import play.api.libs.json.Json
-import today.expresso.grpc.user.domain.User
+import today.expresso.stream.domain.model.newsletter._
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._

@@ -10,7 +10,7 @@ object Common {
   val xversion = "1.0"
 
   val settings: Seq[Setting[_]] = Seq(
-    scalaVersion := "2.12.3",
+    scalaVersion := "2.12.6",
     organization := "today.expresso",
     resolvers := Resolvers.commonResolvers,
     version := xversion
